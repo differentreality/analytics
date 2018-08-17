@@ -1,0 +1,24 @@
+#chart
+  %br
+  Result:
+  = @result
+  %br
+  - case @result[:graph_type]
+    - when 'line_chart'
+      = line_chart @result[:data]
+    - when 'pie_chart'
+      = pie_chart @result[:data]
+    - when 'column_chart'
+      = column_chart @result[:data]
+    - when 'bar_chart'
+      = bar_chart @result[:data]
+    - when 'area_chart'
+      = area_chart @result[:data]
+    - when 'scatter_chart'
+      = scatter_chart @result[:data]
+    - when 'geo_chart'
+      = geo_chart @result[:data]
+    - when 'timeline_chart'
+      = timeline @result[:data]
+    - when 'multiple_series'
+      = line_chart @result[:data]

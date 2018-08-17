@@ -2,7 +2,7 @@ class HomeController < ApplicationController
   require 'net/http'
 
   def make_graph
-    @result = []
+    @result = { data: [], graph_type: params[:graph_type]}
     #
     # uri = URI("https://graph.facebook.com/#{@page_id}")
     # params = {access_token: @token}
@@ -30,12 +30,12 @@ class HomeController < ApplicationController
     #   next_page.map{ |x| @result << x}
     #   next_page = next_page.next_page
     # end
-    @result = [
+    @result[:data] = [
       {"created_time"=>"2018-07-30T04:45:20+0000", "id"=>"295754757450351_291408578279339"},  {"created_time"=>"2018-05-02T16:40:47+0000", "id"=>"295754757450351_589995214692969"},
       {"created_time"=>"2018-04-25T20:02:24+0000", "id"=>"295754757450351_170162407029320"}, {"created_time"=>"2018-04-25T18:00:47+0000", "id"=>"295754757450351_586812398344584"}, {"created_time"=>"2016-09-09T11:28:00+0000", "id"=>"295754757450351_304858289873331"}
     ]
     # puts "result: #{@result.first['created_time'].to_datetime.strftime('%A')}"
-    @result = @result.map{ |x| x['created_time'].to_s }.group_by{ |x| x.to_datetime.strftime('%A') }.map{ |k, v| [k,v.count]  }
+    @result[:data] = @result[:data].map{ |x| x['created_time'].to_s }.group_by{ |x| x.to_datetime.strftime('%A') }.map{ |k, v| [k,v.count]  }
 
 
     # posts?fields=insights.metric(post_reactions_by_type_total).period(lifetime).as(post_reactions_by_type_total)
@@ -44,11 +44,13 @@ class HomeController < ApplicationController
       format.html { render template: 'home/index'
                     #render json: @result
                   }
+      format.js
     end
   end
 
   def index
     # @page_title = get_page_title || 'Lambda Space'
     # @page_fans_count = get_page_fans || 933
+    @result = {}
   end
 end
