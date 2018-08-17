@@ -1,0 +1,31 @@
+.row
+  .col-md-12
+    .page-header
+      %h1.text-center
+        = @page_title
+        Facebook Page
+.row
+  .col-md-12
+    %h2 General Stats
+    %dl.dl-horizontal#general-stats
+      %dt Fans:
+      %dd= @page_fans_count
+.row
+  .col-md-12
+    #chart
+      %br
+      Result:
+      = @result
+      %br
+      = column_chart @result
+      %br
+
+  = semantic_form_for '', url: make_graph_path do |f|
+    .col-md-4
+      Select variable x
+    .col-md-4
+      Select variable y
+    .col-md-4
+      = f.input 'graph_type', collection: YAML::load(ENV['graph_types'])
+    .col-md-12
+      = f.submit 'Make Graph!', class: 'btn btn-primary'

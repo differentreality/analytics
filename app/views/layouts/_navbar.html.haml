@@ -1,0 +1,32 @@
+.row
+  .navbar.navbar-default.navbar-fixed-top{ role: 'navigation' }
+    .navbar-header.fullwidth
+      .col-md-12
+        %button.navbar-toggle{ 'type' => 'button', 'data-toggle' => 'collapse', 'data-target' => '.navbar-collapse' }
+          %span.sr-only
+            Toggle navigation
+          %span.icon-bar
+          %span.icon-bar
+          %span.icon-bar
+      .col-md-4
+        = link_to "Stella's Demo Rails App", root_path, title: '', class: 'navbar-brand'
+      .col-md-4
+        %ul.nav.navbar-nav
+          %li
+            = link_to contact_path, title: 'stella.rouzi@gmail.com' do
+              %i.fa.fa-envelope-o
+              Contact
+          %li
+            = link_to recommend_path, title: 'Send an email about this Demo Rails App' do
+              %i.fa.fa-thumbs-up
+              Recommend us!
+          %li
+            = link_to 'https://www.facebook.com/',  target: '_blank', title: 'Visit our Facebook page' do
+              %i.fa.fa-thumbs-up
+              %i.fa.fa-facebook-square
+
+              .fb-like{ 'data-href' => 'https://www.facebook.com/', 'data-layout' => 'button', 'data-action' => 'like', 'data-size' => 'small', 'data-show-faces' => 'true', 'data-share' => 'true' }
+
+      .col-md-4
+        %ul.nav.navbar-nav.navbar-right
+          %li= link_to "© 2018 More Facebook Analytics by Stella Rouzi", "#{current_page?(root_path) ? '#' : root_path}"

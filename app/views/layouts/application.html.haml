@@ -1,0 +1,30 @@
+!!!
+%html
+  %head
+    %title
+      = content_for?(:title) ? yield(:title) : 'My Rails App'
+
+    %meta{ name: 'description', |
+           content: @meta_description ? @meta_description : "Stella's Analytics" }
+    %meta{ charset: 'UTF-8' }
+    %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1' }
+    = favicon_link_tag '/favicon.ico'
+    = stylesheet_link_tag 'application', :media => "all"
+    = javascript_include_tag "//www.google.com/jsapi", "chartkick"
+
+    = csrf_meta_tags
+
+  %body
+    .container
+      = render partial: 'layouts/navbar'
+      = yield
+
+:javascript
+
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_GB/sdk.js#xfbml=1&version=v2.9&appId=1767355980143436";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));

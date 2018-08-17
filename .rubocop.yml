@@ -1,0 +1,54 @@
+inherit_from: .rubocop_todo.yml
+
+# Common configuration.
+AllCops:
+  Include:
+    - '**/Rakefile'
+    - '**/config.ru'
+  Exclude:
+    - 'db/schema.rb'
+    - 'vendor/bundle/**/*'
+    - 'bundle/**/*'
+    - 'config/**/*'
+    - 'bin/*'
+
+  TargetRubyVersion: 2.1
+
+Rails:
+  Enabled: true
+
+Rails/ActionFilter:
+  Enabled: true
+  EnforcedStyle: action
+  SupportedStyles:
+    - action
+    - filter
+
+Rails/Date:
+  Enabled: false
+
+Rails/FindBy:
+  Enabled: true
+
+Style/HashSyntax:
+  Enabled: true
+  EnforcedStyle: ruby19
+
+Style/TrailingWhitespace:
+  Enabled: true
+
+Style/TrailingBlankLines:
+  Enabled: true
+
+Style/VariableNumber:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 80
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false

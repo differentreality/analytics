@@ -1,0 +1,29 @@
+default:
+  errors:
+    # The default format to use in full error messages.
+    format: "%{attribute} %{message}"
+
+    # The values :model, :attribute and :value are always available for interpolation
+    # The value :count is available when applicable. Can be used for pluralization.
+    messages:
+      inclusion: "δεν περιέχεται στη λίστα"
+      exclusion: "υπάρχει ήδη"
+      invalid: "δεν είναι έγκυρο"
+      confirmation: "δεν ταιριάζει με το %{attribute}"
+      accepted: "πρέπει να αποδεχτείτε"
+      empty: "δεν μπορεί να είναι άδειο"
+      blank: "δεν μπορεί να είναι κενό"
+      present: "πρέπει να είναι κενό"
+      too_long: "πολύ μεγάλο (το μέγιστο είναι %{count} χαρακτήρες)"
+      too_short: "πολύ μικρό (το ελάχιστο είναι %{count} χαρακτήρες)"
+      wrong_length: "λάθος μήκος (πρέπει να είναι %{count} χαρακτήρες)"
+      not_a_number: "δεν είναι αριθμός"
+      not_an_integer: "πρέπει να είναι ακέραιος"
+      greater_than: "πρέπει να είναι μεγαλύτερο από %{count}"
+      greater_than_or_equal_to: "πρέπει να είναι μεγαλύτερο ή ίσο με %{count}"
+      equal_to: "πρέπει να είναι ίσο με %{count}"
+      less_than: "πρέπει να είναι μικρότερο από %{count}"
+      less_than_or_equal_to: "πρέπει να είναι μικρότερο ή ίσο με %{count}"
+      other_than: "πρέπει να είναι διαφορετικό από %{count}"
+      odd: "πρέπει να είναι μονός αριθμός"
+      even: "πρέπει να είναι ζυγός αριθμός"

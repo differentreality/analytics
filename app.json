@@ -1,0 +1,48 @@
+{
+  "name": "Facebook Analytics by Stella",
+  "description": "",
+  "env": {
+    "TASKS": "config:files",
+    },
+    "DATABASE_URL": {
+      "description": "Configure your database connection",
+      "required": true
+    },
+    "SECRET_KEY_BASE": {
+      "description": "a key which allows sessions to be verified against a known secure key to prevent tampering",
+      "required": true
+    },
+    "LANG": {
+      "required": false
+    },
+    "RACK_ENV": {
+      "required": false
+    },
+    "RAILS_ENV": {
+      "required": false
+    }
+  },
+  "scripts": {
+    "postdeploy": "bundle exec rake db:migrate"
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    },
+    "worker": {
+      "quantity": 1
+    }
+  },
+  "addons": [
+    "HEROKU_POSTGRESQL_GREEN",
+    "sendgrid"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/ruby"
+    },
+    {
+      "url": "https://github.com/gunpowderlabs/buildpack-ruby-rake-deploy-tasks"
+    }
+  ]
+}

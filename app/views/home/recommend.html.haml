@@ -1,0 +1,21 @@
+.row
+  .col-md-12
+    .page-header.text-center
+      %h1 Learn about Stella's Demo Rails App
+      .text-muted
+        Your email will contain information about the demo rails app, as well as contact info for Stella Rouzi
+
+.row
+  .col-md-6.col-md-offset-3
+    = semantic_form_for Recommendation.new, url: recommend_path do |f|
+      = f.input :to, required: true, label: 'Εισάγετε το email του παραλήπτη', input_html: { autofocus: true, required: true }
+      = f.input :referral, label: 'Εισάγετε το δικό σας e-mail', input_html: { value: current_user ? current_user.email : '', required: true }
+      = f.submit 'Αποστολή e-mail', class: 'btn btn-primary'
+%hr
+.row
+  .col-md-10.col-md-offset-1
+    .page-header
+      Το περιεχόμενο του e-mail που θα αποσταλλεί:
+    .panel.panel-primary
+      .panel-body
+        = render template: 'mailbot/recommend_email'
