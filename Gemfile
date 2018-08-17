@@ -27,12 +27,6 @@ gem 'bootstrap-datepicker-rails'
 # for switch checkboxes
 gem 'bootstrap-switch-rails'
 
-# User paper_trail for tracking data changes
-gem 'paper_trail'
-
-# Use paperclip for attachments
-gem 'paperclip'#, '~> 5.0.0'
-
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
@@ -68,6 +62,8 @@ gem 'activerecord-native_db_types_override'
 gem 'puma'
 
 gem 'dotenv-rails'
+# scheduler
+gem 'rufus-scheduler'
 
 gem 'koala'
 
