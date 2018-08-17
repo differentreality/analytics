@@ -9,6 +9,8 @@ config/config.yml
 config/secrets.yml
 config/database.yml
 config/piwik.yml
+config/puma.rb
+.puma.sh
 /vendor/cache
 /vendor/cache-old
 /storage/*

@@ -1,11 +1,12 @@
 source 'https://rubygems.org'
 
-ruby '2.4.3'
+# ruby '2.4.3'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 4.2.10'
+gem 'rails'
 
 gem 'pg', '~> 0.21'
+gem 'sqlite3'
 
 # Use haml as templating language
 gem 'haml-rails'
@@ -46,6 +47,7 @@ gem 'jbuilder', '~> 2.0'
 
 # to show flash messages from ajax requests
 gem 'unobtrusive_flash', '>=3'
+gem 'validates_email_format_of'
 
 # For charts
 gem 'chartkick'
@@ -86,7 +88,6 @@ group :test do
   gem 'rspec-rails'
   gem 'rspec-activemodel-mocks'
   gem 'database_cleaner'
-  gem 'sqlite3'
   gem 'shoulda-matchers', '~> 3.1'
   gem 'factory_girl_rails'
   gem 'tzinfo-data'
