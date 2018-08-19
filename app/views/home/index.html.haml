@@ -11,36 +11,82 @@
       %dt Fans:
       %dd= @page_fans_count
 .row
-  .col-md-12
-    = render partial: 'graph'
+  %hr
 
   = semantic_form_for '', url: make_graph_path do |f|
     .col-md-4
       = f.label 'Select variable x'
-      = f.input 'x_axis', collection: [], label: false
+      = f.input 'x_axis', collection: YAML::load(ENV['analytics_options']).keys, label: false, include_blank: 'Make a selection'
     .col-md-4
       = f.label 'Select variable y'
-      = f.input 'y_axis', collection: [], label: false
+      = f.input 'y_axis', collection: [], label: false, include_blank: 'Make a selection'
     .col-md-4
-      = f.input 'graph_type', collection: YAML::load(ENV['graph_types'])
+      = f.input 'graph_type', collection: YAML::load(ENV['graph_types']), include_blank: 'Make a selection'
     .col-md-12
       = f.submit 'Make Graph!', class: 'btn btn-primary'
 
+    .col-md-12
+      = render partial: 'graph'
+
 :javascript
   $(document).ready(function() {
+    $('select#x_axis').change( function() {
+      var key = $('#x_axis option:selected').val();
+
+      $.ajax({
+        type: 'GET',
+        url: '/values_for_analytics_option',
+        data: { key: key },
+        dataType: 'script'
+      });
+    });
+
     $('select#graph_type').change( function() {
       console.log('in graph type change func');
       var url = "#{make_graph_path}";
-      // var x_axis = $('#x_axis option:selected');
-      // var y_axis = $('#y_axis option:selected');
+      var x_axis = $('#x_axis option:selected').val();
+      var y_axis = $('#y_axis option:selected').val();
       var graph_type = $('#graph_type option:selected').val();
-      console.log(url);
 
-      $.ajax({
-        type: 'POST',
-        url: '/make_graph',
-        data: { graph_type: graph_type },
-        dataType: 'script'
-      });
+      if (x_axis != '' && y_axis !='') {
+        $.ajax({
+          type: 'POST',
+          url: '/make_graph',
+          data: { graph_type: graph_type, x_axis: x_axis, y_axis: y_axis },
+          dataType: 'script'
+        });
+      }
+    });
+
+    $('select#x_axis').change( function() {
+      var url = "#{make_graph_path}";
+      var x_axis = $('#x_axis option:selected').val();
+      var y_axis = $('#y_axis option:selected').val();
+      var graph_type = $('#graph_type option:selected').val();
+
+      if (y_axis != '' && graph_type !='') {
+        $.ajax({
+          type: 'POST',
+          url: '/make_graph',
+          data: { graph_type: graph_type, x_axis: x_axis, y_axis: y_axis },
+          dataType: 'script'
+        });
+      }
+    });
+
+    $('select#y_axis').change( function() {
+      var url = "#{make_graph_path}";
+      var x_axis = $('#x_axis option:selected').val();
+      var y_axis = $('#y_axis option:selected').val();
+      var graph_type = $('#graph_type option:selected').val();
+
+      if (x_axis != '' && graph_type !='') {
+        $.ajax({
+          type: 'POST',
+          url: '/make_graph',
+          data: { graph_type: graph_type, x_axis: x_axis, y_axis: y_axis },
+          dataType: 'script'
+        });
+      }
     });
   });

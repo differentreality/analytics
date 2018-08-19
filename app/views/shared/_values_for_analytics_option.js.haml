@@ -1,0 +1,6 @@
+var selector = $('select#y_axis');
+
+-# $(selector).empty();
+-# $(selector).prop('disabled', false);
+- @values.each do |value|
+  $(selector).append( $('<option value="#{value}"> #{value} </option>') );

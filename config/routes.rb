@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   post 'make_graph' => 'home#make_graph'
-  
+  get 'values_for_analytics_option' => 'application#values_for_analytics_option'
+
   get 'contact' => 'home#contact'
   post 'contact' => 'home#contact'
   get 'recommend' => 'home#recommend'

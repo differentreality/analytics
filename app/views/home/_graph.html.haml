@@ -5,13 +5,15 @@
   %br
   - case @result[:graph_type]
     - when 'line_chart'
-      = line_chart @result[:data]
+      = line_chart @result[:data], discrete: true, curve: false#, library: { stepSize: 1 }
+    - when 'curve_line_chart'
+      = line_chart @result[:data], discrete: true
     - when 'pie_chart'
-      = pie_chart @result[:data]
+      = pie_chart @result[:data], discrete: true
     - when 'column_chart'
-      = column_chart @result[:data]
+      = column_chart @result[:data], discrete: true
     - when 'bar_chart'
-      = bar_chart @result[:data]
+      = bar_chart @result[:data], discrete: true
     - when 'area_chart'
       = area_chart @result[:data]
     - when 'scatter_chart'
