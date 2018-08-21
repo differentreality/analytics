@@ -1,4 +1,5 @@
 class HomeController < ApplicationController
+  skip_before_action :verify_authenticity_token, only: :webhook_notification
 
   def make_graph
     @result = { data: [], graph_type: params[:graph_type]}
@@ -53,8 +54,55 @@ class HomeController < ApplicationController
   end
 
   def index
-    # @page_title = get_page_title || 'Lambda Space'
-    # @page_fans_count = get_page_fans || 933
+    @page_title = @page.try(:name) || get_page_title || 'Lambda Space'
+    @page_fans_count = @page.try(:fans) || get_page_fans
     @result = {}
+  end
+
+  # Receives
+  # GET https://www.your-clever-domain-name.com/webhooks?
+  # hub.mode=subscribe&
+  # hub.challenge=1158201444&
+  # hub.verify_token=meatyhamhock
+
+  # Must return the hub.challenge value
+  def confirm_webhook
+    puts "In webhook!"
+    puts "params: #{params}"
+    if params['hub.verify_token'] == 'StellasToken!'
+      render plain: params['hub.challenge']
+      puts "param to return: #{params['hub.challenge']}"
+    else
+      render plain: 'Error!'
+      puts "returned error"
+    end
+  end
+
+  # {"entry"=> [{"changes"=>
+               # [{"field"=>"feed", "value"=> {"reaction_type"=>"like", "from"=>{"id"=>"2037320319611866",
+                                                                    # "name"=>"Stella   Rouzi Differentreality"},
+                                      # "parent_id"=>"295754757450351_637257263300097", "post_id"=>"295754757450351_637257263300097", "verb"=>"remove", "item"=>"reaction", "created_time"=>1534875091}}],
+    # "id"=>"295754757450351", "time"=>1534875092}],
+
+    # "object"=>"page", "home"=>{"entry"=>[{"changes"=>[{"field"=>"feed", "value"=>{"reaction_type"=>"like", "from"=>{"id"=>"2037320319611866", "name"=>"Stella Rouzi Differentreality"}, "parent_id"=>"295754757450351_637257263300097", "post_id"=>"295754757450351_637257263300097", "verb"=>"remove", "item"=>"reaction", "created_time"
+    # =>1534875091}}], "id"=>"295754757450351", "time"=>1534875092}], "object"=>"page"}}
+
+  def webhook_notification
+    verb = params['entry'].first['changes'].first['value']['verb']
+    posted_at = Time.at(params['entry'].first['changes'].first['value']['created_time'])
+    post_id = params['entry'].first['changes'].first['value']['post_id']
+    post = Post.where(object_id: post_id).first_or_create
+
+    puts "verb: #{verb}\n posted_at: #{posted_at}\n post: #{post.inspect}"
+
+    if verb == 'add'
+      reaction_type = params['entry'].first['changes'].first['value']['reaction_type']
+      reaction = Reaction.create!(reactionable: post, name: reaction_type, posted_at: posted_at)
+      puts "reaction: #{reaction.inspect}"
+    elsif verb == 'remove'
+      reaction_type = params['entry'].first['changes'].first['value']['item']
+    end
+
+    head :ok
   end
 end
