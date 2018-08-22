@@ -46,5 +46,31 @@ class HomeController < ApplicationController
     @page_title = @page.try(:name) || get_page_title || 'Lambda Space'
     @page_fans_count = @page.try(:fans) || get_page_fans
     @result = {}
+
+    # Initialize overall statistic values
+    # {
+    #  :posts=>{ :year=> {:min=>{"2016"=>32},
+    #                     :values=>{"2016"=>32, "2017"=>88, "2018"=>89},
+    #                     :max=>{"2018"=>89}
+    #                    },
+    #            :month => {},
+    #            :day => {},
+    #            :hour => {}
+    #          },
+    #  :events=>{ :year=>{:min=>{"2016"=>10}, :values=>{"2016"=>10, "2017"=>28, "2018"=>23}, :max=>{"2017"=>28}}}
+    # }
+    @result_overall = {}
+    # = @result_posts[:year].select{ |k, v| v == @result_posts[:year].values.max }.to_a.join(' -> ')
+    [:posts, :events].each do |object|
+      @result_overall[object.to_sym] = {}
+      [:hour, :day, :month, :year].each do |period|
+        # @result_overall[:object] = object.to_s
+        @result_overall[object.to_sym][period.to_sym] = {}
+        @result_overall[object.to_sym][period.to_sym][:min] = {}
+        @result_overall[object.to_sym][period.to_sym][:values] = get_data(object.to_s, period.to_s)
+        @result_overall[object.to_sym][period.to_sym][:max] = @result_overall[object.to_sym][period.to_sym][:values].select{ |k, v| v == @result_overall[object.to_sym][period.to_sym][:values].values.max }
+        @result_overall[object.to_sym][period.to_sym][:min] = @result_overall[object.to_sym][period.to_sym][:values].select{ |k, v| v == @result_overall[object.to_sym][period.to_sym][:values].values.min }
+      end
+    end
   end
 end

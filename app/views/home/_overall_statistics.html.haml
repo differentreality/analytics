@@ -1,0 +1,24 @@
+%h3 Overall statistics
+%table.table
+  %tr
+    %th
+    %th Max / Year
+    %th Min / Year
+    %th Max / Month
+    %th Min / Month
+    %th Max / Day
+    %th Min / Day
+    %th Max / Hour
+    %th Min / Hour
+  %tr
+    - @result_overall.each do |result|
+      %tr
+        %td= result.first.to_s
+        %td= overall_stats_text(result.second[:year][:max])
+        %td= overall_stats_text(result.second[:year][:min])
+        %td= overall_stats_text(result.second[:month][:max])
+        %td= overall_stats_text(result.second[:month][:min])
+        %td= overall_stats_text(result.second[:day][:max])
+        %td= overall_stats_text(result.second[:day][:min])
+        %td= overall_stats_text(result.second[:hour][:max])
+        %td= overall_stats_text(result.second[:hour][:min])

@@ -1,4 +1,13 @@
 module ApplicationHelper
+  # Gets hash of overall stats result and returns it in text
+  # ==== Gets
+	# * +Hash+ -> {"02"=>1, "04"=>1, "14"=>1}
+  # ==== Returns
+  # * +String+ -> "02, 04, 14 -> 1"
+  def overall_stats_text(object)
+    return "#{object.keys.join(', ')} -> #{object.values.first}"
+  end
+
   def resource_name
     :user
   end

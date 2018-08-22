@@ -21,7 +21,11 @@
     .btn-group.pull-right
       = link_to 'Refresh Page Stats', '#', class: 'btn btn-primary'
 .row
-  %hr
+  .col-md-12
+    %hr.bold
+    = render partial: 'overall_statistics'
+.row
+  %hr.bold
 
   = semantic_form_for '', url: make_graph_path do |f|
     .col-md-4
@@ -58,7 +62,6 @@
     });
 
     $('select#graph_type').change( function() {
-      console.log('in graph type change func');
       var url = "#{make_graph_path}";
       var x_axis = $('#x_axis option:selected').val();
       var y_axis = $('#y_axis option:selected').val();

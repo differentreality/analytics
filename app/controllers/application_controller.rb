@@ -91,7 +91,11 @@ class ApplicationController < ActionController::Base
                 nil
               end
 
-    result = result.sort_by{ |k,v| [sort_by.find_index(k), v]}.to_h if sort_by
+    result = if sort_by
+              result.sort_by{ |k,v| [sort_by.find_index(k), v]}.to_h
+            else
+              result.sort.to_h
+            end
 
     return result
   end

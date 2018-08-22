@@ -3,12 +3,6 @@
   Result:
   = @result
 
-  %table.table
-    %tr
-      %td Min
-      %td= @result[:data].select{ |k, v| v == @result[:data].values.min } if @result[:data]
-      %td Max
-      %td= @result[:data].select{ |k, v| v == @result[:data].values.max } if @result[:data]
   %br
   - case @result[:graph_type]
     - when 'line_chart'
