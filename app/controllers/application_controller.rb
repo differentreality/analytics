@@ -23,8 +23,8 @@ class ApplicationController < ActionController::Base
              elsif object == 'events'
                'name, start_time.as(created_time)'
              end
-    puts "object: #{object} \n since: #{since_datetime} \n until:#{until_datetime} \n"
-    result = @connection.get_object("#{@page_id}/#{object}", { fields: fields, since: since_datetime, until: until_datetime })
+    result = connection_result('get_object', "#{@page_id}/#{object}", { fields: fields, since: since_datetime, until: until_datetime })
+    # result = @connection.get_object("#{@page_id}/#{object}", { fields: fields, since: since_datetime, until: until_datetime })
 
     next_page = result.next_page
     while next_page.present?
@@ -122,7 +122,22 @@ class ApplicationController < ActionController::Base
     raise ActionController::RoutingError.new('Not Found')
   end
 
+  def connection_result(method, object, params= nil)
+    @result = begin
+                if method == 'get_object'
+                  @connection.get_object(object)
+                elsif method == 'get_connections'
+                  @connection.get_connections(object, params)
+                end
+              rescue => e
+                Rails.logger.debug "Could not retrieve data from Facebook. #{e.message}"
+                nil
+              end
+    return @result
+  end
+
   def get_page_title
+    # connection_result('get_object', @page_id)
     @result = begin
                 @connection.get_object(@page_id)
               rescue => e
