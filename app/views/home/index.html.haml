@@ -22,6 +22,12 @@
       = f.input 'y_axis', collection: [], label: false, include_blank: 'Make a selection'
     .col-md-4
       = f.input 'graph_type', collection: YAML::load(ENV['graph_types']), include_blank: 'Make a selection'
+    .col-md-4
+      = f.label 'From'
+      = f.input 'from', as: :string, label: false, input_html: { id: 'datepicker-graph-from' }, hint: '(Optional) Limit the results to only include data from this date on.'
+    .col-md-4
+      = f.label 'Until'
+      = f.input 'until', as: :string, label: false, input_html: { id: 'datetimepicker-graph-until', value: Time.current }, hint: '(Optional) Limit the results to only include data until this date.'
     .col-md-12
       = f.submit 'Make Graph!', class: 'btn btn-primary'
 
