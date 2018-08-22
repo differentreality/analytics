@@ -32,9 +32,6 @@ class ApplicationController < ActionController::Base
       next_page = next_page.next_page
     end
 
-    puts "result: #{result}"
-
-
     # Save result to database
     result_db_items = []
     result.each do |result_item|
@@ -58,10 +55,7 @@ class ApplicationController < ActionController::Base
 
   def get_data(object, period, insights: false)
     result = {}
-    puts "object: #{object}, period: #{period}"
-
     period_symbol = datetime_symbol(period)
-    puts "period_symbol: #{period_symbol}"
     redirect_to root_path && return unless object.present? && period.present?
 
     result = object.classify.constantize.all
@@ -103,7 +97,6 @@ class ApplicationController < ActionController::Base
   def values_for_analytics_option
     analytics_options_hash = YAML::load(ENV['analytics_options'])
     @values = analytics_options_hash[params['key']]
-    puts "@values: #{@values}, hash: #{analytics_options_hash}, values: #{analytics_options_hash['posts']}"
 
     respond_to do |format|
       format.js { render partial: 'shared/values_for_analytics_option' }

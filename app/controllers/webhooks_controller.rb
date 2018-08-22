@@ -7,14 +7,10 @@ class WebhooksController < ApplicationController
 
   # Must return the hub.challenge value
   def confirm_webhook
-    puts "In webhook!"
-    puts "params: #{params}"
     if params['hub.verify_token'] == 'StellasToken!'
       render plain: params['hub.challenge']
-      puts "param to return: #{params['hub.challenge']}"
     else
       render plain: 'Error!'
-      puts "returned error"
     end
   end
 
@@ -33,12 +29,9 @@ class WebhooksController < ApplicationController
     post_id = params['entry'].first['changes'].first['value']['post_id']
     post = Post.where(object_id: post_id).first_or_create
 
-    puts "verb: #{verb}\n posted_at: #{posted_at}\n post: #{post.inspect}"
-
     if verb == 'add'
       reaction_type = params['entry'].first['changes'].first['value']['reaction_type']
       reaction = Reaction.create!(reactionable: post, name: reaction_type, posted_at: posted_at)
-      puts "reaction: #{reaction.inspect}"
     elsif verb == 'remove'
       reaction_type = params['entry'].first['changes'].first['value']['item']
     end
