@@ -11,6 +11,16 @@
       %dt Fans:
       %dd= @page_fans_count
 .row
+  .col-md-12
+    -# = link_to 'Register webhooks', "https://graph.facebook.com/v2.11/#{@page_id}/subscribed_apps?access_token=#{@access_token}", method: :post
+    .btn-group
+      = link_to 'Refresh posts', facebook_data_path('posts'), class: 'btn btn-warning'
+      = link_to 'Refresh events', facebook_data_path(object: 'events'), class: 'btn btn-warning'
+      = link_to 'Refresh all data', facebook_data_path(), class: 'btn btn-warning'
+
+    .btn-group.pull-right
+      = link_to 'Refresh Page Stats', '#', class: 'btn btn-primary'
+.row
   %hr
 
   = semantic_form_for '', url: make_graph_path do |f|

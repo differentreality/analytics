@@ -1,8 +1,5 @@
-class Post < ApplicationRecord
-  belongs_to :page
+class Event < ApplicationRecord
   has_many :reactions, as: :reactionable, dependent: :destroy
-
-  enum kind: [:link, :status, :photo, :video, :offer, :event]
 
   validates :object_id, uniqueness: true, presence: true
 end

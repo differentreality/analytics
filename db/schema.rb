@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180819165724) do
+ActiveRecord::Schema.define(version: 20180822080035) do
+
+  create_table "events", force: :cascade do |t|
+    t.string   "name"
+    t.string   "object_id"
+    t.integer  "shares"
+    t.datetime "posted_at"
+    t.integer  "page_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["page_id"], name: "index_events_on_page_id"
+  end
 
   create_table "events", force: :cascade do |t|
     t.string   "name"
@@ -32,14 +43,22 @@ ActiveRecord::Schema.define(version: 20180819165724) do
     t.datetime "updated_at"
   end
 
+  create_table "pages", force: :cascade do |t|
+    t.string  "name"
+    t.string  "object_id"
+    t.integer "fans"
+  end
+
   create_table "posts", force: :cascade do |t|
     t.text     "message"
     t.string   "object_id"
     t.integer  "shares"
     t.integer  "kind"
     t.datetime "posted_at"
+    t.integer  "page_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["page_id"], name: "index_posts_on_page_id"
   end
 
   create_table "reactions", force: :cascade do |t|

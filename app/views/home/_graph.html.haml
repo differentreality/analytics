@@ -2,22 +2,29 @@
   %br
   Result:
   = @result
+
+  %table.table
+    %tr
+      %td Min
+      %td= @result[:data].select{ |k, v| v == @result[:data].values.min } if @result[:data]
+      %td Max
+      %td= @result[:data].select{ |k, v| v == @result[:data].values.max } if @result[:data]
   %br
   - case @result[:graph_type]
     - when 'line_chart'
-      = line_chart @result[:data], discrete: true, curve: false#, library: { stepSize: 1 }
+      = line_chart @result[:data].map{|i| i.to_a.flatten}, discrete: true, curve: false#, library: { stepSize: 1 }
     - when 'curve_line_chart'
-      = line_chart @result[:data], discrete: true
+      = line_chart @result[:data].map{|i| i.to_a.flatten}, discrete: true
     - when 'pie_chart'
-      = pie_chart @result[:data], discrete: true
+      = pie_chart @result[:data].map{|i| i.to_a.flatten}, discrete: true
     - when 'column_chart'
-      = column_chart @result[:data], discrete: true
+      = column_chart @result[:data].map{|i| i.to_a.flatten}, discrete: true
     - when 'bar_chart'
-      = bar_chart @result[:data], discrete: true
+      = bar_chart @result[:data].map{|i| i.to_a.flatten}, discrete: true
     - when 'area_chart'
-      = area_chart @result[:data]
+      = area_chart @result[:data].map{|i| i.to_a.flatten}
     - when 'scatter_chart'
-      = scatter_chart @result[:data]
+      = scatter_chart @result[:data].map{|i| i.to_a.flatten}
     - when 'geo_chart'
       = geo_chart @result[:data]
     - when 'timeline_chart'
