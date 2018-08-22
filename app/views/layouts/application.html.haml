@@ -2,7 +2,7 @@
 %html
   %head
     %title
-      = content_for?(:title) ? yield(:title) : 'My Rails App'
+      = content_for?(:title) ? yield(:title) : "Stella's Analytics"
 
     %meta{ name: 'description', |
            content: @meta_description ? @meta_description : "Stella's Analytics" }
@@ -19,6 +19,7 @@
     .container
       = render partial: 'layouts/navbar'
       = yield
+      = render partial: 'layouts/footer'
 
 :javascript
 
