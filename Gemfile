@@ -10,7 +10,7 @@ gem 'sqlite3'
 
 # Use haml as templating language
 gem 'haml-rails'
-gem "font-awesome-rails"
+gem "font-awesome-sass"
 
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0.0'
