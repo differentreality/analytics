@@ -65,7 +65,7 @@ ActiveRecord::Schema.define(version: 20180822080035) do
     t.string   "reactionable_type"
     t.integer  "reactionable_id"
     t.string   "name"
-    t.datetime "posted_at"
+    t.integer  "count"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
     t.index ["reactionable_type", "reactionable_id"], name: "index_reactions_on_reactionable_type_and_reactionable_id"

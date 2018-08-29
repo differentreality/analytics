@@ -2,6 +2,12 @@ hr.bold {
   border-top: 2px solid #000000 !important;
 }
 
+.nav-center {
+  text-align: center;
+  ul.nav {
+    display: inline-block;
+  }
+}
 
 body {
   padding-top: 30px; // navbar-fixed-top height

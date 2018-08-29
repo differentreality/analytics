@@ -1,0 +1,45 @@
+.row
+  .col-md-8.col-md-offset-2.text-center
+    %h1.text-center
+      Trending
+      - if kind == 'status'
+        Status
+      - else
+        = kind.capitalize.pluralize
+    %h3
+      %i{ class: "fa #{icon_for('like')}" }
+      %i{ class: "fa #{icon_for('wow')}" }
+      %i{ class: "fa #{icon_for('love')}" }
+      %i{ class: "fa #{icon_for('sad')}" }
+      %i{ class: "fa #{icon_for('angry')}" }
+      %i{ class: "fa #{icon_for('haha')}" }
+    .text-muted
+      with
+      = pluralize(posts_max_reactions(kind).first.reactions.sum(:count), 'reaction')
+
+    %ul
+    - posts_max_reactions(kind).each do |post|
+      %li
+        = truncate(post.message, length: 150)
+        = link_to '(more info)', post_path(post)
+.row
+  .col-md-4.col-md-offset-4
+    %hr.bold
+    %br
+  -# ["like", {:count=>39, :posts=>[#<Post id: 130, message: "Assembling a 3D printer, day 1", object_id: "295754757450351_455763101449515", shares: nil, kind: "photo", posted_at: "2017-07-05 19:32:39", page_id: nil, created_at: "2018-08-20 04:11:24", updated_at: "2018-08-20 04:11:24">]}]
+.row
+  - posts_per_max_reaction('event').each do |reaction, info|
+    .col-md-4
+      %h2
+        %i{ class: "fa #{icon_for(reaction)}" }
+        = reaction
+      .text-muted
+        from
+        = pluralize(info[:count], 'person')
+
+      - posts = info[:posts]#.map{ |post| truncate(post.message, length: 150) { link_to "Continue", post_path(post) }}.compact
+      %ul
+        - posts.each do |post|
+          %li
+            = truncate(post.message, length: 150)
+            = link_to '(more info)', post_path(post)

@@ -67,6 +67,8 @@ gem 'dotenv-rails'
 # scheduler
 gem 'rufus-scheduler'
 
+gem 'cancancan'
+
 gem 'koala'
 
 group :production do

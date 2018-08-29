@@ -1,0 +1,24 @@
+.row
+  .col-md-12
+    .page-header
+      %h1 #{@post.kind.capitalize} Post
+
+    %p
+      = @post.message
+.row
+  .col-md-12
+    %br
+    %dl.dl-horizontal
+      %dt Created At
+      %dd= @post.posted_at
+      %br
+      %dt Kind
+      %dd= @post.kind
+      %br
+      %dt Reactions
+      %dd
+        - @post.reactions.each do |reaction|
+          .col-md-1
+            %i{ class: "fas #{icon_for(reaction.name)}" }
+            = reaction.count
+            = reaction.name

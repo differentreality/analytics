@@ -52,6 +52,7 @@ GEM
       sass (>= 3.3.4)
     bootstrap-switch-rails (3.3.4)
     builder (3.2.3)
+    cancancan (2.2.0)
     capybara (3.6.0)
       addressable
       mini_mime (>= 0.1.3)
@@ -296,6 +297,7 @@ DEPENDENCIES
   bootstrap-datepicker-rails
   bootstrap-sass (~> 3.3.7)
   bootstrap-switch-rails
+  cancancan
   capybara
   chartkick
   cocoon

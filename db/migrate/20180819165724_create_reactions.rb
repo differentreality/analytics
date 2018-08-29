@@ -3,7 +3,7 @@ class CreateReactions < ActiveRecord::Migration[5.0]
     create_table :reactions do |t|
       t.references :reactionable, polymorphic: true
       t.string :name
-      t.datetime :posted_at
+      t.integer :count
 
       t.timestamps
     end
