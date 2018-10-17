@@ -1,4 +1,9 @@
 Rails.application.routes.draw do
+  namespace :api, defaults: { format: 'json' } do
+    get 'page_fans_city' => 'pages#page_fans_city'
+  end
+
+
   post 'make_graph' => 'home#make_graph'
   get 'values_for_analytics_option' => 'application#values_for_analytics_option'
 
@@ -10,7 +15,12 @@ Rails.application.routes.draw do
   #   -d "access_token=page-access-token" \
   #   "https://graph.facebook.com/v2.11/1353269864728879/subscribed_apps"
 
-  resources :posts, only: [:index, :show]
+  resources :posts, only: [:index, :show] do
+    member do
+      post :make_graph
+    end
+  end
+  post 'update_overall_statistics_table' => 'home#update_overall_statistics_table'
 
   get 'facebook_data' => 'application#facebook_data'
 

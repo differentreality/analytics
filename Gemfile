@@ -28,6 +28,8 @@ gem 'bootstrap-datepicker-rails'
 # for switch checkboxes
 gem 'bootstrap-switch-rails'
 
+gem 'jquery-datatables-rails'
+
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
 # See https://github.com/sstephenson/execjs#readme for more supported runtimes
@@ -68,6 +70,7 @@ gem 'dotenv-rails'
 gem 'rufus-scheduler'
 
 gem 'cancancan'
+gem 'wicked_pdf'
 
 gem 'koala'
 

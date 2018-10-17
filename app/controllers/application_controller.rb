@@ -23,8 +23,11 @@ class ApplicationController < ActionController::Base
              elsif object == 'events'
                'name, start_time.as(created_time)'
              end
-    result = connection_result('get_object', "#{@page_id}/#{object}", { fields: fields, since: since_datetime, until: until_datetime })
-    # result = @connection.get_object("#{@page_id}/#{object}", { fields: fields, since: since_datetime, until: until_datetime })
+    result = connection_result('get_object',
+                               "#{@page_id}/#{object}",
+                               { fields: fields,
+                                 since: since_datetime,
+                                 until: until_datetime })
 
     next_page = result.next_page
     while next_page.present?
@@ -39,7 +42,7 @@ class ApplicationController < ActionController::Base
                                                   posted_at: result_item['created_time'])
       if object == 'posts'
         db_object.message = result_item['message']
-        db_object.kind = result_item['type'].to_sym
+        db_object.kind = result_item['type']&.to_sym
       elsif object == 'events'
         db_object.name = result_item['name']
       end
@@ -53,12 +56,74 @@ class ApplicationController < ActionController::Base
     redirect_to root_path
   end
 
-  def get_data(object, period, insights: false)
+  def set_overall_result(from=nil, to=nil)
+    # Initialize overall statistic values
+    # {
+    #  :posts=>{ :year=> {:min=>{"2016"=>32},
+    #                     :values=>{"2016"=>32, "2017"=>88, "2018"=>89},
+    #                     :max=>{"2018"=>89}
+    #                    },
+    #            :month => {},
+    #            :day => {},
+    #            :hour => {}
+    #          },
+    #  :events=>{ :year=>{:min=>{"2016"=>10}, :values=>{"2016"=>10, "2017"=>28, "2018"=>23}, :max=>{"2017"=>28}}}
+    # }
+
+    # @posts_per_year = Post.all.group_by{ |post| post.}
+
+    @result_overall = {}
+    # = @result_posts[:year].select{ |k, v| v == @result_posts[:year].values.max }.to_a.join(' -> ')
+    # [:posts, :events].each do |object|
+    @result_overall[:posts] = {}
+
+    [:posts, :events, :reactions].each do |object|
+      @result_overall[object.to_sym] = {} unless @result_overall[object.to_sym]
+      @result_overall[object.to_sym][:all] = {}
+
+      [:hour, :day, :month, :year].each do |period|
+
+        @result_overall[object.to_sym][:all][period.to_sym] = {}
+
+        @result_overall[object.to_sym][:all][period.to_sym][:min] = {}
+
+        @result_overall[object.to_sym][:all][period.to_sym][:values] = get_data(object.to_s, period.to_s, from, to)
+
+        @result_overall[object.to_sym][:all][period.to_sym][:max] = @result_overall[object.to_sym][:all][period.to_sym][:values].select{ |k, v| v == @result_overall[object.to_sym][:all][period.to_sym][:values].values.max }
+
+        @result_overall[object.to_sym][:all][period.to_sym][:min] = @result_overall[object.to_sym][:all][period.to_sym][:values].select{ |k, v| v == @result_overall[object.to_sym][:all][period.to_sym][:values].values.min }
+      end
+    end
+
+    Post.kinds.keys.each do |post_kind|
+      @result_overall[:posts][post_kind.to_sym] = {}
+      [:hour, :day, :month, :year].each do |period|
+
+        @result_overall[:posts][post_kind.to_sym][period.to_sym] = {}
+
+        @result_overall[:posts][post_kind.to_sym][period.to_sym][:min] = {}
+
+        @result_overall[:posts][post_kind.to_sym][period.to_sym][:values] = get_data('post', period.to_s, from, to, post_kind)
+
+        @result_overall[:posts][post_kind.to_sym][period.to_sym][:max] =
+        @result_overall[:posts][post_kind.to_sym][period.to_sym][:values].select{ |k, v| v == @result_overall[:posts][post_kind.to_sym][period.to_sym][:values].values.max }
+
+        @result_overall[:posts][post_kind.to_sym][period.to_sym][:min] =
+        @result_overall[:posts][post_kind.to_sym][period.to_sym][:values].select{ |k, v| v == @result_overall[:posts][post_kind.to_sym][period.to_sym][:values].values.min }
+      end
+    end
+  end
+
+  def get_data(object, period, from=nil, to=nil, kind=nil, insights: false)
     result = {}
     period_symbol = datetime_symbol(period)
     redirect_to root_path && return unless object.present? && period.present?
 
     result = object.classify.constantize.all
+    result = result.send(kind) if kind
+    result = result.where('posted_at >= ?', from) if from.present?
+    result = result.where('posted_at <= ?', to) if to.present?
+
             # if object.classify.constantize.all.any?
             #   object.classify.constantize.all
             #   #  facebook_data(object, last_object.try(:posted_at).to_i, Time.now.to_i)
@@ -74,7 +139,7 @@ class ApplicationController < ActionController::Base
     # end
 
     # from DB data
-    result = result.map{ |x| x.posted_at.to_s }.group_by{ |x| x.to_datetime.strftime(period_symbol) }.map{ |k, v| [k,v.count] }.to_h
+    result = result.map{ |x| x.posted_at.to_s if x.posted_at }.compact.group_by{ |x| x.to_datetime&.strftime(period_symbol) }.map{ |k, v| [k,v.count] }.to_h
 
     sort_by = case period_symbol
               when '%B'
@@ -115,7 +180,7 @@ class ApplicationController < ActionController::Base
     raise ActionController::RoutingError.new('Not Found')
   end
 
-  def connection_result(method, object, params= nil)
+  def connection_result(method, object, params=nil)
     @result = begin
                 if method == 'get_object'
                   @connection.get_object(object)

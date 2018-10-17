@@ -1,11 +1,11 @@
 .row
-  .col-md-12
+  .col-xs-12.col-sm-12.col-md-12
     .page-header
       %h2.text-center
         = @page_title
         Facebook Page
 .row
-  .col-md-12
+  .col-xs-12.col-sm-12.col-md-12
     %h3 General Stats
     %dl.dl-horizontal#general-stats
       %dt Fans:
@@ -14,86 +14,42 @@
   .col-md-12
     -# = link_to 'Register webhooks', "https://graph.facebook.com/v2.11/#{@page_id}/subscribed_apps?access_token=#{@access_token}", method: :post
     .btn-group
-      = link_to 'Refresh posts', facebook_data_path('posts'), class: 'btn btn-warning'
+      = link_to 'Refresh posts', facebook_data_path(object: 'posts'), class: 'btn btn-warning'
       = link_to 'Refresh events', facebook_data_path(object: 'events'), class: 'btn btn-warning'
       = link_to 'Refresh all data', facebook_data_path(), class: 'btn btn-warning'
 
     .btn-group.pull-right
       = link_to 'Refresh Page Stats', '#', class: 'btn btn-primary'
+    %hr
+
 .row
   .col-md-12
-    %hr.bold
-    = render partial: 'overall_statistics'
-.row
-  .col-md-12
-    %hr.bold
     %div{ role: 'tabpanel' }
       #tabs.nav-center
         %ul.text-center.nav.nav-tabs{ role: 'tablist' }
+
           %li.active{ role: 'presentation' }
-            %a{ href: '#trending-all', 'aria-controls': 'trending-posts', 'data-toggle': 'tab', role: 'tab' } All
+            %a{ href: '#trending', 'aria-controls': 'trending-posts', 'data-toggle': 'tab', role: 'tab' } Trending Content
+
           %li{ role: 'presentation' }
-            %a{ href: '#trending-posts', 'aria-controls': 'trending-posts', 'data-toggle': 'tab', role: 'tab' } Posts
+            %a{ href: '#content-stats', 'aria-controls': 'content-stats', 'data-toggle': 'tab', role: 'tab' } Content Statistics
+
           %li{ role: 'presentation' }
-            %a{ href: '#trending-events', 'aria-controls': 'trending-events', 'data-toggle': 'tab', role: 'tab' } Events
+            %a{ href: '#overall_statistics', 'aria-controls': 'trending-posts', 'data-toggle': 'tab', role: 'tab' } Posting Statistics
+
           %li{ role: 'presentation' }
-            %a{ href: '#trending-photos', 'aria-controls': 'trending-photos', 'data-toggle': 'tab', role: 'tab' } Photos
-          %li{ role: 'presentation' }
-            %a{ href: '#trending-videos', 'aria-controls': 'trending_videos', 'data-toggle': 'tab', role: 'tab' } Videos
-          %li{ role: 'presentation' }
-            %a{ href: '#trending-links', 'aria-controls': 'trending_videos', 'data-toggle': 'tab', role: 'tab' } Links
+            %a{ href: '#overall_statistics', 'aria-controls': 'trending-posts', 'data-toggle': 'tab', role: 'tab' } Reaction Statistics
+
       .tab-content
-        .tab-pane.active#trending-all{ role: 'tabpanel'}
-          .col-md-8.col-md-offset-2.text-center
-            %h1.text-center
-              Trending
-            %h3
-              %i{ class: "fa #{icon_for('like')}" }
-              %i{ class: "fa #{icon_for('wow')}" }
-              %i{ class: "fa #{icon_for('love')}" }
-              %i{ class: "fa #{icon_for('sad')}" }
-              %i{ class: "fa #{icon_for('angry')}" }
-              %i{ class: "fa #{icon_for('haha')}" }
+        .tab-pane.active#content-stats{ role: 'tabpanel'}
+          = render partial: 'content_stats'
+        .tab-pane.active#trending{ role: 'tabpanel'}
+          = render partial: 'trending'
+        .tab-pane#overall_statistics{ role: 'tabpanel'}
+          = render partial: 'posting_statistics'
+        .tab-pane#overall_statistics{ role: 'tabpanel'}
+          = render partial: 'reaction_statistics'
 
-            .text-muted
-              with
-              = pluralize(posts_max_reactions.first.reactions.sum(:count), 'reaction')
-
-            %ul
-            - posts_max_reactions.each do |post|
-              %li
-                = truncate(post.message, length: 150)
-                = link_to '(more info)', post_path(post)
-          .row
-            .col-md-4.col-md-offset-4
-              %hr.bold
-              %br
-          .row
-            - posts_per_max_reaction.each do |reaction, info|
-              .col-md-4
-                %h2
-                  %i{ class: "fa #{icon_for(reaction)}" }
-                  = reaction
-                .text-muted
-                  from
-                  = pluralize(info[:count], 'person')
-
-                - posts = info[:posts]#.map{ |post| [truncate(post.message, length: 150), post.id] }.compact
-                %ul
-                  - posts.each do |post|
-                    %li
-                      = truncate(post.message, length: 150)
-                      = link_to '(more info)', post_path(post)
-        .tab-pane#trending-posts{ role: 'tabpanel'}
-          = render partial: 'trending_posts', locals: { kind: 'status' }
-        .tab-pane#trending-events{ role: 'tabpanel'}
-          = render partial: 'trending_posts', locals: { kind: 'event' }
-        .tab-pane#trending-photos{ role: 'tabpanel'}
-          = render partial: 'trending_posts', locals: { kind: 'photo' }
-        .tab-pane#trending-videos{ role: 'tabpanel'}
-          = render partial: 'trending_posts', locals: { kind: 'video' }
-        .tab-pane#trending-links{ role: 'tabpanel'}
-          = render partial: 'trending_posts', locals: { kind: 'link' }
 .row
   %hr.bold
 
@@ -110,18 +66,55 @@
       = f.label 'From'
       = f.input 'from', as: :string, label: false, input_html: { id: 'datepicker-graph-from' }, hint: '(Optional) Limit the results to only include data from this date on.'
     .col-md-4
-      = f.label 'Until'
-      = f.input 'until', as: :string, label: false, input_html: { id: 'datetimepicker-graph-until', value: Time.current }, hint: '(Optional) Limit the results to only include data until this date.'
+      = f.label 'To'
+      = f.input 'to', as: :string, label: false, input_html: { id: 'datepicker-graph-to' }, hint: '(Optional) Limit the results to only include data to this date.'
+    .col-md-4
+      = f.label 'Period'
+      = f.input 'period', label: false, collection: YAML::load(ENV['period_options']).map{ |period| [period, period.parameterize.underscore, data: find_date(period) ]}, include_blank: 'Make a selection'
     .col-md-12
       = f.submit 'Make Graph!', class: 'btn btn-primary'
 
     .col-md-12
-      = render partial: 'graph'
+      = render partial: 'shared/graph'
 
 :javascript
   $(document).ready(function() {
+    $('select#period').change(function(){
+      // Set from, to values to last 3-month period
+      var selected_period = $('select#period option:selected');
+      var from = selected_period.data('from');
+      var to = selected_period.data('to');
+
+      $('#datepicker-graph-from').val(from);
+      $('#datepicker-graph-to').val(to);
+      // change the dataset to only include objects posted_at within this period
+      // redraw chart
+
+      var url = "#{make_graph_path}";
+      var x_axis = $('#x_axis option:selected').val();
+      var y_axis = $('#y_axis option:selected').val();
+      var graph_type = $('#graph_type option:selected').val();
+
+      if (y_axis != '' && graph_type !='') {
+        $.ajax({
+          type: 'POST',
+          url: '/make_graph',
+          data: { graph_type: graph_type,
+                  x_axis: x_axis,
+                  y_axis: y_axis,
+                  from: from,
+                  to: to},
+          dataType: 'script'
+        });
+      }
+    });
+
     $('select#x_axis').change( function() {
       var key = $('#x_axis option:selected').val();
+
+      if(key == 'all') {
+        $('select#graph_type').val('multiple_series')
+      }
 
       $.ajax({
         type: 'GET',
@@ -138,10 +131,16 @@
       var graph_type = $('#graph_type option:selected').val();
 
       if (x_axis != '' && y_axis !='') {
+        var from = $('#datetimepicker-graph-from').val();
+        var to = $('#datetimepicker-graph-to').val();
         $.ajax({
           type: 'POST',
           url: '/make_graph',
-          data: { graph_type: graph_type, x_axis: x_axis, y_axis: y_axis },
+          data: { graph_type: graph_type,
+                  x_axis: x_axis,
+                  y_axis: y_axis,
+                  from: from,
+                  to: to },
           dataType: 'script'
         });
       }
@@ -154,10 +153,16 @@
       var graph_type = $('#graph_type option:selected').val();
 
       if (y_axis != '' && graph_type !='') {
+        var from = $('#datetimepicker-graph-from').val();
+        var to = $('#datetimepicker-graph-to').val();
         $.ajax({
           type: 'POST',
           url: '/make_graph',
-          data: { graph_type: graph_type, x_axis: x_axis, y_axis: y_axis },
+          data: { graph_type: graph_type,
+                  x_axis: x_axis,
+                  y_axis: y_axis,
+                  from: from,
+                  to: to },
           dataType: 'script'
         });
       }
@@ -170,10 +175,16 @@
       var graph_type = $('#graph_type option:selected').val();
 
       if (x_axis != '' && graph_type !='') {
+        var from = $('#datetimepicker-graph-from').val();
+        var to = $('#datetimepicker-graph-to').val();
         $.ajax({
           type: 'POST',
           url: '/make_graph',
-          data: { graph_type: graph_type, x_axis: x_axis, y_axis: y_axis },
+          data: { graph_type: graph_type,
+                  x_axis: x_axis,
+                  y_axis: y_axis,
+                  from: from,
+                  to: to },
           dataType: 'script'
         });
       }

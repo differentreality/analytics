@@ -22,3 +22,31 @@
             %i{ class: "fas #{icon_for(reaction.name)}" }
             = reaction.count
             = reaction.name
+.row
+  .col-md-12
+    %hr
+    = semantic_form_for '', url: make_graph_post_path(@post) do |f|
+      .col-md-4
+        = f.input 'graph_type', collection: YAML::load(ENV['graph_types']), selected: 'column_chart', input_html: { autofocus: true}
+.row
+  .col-md-12
+    = render partial: 'shared/graph'
+    %br
+
+:javascript
+
+  $('select#graph_type').change( function() {
+    var url = "#{make_graph_path}";
+    var x_axis = $('#x_axis option:selected').val();
+    var y_axis = $('#y_axis option:selected').val();
+    var graph_type = $('#graph_type option:selected').val();
+
+    if (x_axis != '' && y_axis !='') {
+      $.ajax({
+        type: 'POST',
+        url: "#{make_graph_post_url}",
+        data: { graph_type: graph_type, x_axis: x_axis, y_axis: y_axis },
+        dataType: 'script'
+      });
+    }
+  });

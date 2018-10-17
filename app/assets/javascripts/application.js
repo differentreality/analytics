@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require dataTables/jquery.dataTables
 //= require bootstrap
 //= require bootstrap.min
 //= require moment
@@ -22,7 +23,8 @@
 //= require unobtrusive_flash
 //= require unobtrusive_flash_bootstrap
 //= require tabbable
-//= require chartkick
 //= require Chart.bundle
+//= require chartkick
 //= require bootstrap-switch
 //= require switch
+//= require datatables

@@ -1,30 +1,10 @@
 .row
   .col-md-12
     %h1.text-center
-      Trending
       - if kind == 'status'
         Status
       - else
         = kind.capitalize.pluralize
-
-.row
-  - posts_reactions = posts_max_reactions(kind)
-
-  - posts_reactions.each do |post|
-    %div{ class: "col-md-#{12/posts_reactions.length} text-center" }
-      .fa.fa-star
-      = truncate(post.message, length: 150)
-      = link_to '(more info)', post_path(post)
-  .col-md-12
-    .text-muted.text-center
-      with
-      = pluralize(posts_max_reactions(kind).first.reactions.sum(:count), 'reaction')
-
-    .text-center
-      %br
-      = link_to "All #{kind.pluralize}", posts_path(kind: kind), class: 'btn btn-success'
-  .col-md-4.col-md-offset-4
-    %hr.bold
 
 .row
   .col-md-8.col-md-offset-2.text-center

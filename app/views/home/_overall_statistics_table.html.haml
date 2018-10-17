@@ -1,0 +1,98 @@
+#overall-statistics-table
+  .row
+    .col-md-10.col-md-offset-1
+      %h3 Overall statistics
+      .table-responsive
+        %table.table.table-bordered.table-striped#overall-statistics
+          %thead
+            %tr
+              %th
+              %th.text-center{ colspan: 2 } Yearly
+              %th.text-center{ colspan: 2 } Monthly
+              %th.text-center{ colspan: 2 } Daily
+              %th.text-center{ colspan: 2 } Hourly
+            %tr
+              %td
+              %td
+                Max
+              %td
+                Min
+              %td
+                Max
+              %td
+                Min
+              %td
+                Max
+              %td
+                Min
+              %td
+                Max
+              %td
+                Min
+          %tbody
+            -# { :posts=> { :all=> { :day=>{}, :hour=>{},
+                                     :month=>{
+                                       :min=>{"August"=>2},
+                                       :values=>{"January"=>19, "February"=>27, "March"=>31 },  :max=>{"March"=>31}
+                                     },
+                                     :year=>{
+                                       :min=>{"2016"=>32},
+                                       :values=>{"2016"=>32, "2017"=>88, "2018"=>89},  :max=>{"2018"=>89}
+                                     }
+                                   }
+                          },
+                 :events=>{ }
+               }
+
+            - @result_overall.each do |object, values|
+              - values.each do |result|
+                -# result: [:link, {:hour=>
+                                      {:min=>{"14"=>1},
+                                       :values=>{"05"=>2, "06"=>3}
+                                       :max=>{"12"=>13}
+                                      },
+                                    :day=>{:min=>{"Sunday"=>5}, :values=>{"Sunday"=>5} }]
+                %tr
+                  %td
+                    %b= result.first.to_s.capitalize
+                    %b= object.to_s.capitalize.pluralize
+
+                  %td
+                    = result.second[:year][:max].values.first
+                    .text-muted
+                      = result.second[:year][:max].keys.join(', ')
+
+                  %td
+                    = result.second[:year][:min].values.first
+                    .text-muted
+                      = result.second[:year][:min].keys.join(', ')
+
+                  %td
+                    = result.second[:month][:max].values.first
+                    .text-muted
+                      = result.second[:month][:max].keys.join(', ')
+
+                  %td
+                    = result.second[:month][:min].values.first
+                    .text-muted
+                      = result.second[:month][:min].keys.join(', ')
+
+                  %td
+                    = result.second[:day][:max].values.first
+                    .text-muted
+                      = result.second[:day][:max].keys.join(', ')
+
+                  %td
+                    = result.second[:day][:min].values.first
+                    .text-muted
+                      = result.second[:day][:min].keys.join(', ')
+
+                  %td
+                    = result.second[:hour][:max].values.first
+                    .text-muted
+                      = hour_range_text(result.second[:hour][:max].keys)
+
+                  %td
+                    = result.second[:hour][:min].values.first
+                    .text-muted
+                      = hour_range_text(result.second[:hour][:min].keys)

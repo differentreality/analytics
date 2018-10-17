@@ -1,0 +1,29 @@
+#overall-chart
+  %br
+  Result:
+  = @result
+
+  %br
+  - case @result[:graph_type]
+    - when 'line_chart'
+      = line_chart @result[:data].map{|i| i.to_a.flatten}, discrete: true, curve: false, id: 'line_chart'
+    - when 'curve_line_chart'
+      = line_chart @result[:data].map{|i| i.to_a.flatten}, discrete: true, id: 'curve_line_chart'
+    - when 'pie_chart'
+      = pie_chart @result[:data].map{|i| i.to_a.flatten}, discrete: true, id: 'pie_chart'
+    - when 'doughnut_chart'
+      = pie_chart @result[:data].map{|i| i.to_a.flatten}, discrete: true, donut: true, id: 'doughnut_chart'
+    - when 'column_chart'
+      = column_chart @result[:data].map{|i| i.to_a.flatten}, id: 'column_chart'
+    - when 'bar_chart'
+      = bar_chart @result[:data].map{|i| i.to_a.flatten}, discrete: true, id: 'bar_chart'
+    - when 'area_chart'
+      = area_chart @result[:data].map{|i| i.to_a.flatten}, id: 'area_chart'
+    - when 'scatter_chart'
+      = scatter_chart @result[:data].map{|i| i.to_a.flatten}, id: 'scatter_chart'
+    - when 'geo_chart'
+      = geo_chart @result[:data], id: 'geo_chart', adapter: 'google'
+    - when 'timeline_chart'
+      = timeline @result[:data], id: 'timeline_chart'
+    - when 'multiple_series'
+      = line_chart @result[:data], id: 'multiple_series'

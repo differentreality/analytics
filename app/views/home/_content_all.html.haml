@@ -1,0 +1,31 @@
+.row
+  .col-md-12.col-md-offset-3
+    - posts_reactions_graph_data.each do |reaction, count|
+      .col-xs-3.col-md-1
+        = reaction.to_s.capitalize
+        %br
+        %i{ class: "fas #{icon_for(reaction.to_s)}", title: reaction.to_s.capitalize }
+        = count
+
+.row
+  .col-md-6
+    = column_chart posts_reactions_graph_data
+  .col-md-6
+    = pie_chart posts_reactions_graph_data, adapter: 'google', colors: ['5b90bf', '96b5b4', 'adc896', 'ab7967', 'd08770', 'b48ead']
+
+.row
+  - posts_per_max_reaction.each do |reaction, info|
+    %div{ class: "col-md-#{12/posts_per_max_reaction.count}" }
+      %h2
+        %i{ class: "fas #{icon_for(reaction)}" }
+        = reaction
+      .text-muted
+        from
+        = pluralize(info[:count], 'person')
+
+      - posts = info[:posts]#.map{ |post| [truncate(post.message, length: 150), post.id] }.compact
+      %ul
+        - posts.each do |post|
+          %li
+            = truncate(post.message, length: 150)
+            = link_to '(more info)', post_path(post)

@@ -31,14 +31,31 @@ class HomeController < ApplicationController
 
 
     # posts?fields=insights.metric(post_reactions_by_type_total).period(lifetime).as(post_reactions_by_type_total)
+    test_result = []
+    # result = connection_result('get_object', "#{@page_id}/#{object}", { fields: fields, since: since_datetime, until: until_datetime })
+
+    fields = '?fields=created_time,id, reactions.type(LIKE).limit(0).summary(1).as(like),reactions.type(LOVE).limit(0).summary(1).as(love),reactions.type(HAHA).limit(0).summary(1).as(haha),reactions.type(WOW).limit(0).summary(1).as(wow),reactions.type(SAD).limit(0).summary(1).as(sad),reactions.type(ANGRY).limit(0).summary(1).as(angry)'
+
     object = params[:x_axis]
     period = params[:y_axis]
-    @result[:data] = get_data(object, period) if object && period
+    from = Date.parse(params[:from]) if params[:from].present?
+    to = Date.parse(params[:to]) if params[:from].present?
+    if object == 'all'
+      ['posts', 'events', 'reactions'].each do |obj|
+        @result[:data] << { name: obj, data: get_data(obj, period, from, to) }
+      end
+    else
+      @result[:data] = get_data(object, period, from, to) if object && period
+    end
+
+    # test_result = connection_result('get_connections', "#{@page_id}/posts", { fields: fields } )
+    # test_result = @connection.get_connections("#{@page_id}/videos", fields)
+    # puts "test_result: #{test_result}"
 
     respond_to do |format|
       format.html { render template: 'home/index'
                   }
-      format.js
+      format.js { render 'shared/make_graph' }
     end
   end
 
@@ -47,30 +64,25 @@ class HomeController < ApplicationController
     @page_fans_count = @page.try(:fans) || get_page_fans
     @result = {}
 
-    # Initialize overall statistic values
-    # {
-    #  :posts=>{ :year=> {:min=>{"2016"=>32},
-    #                     :values=>{"2016"=>32, "2017"=>88, "2018"=>89},
-    #                     :max=>{"2018"=>89}
-    #                    },
-    #            :month => {},
-    #            :day => {},
-    #            :hour => {}
-    #          },
-    #  :events=>{ :year=>{:min=>{"2016"=>10}, :values=>{"2016"=>10, "2017"=>28, "2018"=>23}, :max=>{"2017"=>28}}}
-    # }
-    @result_overall = {}
-    # = @result_posts[:year].select{ |k, v| v == @result_posts[:year].values.max }.to_a.join(' -> ')
-    [:posts, :events].each do |object|
-      @result_overall[object.to_sym] = {}
-      [:hour, :day, :month, :year].each do |period|
-        # @result_overall[:object] = object.to_s
-        @result_overall[object.to_sym][period.to_sym] = {}
-        @result_overall[object.to_sym][period.to_sym][:min] = {}
-        @result_overall[object.to_sym][period.to_sym][:values] = get_data(object.to_s, period.to_s)
-        @result_overall[object.to_sym][period.to_sym][:max] = @result_overall[object.to_sym][period.to_sym][:values].select{ |k, v| v == @result_overall[object.to_sym][period.to_sym][:values].values.max }
-        @result_overall[object.to_sym][period.to_sym][:min] = @result_overall[object.to_sym][period.to_sym][:values].select{ |k, v| v == @result_overall[object.to_sym][period.to_sym][:values].values.min }
-      end
+    set_overall_result
+
+    @yearly_content = []
+
+    @result_overall[:posts].each do |kind_values|
+      @yearly_content << { name: kind_values.first.capitalize,
+                           data: kind_values.second[:year][:values] }
     end
+  end
+
+  def update_overall_statistics_table
+    set_overall_result(params[:from], params[:to])
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def max_reactions
+    # me/posts?fields=created_time,story,message,shares,reactions.type(LIKE).limit(0).summary(1).as(like),reactions.type(LOVE).limit(0).summary(1).as(love),reactions.type(HAHA).limit(0).summary(1).as(haha),reactions.type(WOW).limit(0).summary(1).as(wow),reactions.type(SAD).limit(0).summary(1).as(sad),reactions.type(ANGRY).limit(0).summary(1).as(angry)
   end
 end
