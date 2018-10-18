@@ -23,6 +23,7 @@ class ApplicationController < ActionController::Base
              elsif object == 'events'
                'name, start_time.as(created_time)'
              end
+
     result = connection_result('get_object',
                                "#{@page_id}/#{object}",
                                { fields: fields,
@@ -38,6 +39,10 @@ class ApplicationController < ActionController::Base
     # Save result to database
     result_db_items = []
     result.each do |result_item|
+      db_object = object.classify.constantize.find_by(object_id: result_item['id'])
+      if db_object.present?
+        next
+      end
       db_object = object.classify.constantize.new(object_id: result_item['id'],
                                                   posted_at: result_item['created_time'])
       if object == 'posts'
@@ -47,12 +52,13 @@ class ApplicationController < ActionController::Base
         db_object.name = result_item['name']
       end
 
-      result_db_items << db_object
       unless db_object.save
-        Rails.logger.info "Could not save new item: #{db_object.inspect}"
+        Rails.logger.info "Could not save new item: #{db_object.inspect}\n errors: #{db_object.errors.full_messages.to_sentence}"
+        next
       end
+      result_db_items << db_object
     end
-    return result_db_items
+
     redirect_to root_path
   end
 
@@ -195,7 +201,6 @@ class ApplicationController < ActionController::Base
   end
 
   def get_page_title
-    # connection_result('get_object', @page_id)
     @result = begin
                 @connection.get_object(@page_id)
               rescue => e

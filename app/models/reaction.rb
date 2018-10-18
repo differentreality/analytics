@@ -1,7 +1,7 @@
 class Reaction < ApplicationRecord
   belongs_to :reactionable, polymorphic: true
-
-  validates :name, uniqueness: { scope: [:reactionable_type, :reactionable_id] }
+  belongs_to :person
+  KINDS = [ 'like', 'love', 'haha', 'wow', 'sad', 'angry']
 
   def self.per_kind(kind)
     find_by(name: kind)

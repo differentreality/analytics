@@ -11,15 +11,21 @@ class PostsController < ApplicationController
     #TODO rename @result to @graph
     puts "result: #{@result.inspect}"
     @result = { data: [], graph_type: params[:graph_type] || 'column_chart'}
-    # @result[:data] = @post.reactions.group(:name).count
-    @result[:data] = @post.reactions.map{ |r| [r.name, r.count] }.to_h
+    @result[:data] = @post.reactions.group(:name).count
   end
 
   def make_graph
     #TODO rename @result to @graph
     @result = { data: [], graph_type: params[:graph_type] || 'column_chart'}
-    # @result[:data] = @post.reactions.group(:name).count
-    @result[:data] = @post.reactions.map{ |r| [r.name, r.count] }.to_h
+    if params[:graph_type] == 'multiple_series'
+      @result[:data] = []
+
+      Reaction::KINDS.each do |reaction|
+        @result[:data] << { name: reaction, data: @post.reactions.send(reaction).group_by_day(:posted_at).count }
+      end
+    else
+      @result[:data] = @post.reactions.group(:name).count
+    end
 
     respond_to do |format|
       format.html

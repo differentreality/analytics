@@ -17,11 +17,11 @@
       %br
       %dt Reactions
       %dd
-        - @post.reactions.each do |reaction|
+        - @post.reactions.group_by(&:name).each do |name, reactions|
           .col-md-1
-            %i{ class: "fas #{icon_for(reaction.name)}" }
-            = reaction.count
-            = reaction.name
+            %i{ class: "fas #{icon_for(name)}" }
+            = reactions.count
+            = name
 .row
   .col-md-12
     %hr
