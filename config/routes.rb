@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :people
   namespace :api, defaults: { format: 'json' } do
     get 'page_fans_city' => 'pages#page_fans_city'
   end

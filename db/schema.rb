@@ -10,17 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180822080035) do
+ActiveRecord::Schema.define(version: 20181018111331) do
 
-  create_table "events", force: :cascade do |t|
-    t.string   "name"
-    t.string   "object_id"
-    t.integer  "shares"
-    t.datetime "posted_at"
-    t.integer  "page_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["page_id"], name: "index_events_on_page_id"
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
+  create_table "ahoy_messages", force: :cascade do |t|
+    t.string   "token"
+    t.text     "to"
+    t.integer  "user_id"
+    t.string   "user_type"
+    t.string   "mailer"
+    t.text     "subject"
+    t.text     "content"
+    t.string   "utm_source"
+    t.string   "utm_medium"
+    t.string   "utm_term"
+    t.string   "utm_content"
+    t.string   "utm_campaign"
+    t.datetime "sent_at"
+    t.datetime "opened_at"
+    t.datetime "clicked_at"
+    t.integer  "customer_id"
+    t.index ["token"], name: "index_ahoy_messages_on_token", using: :btree
+    t.index ["user_id", "user_type"], name: "index_ahoy_messages_on_user_id_and_user_type", using: :btree
   end
 
   create_table "events", force: :cascade do |t|
@@ -31,7 +44,7 @@ ActiveRecord::Schema.define(version: 20180822080035) do
     t.integer  "page_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["page_id"], name: "index_events_on_page_id"
+    t.index ["page_id"], name: "index_events_on_page_id", using: :btree
   end
 
   create_table "openids", force: :cascade do |t|
@@ -49,6 +62,13 @@ ActiveRecord::Schema.define(version: 20180822080035) do
     t.integer "fans"
   end
 
+  create_table "people", force: :cascade do |t|
+    t.string   "name"
+    t.integer  "object_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "posts", force: :cascade do |t|
     t.text     "message"
     t.string   "object_id"
@@ -58,18 +78,17 @@ ActiveRecord::Schema.define(version: 20180822080035) do
     t.integer  "page_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["page_id"], name: "index_posts_on_page_id"
+    t.index ["page_id"], name: "index_posts_on_page_id", using: :btree
   end
 
   create_table "reactions", force: :cascade do |t|
     t.string   "reactionable_type"
     t.integer  "reactionable_id"
     t.string   "name"
-    t.integer  "count"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
     t.datetime "posted_at"
-    t.index ["reactionable_type", "reactionable_id"], name: "index_reactions_on_reactionable_type_and_reactionable_id"
+    t.index ["reactionable_type", "reactionable_id"], name: "index_reactions_on_reactionable_type_and_reactionable_id", using: :btree
   end
 
   create_table "users", force: :cascade do |t|
@@ -92,20 +111,20 @@ ActiveRecord::Schema.define(version: 20180822080035) do
     t.datetime "confirmed_at"
     t.datetime "confirmation_sent_at"
     t.string   "unconfirmed_email"
-    t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
-    t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true, using: :btree
+    t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   end
 
   create_table "versions", force: :cascade do |t|
-    t.string   "item_type",                         null: false
-    t.integer  "item_id",                           null: false
-    t.string   "event",                             null: false
+    t.string   "item_type",      null: false
+    t.integer  "item_id",        null: false
+    t.string   "event",          null: false
     t.string   "whodunnit"
     t.text     "object"
     t.datetime "created_at"
-    t.text     "object_changes", limit: 1073741823
-    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
+    t.text     "object_changes"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id", using: :btree
   end
 
 end
