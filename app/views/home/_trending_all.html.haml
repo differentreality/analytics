@@ -17,7 +17,7 @@
 
   .text-muted
     with
-    = pluralize(posts_max_reactions.first.reactions.sum(:count), 'reaction')
+    = pluralize(posts_max_reactions.first&.reactions&.sum(:count), 'reaction')
 
 .row
   .col-xs-12.col-md-4.col-md-offset-4

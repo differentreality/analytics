@@ -7,7 +7,7 @@ class WebhooksController < ApplicationController
 
   # Must return the hub.challenge value
   def confirm_webhook
-    if params['hub.verify_token'] == 'StellasToken!'
+    if params['hub.verify_token'] == ENV['webhook_verify_token']
       render plain: params['hub.challenge']
     else
       render plain: 'Error!'

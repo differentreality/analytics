@@ -11,7 +11,7 @@
   .col-md-6
     = column_chart posts_reactions_graph_data
   .col-md-6
-    = pie_chart posts_reactions_graph_data, adapter: 'google', colors: ['5b90bf', '96b5b4', 'adc896', 'ab7967', 'd08770', 'b48ead']
+    = pie_chart posts_reactions_graph_data, adapter: 'google', colors: graph_color_set
 
 .row
   - posts_per_max_reaction.each do |reaction, info|
@@ -23,7 +23,7 @@
         from
         = pluralize(info[:count], 'person')
 
-      - posts = info[:posts]#.map{ |post| [truncate(post.message, length: 150), post.id] }.compact
+      - posts = info[:posts]
       %ul
         - posts.each do |post|
           %li

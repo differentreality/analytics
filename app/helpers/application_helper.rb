@@ -38,14 +38,12 @@ module ApplicationHelper
     post_objects = Post.all
     post_objects = Post.send(kind) if kind
 
-    puts "graph_data\nkind: #{kind} and post_objects: #{post_objects.count}"
-
     result = { }
 
     reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
 
     reactions.each do |reaction|
-      result[reaction.to_sym] = post_objects.inject(0){ |sum, post| sum + post.reactions.find_by(name: reaction).count }
+      result[reaction.to_sym] = post_objects.inject(0){ |sum, post| sum + (post.reactions.find_by(name: reaction)&.count || 0) }
       # result[reaction.to_sym] = post_objects.inject(0){ |sum, post| sum + post.reactions.per_kind(reaction).count }
     end
     result
