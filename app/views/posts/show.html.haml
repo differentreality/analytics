@@ -27,7 +27,10 @@
     %hr
     = semantic_form_for '', url: make_graph_post_path(@post) do |f|
       .col-md-4
-        = f.input 'graph_type', collection: YAML::load(ENV['graph_types']), selected: 'column_chart', input_html: { autofocus: true}
+        = f.input 'graph_type', collection: YAML::load(ENV['graph_types']),
+                                selected: 'column_chart',
+                                include_blank: 'Please select',
+                                input_html: { autofocus: true }
 .row
   .col-md-6
     = render partial: 'shared/graph'
