@@ -43,14 +43,10 @@ module ApplicationHelper
     reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
 
     reactions.each do |reaction|
-      result[reaction.to_sym] = post_objects.inject(0){ |sum, post| sum + (post.reactions.find_by(name: reaction)&.count || 0) }
+      result[reaction.to_sym] = post_objects.inject(0){ |sum, post| sum + (post.reactions.where(name: reaction)&.count || 0) }
       # result[reaction.to_sym] = post_objects.inject(0){ |sum, post| sum + post.reactions.per_kind(reaction).count }
     end
     result
-  end
-
-  def reactions_total_count(reactioanble)
-    Reaction.where(reactioanble: reactioanble).sum(:count)
   end
 
   ##
@@ -61,14 +57,19 @@ module ApplicationHelper
     post_objects = Post.all
     post_objects = Post.send(kind) if kind
 
-    max_reactions_count = post_objects.map{ |post| post.reactions.sum(:count) }.max
+    max_reactions_count = post_objects.map{ |post| post.reactions.count }.max
     # posts = post_objects.includes(:reactions).max
 
     posts = { }
-    posts = post_objects.select{ |post| post.reactions.sum(:count) == max_reactions_count }
+    posts = post_objects.select{ |post| post.reactions.count == max_reactions_count }
     posts
   end
 
+  ##
+  # Find the posts with the most reactions
+  # ===Returns
+  # * +Hash+ -> posts
+  # posts = { 'like' => { count: 10, posts: PostsCollection } }
   def posts_per_max_reaction(kind=nil)
     reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
 
@@ -77,13 +78,16 @@ module ApplicationHelper
     puts "kind: #{kind} and post_objects: #{post_objects.count}"
 
     reactions_max = {}
-    reactions.each{ |r| reactions_max[r] = (Reaction.where(name: r, reactionable: post_objects).maximum(:count) || 0) }
+    reactions.each{ |r| reactions_max[r] = (Reaction.where(name: r, reactionable: post_objects).length || 0) }
+
+    puts reactions_max;
 
     posts = { }
+    # Reaction.where(name: r, reactionable: post_objects)
     reactions.each{ |r| if reactions_max[r] > 0 then
                           posts[r] = {};
                           posts[r][:count] = reactions_max[r];
-                          posts[r][:posts] = Reaction.where(name: r, count: reactions_max[r], reactionable: post_objects).map(&:reactionable)
+                          posts[r][:posts] = post_objects.select{ |post| post.reactions.count == reactions_max[r] }
                         end }
     posts
   end
