@@ -1,0 +1,19 @@
+.link-white-color > a {
+  color: white !important;
+}
+
+.panel-purple {
+  border: 1px solid #bab5b9;
+}
+
+.panel-purple > .panel-heading {
+  background-color: #b48ead;
+}
+
+.panel-green {
+  border: 1px solid #a3bc8d;
+}
+
+.panel-purple > .panel-heading, .panel-footer {
+  background-color: #adc896;
+}
