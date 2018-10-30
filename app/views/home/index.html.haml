@@ -1,17 +1,27 @@
 .row
-  .col-xs-12.col-sm-12.col-md-12
-    .page-header
-      %h2.text-center
-        = @page_title
-        Facebook Page
+  .col-md-12
+    .page-header.text-center
+      %h1 Your Facebook Analytics
+      - page_id = ENV['facebook_page_id']
+      - page = Page.find_by(object_id: page_id) if page_id
+
+      - if page
+        %h2
+          for
+          = link_to page.name, "https://facebook.com/#{page_id}"
+
 .row
   .col-xs-12.col-sm-12.col-md-12
-    %h3 General Stats
+    %h2.text-center
+      Your page info
+.row
+  .col-xs-10.col-sm-10.col-md-10.col-xs-offset-1.col-sm-offset-1.col-md-offset-1
     %dl.dl-horizontal#general-stats
       %dt Fans:
       %dd= @page_fans_count
-.row
-  .col-md-12
+    = link_to 'Get fans per gender and age', api_page_fans_city_path, remote: true
+    = pie_chart @fans_gender_age if @fans_gender_age
+
     -# = link_to 'Register webhooks', "https://graph.facebook.com/v2.11/#{@page_id}/subscribed_apps?access_token=#{@access_token}", method: :post
     .btn-group
       = link_to 'Refresh posts', facebook_data_path(object: 'posts'), class: 'btn btn-warning'
@@ -20,173 +30,54 @@
 
     .btn-group.pull-right
       = link_to 'Refresh Page Stats', '#', class: 'btn btn-primary'
+
+.row
+  %br
+  - items = [:post, :reaction, :event]
+  - items_count = 0
+  - items.each do |item|
+    - items_count += 1 unless item.to_s.classify.constantize.any?
+
+  %div{ class: "col-md-offset-#{(12-items_count*3)/2 + 1}" }
+    - unless Post.any?
+      .col-md-3.text-center
+        .panel.panel-purple
+          .panel-heading
+            %h2.link-white-color
+              = link_to 'Get your posts', new_post_path
+          .panel-body
+            Download all the posts
+            %br
+            of your Facebook page
+    - unless Reaction.any?
+      .col-md-3.text-center
+        .panel.panel-purple
+          .panel-heading
+            %h2.link-white-color
+              = link_to 'Get the reactions', new_reaction_path
+          .panel-body
+            Download all the reactions to the posts
+            %br
+            of your Facebook page
+    - unless Event.any?
+      .col-md-3.text-center
+        .panel.panel-purple
+          .panel-heading
+            %h2.link-white-color
+              = link_to 'Get your events', new_event_path
+          .panel-body
+            Download all the events
+            %br
+            of your Facebook page
+.row
+  .col-md-12.text-center
+    %br
+    - if Post.any?
+      = link_to 'Your Posts', posts_path, class: 'btn btn-primary btn-lg'
+    - if Event.any?
+      = link_to 'Your Events', events_path, class: 'btn btn-primary btn-lg'
+    %br
     %hr
 
-.row
-  .col-md-12
-    %div{ role: 'tabpanel' }
-      #tabs.nav-center
-        %ul.text-center.nav.nav-tabs{ role: 'tablist' }
-
-          %li.active{ role: 'presentation' }
-            %a{ href: '#trending', 'aria-controls': 'trending-posts', 'data-toggle': 'tab', role: 'tab' } Trending Content
-
-          %li{ role: 'presentation' }
-            %a{ href: '#content-stats', 'aria-controls': 'content-stats', 'data-toggle': 'tab', role: 'tab' } Your Content
-
-          %li{ role: 'presentation' }
-            %a{ href: '#overall_statistics', 'aria-controls': 'trending-posts', 'data-toggle': 'tab', role: 'tab' } Activity
-
-          %li{ role: 'presentation' }
-            %a{ href: '#overall_statistics', 'aria-controls': 'trending-posts', 'data-toggle': 'tab', role: 'tab' } Reactions
-
-      .tab-content
-        .tab-pane.active#content-stats{ role: 'tabpanel'}
-          = render partial: 'content_stats'
-        .tab-pane.active#trending{ role: 'tabpanel'}
-          = render partial: 'trending'
-        .tab-pane#overall_statistics{ role: 'tabpanel'}
-          = render partial: 'posting_statistics'
-        .tab-pane#overall_statistics{ role: 'tabpanel'}
-          = render partial: 'reaction_statistics'
-
-.row
-  %hr.bold
-
-  = semantic_form_for '', url: make_graph_path do |f|
-    .col-md-4
-      = f.label 'Select variable x'
-      = f.input 'x_axis', collection: YAML::load(ENV['analytics_options']).keys, label: false, include_blank: 'Make a selection'
-    .col-md-4
-      = f.label 'Select variable y'
-      = f.input 'y_axis', collection: [], label: false, include_blank: 'Make a selection'
-    .col-md-4
-      = f.input 'graph_type', collection: YAML::load(ENV['graph_types']), include_blank: 'Make a selection'
-    .col-md-4
-      = f.label 'From'
-      = f.input 'from', as: :string, label: false, input_html: { id: 'datepicker-graph-from' }, hint: '(Optional) Limit the results to only include data from this date on.'
-    .col-md-4
-      = f.label 'To'
-      = f.input 'to', as: :string, label: false, input_html: { id: 'datepicker-graph-to' }, hint: '(Optional) Limit the results to only include data to this date.'
-    .col-md-4
-      = f.label 'Period'
-      = f.input 'period', label: false, collection: YAML::load(ENV['period_options']).map{ |period| [period, period.parameterize.underscore, data: find_date(period) ]}, include_blank: 'Make a selection'
-    .col-md-12
-      = f.submit 'Make Graph!', class: 'btn btn-primary'
-
-    .col-md-12
-      = render partial: 'shared/graph'
-
-:javascript
-  $(document).ready(function() {
-    $('select#period').change(function(){
-      // Set from, to values to last 3-month period
-      var selected_period = $('select#period option:selected');
-      var from = selected_period.data('from');
-      var to = selected_period.data('to');
-
-      $('#datepicker-graph-from').val(from);
-      $('#datepicker-graph-to').val(to);
-      // change the dataset to only include objects posted_at within this period
-      // redraw chart
-
-      var url = "#{make_graph_path}";
-      var x_axis = $('#x_axis option:selected').val();
-      var y_axis = $('#y_axis option:selected').val();
-      var graph_type = $('#graph_type option:selected').val();
-
-      if (y_axis != '' && graph_type !='') {
-        $.ajax({
-          type: 'POST',
-          url: '/make_graph',
-          data: { graph_type: graph_type,
-                  x_axis: x_axis,
-                  y_axis: y_axis,
-                  from: from,
-                  to: to},
-          dataType: 'script'
-        });
-      }
-    });
-
-    $('select#x_axis').change( function() {
-      var key = $('#x_axis option:selected').val();
-
-      if(key == 'all') {
-        $('select#graph_type').val('multiple_series')
-      }
-
-      $.ajax({
-        type: 'GET',
-        url: '/values_for_analytics_option',
-        data: { key: key },
-        dataType: 'script'
-      });
-    });
-
-    $('select#graph_type').change( function() {
-      var url = "#{make_graph_path}";
-      var x_axis = $('#x_axis option:selected').val();
-      var y_axis = $('#y_axis option:selected').val();
-      var graph_type = $('#graph_type option:selected').val();
-
-      if (x_axis != '' && y_axis !='') {
-        var from = $('#datetimepicker-graph-from').val();
-        var to = $('#datetimepicker-graph-to').val();
-        $.ajax({
-          type: 'POST',
-          url: '/make_graph',
-          data: { graph_type: graph_type,
-                  x_axis: x_axis,
-                  y_axis: y_axis,
-                  from: from,
-                  to: to },
-          dataType: 'script'
-        });
-      }
-    });
-
-    $('select#x_axis').change( function() {
-      var url = "#{make_graph_path}";
-      var x_axis = $('#x_axis option:selected').val();
-      var y_axis = $('#y_axis option:selected').val();
-      var graph_type = $('#graph_type option:selected').val();
-
-      if (y_axis != '' && graph_type !='') {
-        var from = $('#datetimepicker-graph-from').val();
-        var to = $('#datetimepicker-graph-to').val();
-        $.ajax({
-          type: 'POST',
-          url: '/make_graph',
-          data: { graph_type: graph_type,
-                  x_axis: x_axis,
-                  y_axis: y_axis,
-                  from: from,
-                  to: to },
-          dataType: 'script'
-        });
-      }
-    });
-
-    $('select#y_axis').change( function() {
-      var url = "#{make_graph_path}";
-      var x_axis = $('#x_axis option:selected').val();
-      var y_axis = $('#y_axis option:selected').val();
-      var graph_type = $('#graph_type option:selected').val();
-
-      if (x_axis != '' && graph_type !='') {
-        var from = $('#datetimepicker-graph-from').val();
-        var to = $('#datetimepicker-graph-to').val();
-        $.ajax({
-          type: 'POST',
-          url: '/make_graph',
-          data: { graph_type: graph_type,
-                  x_axis: x_axis,
-                  y_axis: y_axis,
-                  from: from,
-                  to: to },
-          dataType: 'script'
-        });
-      }
-    });
-  });
+= render partial: 'content_statistics'
+= render partial: 'overall_activity_chart' if Post.any?

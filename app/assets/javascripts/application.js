@@ -28,3 +28,4 @@
 //= require bootstrap-switch
 //= require switch
 //= require datatables
+//= require charts

@@ -1,60 +1,51 @@
 .row
-  .col-md-12
-    %h1.text-center
+  .col-md-8.col-md-offset-2.text-center
+    %h1
       Trending
       - if kind == 'status'
         Status
       - else
         = kind.capitalize.pluralize
+    %h3.text-muted
+      Your top 3 posts
+
+    - posts_reactions = posts_max_reactions(kind)
+
+    - posts_reactions.each.with_index(1) do |post, index|
+      .col-md-4.text-center
+        .panel.panel-green
+          .panel-heading
+            - index.times do
+              .fa.fa-star
+            %br
+            = truncate(post.message, length: 150)
+          .panel-footer
+            = link_to 'More info', post_path(post), class: 'pull-right'
+
+            .pull-left
+              with
+              = pluralize(post.reactions&.count, 'reaction')
+            %br
 
 .row
-  - posts_reactions = posts_max_reactions(kind)
-
-  - posts_reactions.each do |post|
-    %div{ class: "col-md-#{12/posts_reactions.length} text-center" }
-      .fa.fa-star
-      = truncate(post.message, length: 150)
-      = link_to '(more info)', post_path(post)
   .col-md-12
-    .text-muted.text-center
-      with
-      = pluralize(posts_max_reactions(kind).first&.reactions&.sum(:count), 'reaction')
-
     .text-center
       %br
-      = link_to "All #{kind.pluralize}", posts_path(kind: kind), class: 'btn btn-success'
+      - text = kind == 'status' ? 'status updates' : kind.pluralize
+      = link_to "All #{text}", posts_path(kind: kind), class: 'btn btn-success'
+.row
   .col-md-4.col-md-offset-4
     %hr.bold
-
 .row
-  .col-md-8.col-md-offset-2.text-center
+  .col-md-12
     %h1.text-center
-      - if kind == 'status'
-        Status
-      - else
-        = kind.capitalize.pluralize
-      Reactions
-
-    %h3
-      %i{ class: "fa #{icon_for('like')}" }
-      %i{ class: "fa #{icon_for('wow')}" }
-      %i{ class: "fa #{icon_for('love')}" }
-      %i{ class: "fa #{icon_for('sad')}" }
-      %i{ class: "fa #{icon_for('angry')}" }
-      %i{ class: "fa #{icon_for('haha')}" }
-.row
-  .col-md-12
-    = render partial: 'trending_chart', locals: { kind: kind }
-
-.row
-  .col-md-12
-    %h1
       Your
       - if kind == 'status'
-        Status
+        status updates
       - else
         = kind.capitalize.pluralize
       with the most reactions
+
   - posts_max_reaction = posts_per_max_reaction(kind)
 
   - posts_max_reaction.each do |reaction, info|
@@ -67,8 +58,34 @@
         = pluralize(info[:count], 'person')
 
       - posts = info[:posts]
-      %ul
-        - posts.each do |post|
-          %li
-            = truncate(post.message, length: 150)
-            = link_to '(more info)', post_path(post)
+      - posts.each do |post|
+        .fa.fa-star
+        = truncate(post.message, length: 150)
+        = link_to '(more info)', post_path(post)
+
+.row
+  .col-md-4.col-md-offset-4
+    %hr.bold
+
+.row
+  .col-md-8.col-md-offset-2.text-center
+    %h1.text-center
+      Total reactions for
+      - if kind == 'status'
+        status updates
+      - else
+        = kind.capitalize.pluralize
+
+    %h3
+      %i{ class: "fa #{icon_for('like')}" }
+      %i{ class: "fa #{icon_for('love')}" }
+      %i{ class: "fa #{icon_for('haha')}" }
+      %i{ class: "fa #{icon_for('wow')}" }
+      %i{ class: "fa #{icon_for('sad')}" }
+      %i{ class: "fa #{icon_for('angry')}" }
+.row
+  .col-md-12
+    .col-md-6
+      = line_chart @trending_graph_data[kind.to_sym][:multiple]
+    .col-md-5.col-md-offset-1
+      = render partial: 'trending_chart', locals: { kind: kind }

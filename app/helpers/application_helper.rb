@@ -14,6 +14,10 @@ module ApplicationHelper
     period = period.parameterize.underscore
 
     result = case period
+             when 'all'
+               { from: '', to: '' }
+             when 'current_year'
+               { from: Date.new(Date.current.year).to_s, to: Date.new(Date.current.year).end_of_year.to_s }
              when 'last_3_months'
                { from: (Date.current - 3.months).to_s, to: Date.current.to_s }
              when 'last_6_months'
@@ -35,38 +39,58 @@ module ApplicationHelper
   end
 
   def posts_reactions_graph_data(kind=nil)
-    post_objects = Post.all
-    post_objects = Post.send(kind) if kind
-
     result = { }
-
-    reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
-
-    reactions.each do |reaction|
-      result[reaction.to_sym] = post_objects.inject(0){ |sum, post| sum + (post.reactions.where(name: reaction)&.count || 0) }
-      # result[reaction.to_sym] = post_objects.inject(0){ |sum, post| sum + post.reactions.per_kind(reaction).count }
+    post_objects = Post.all
+    if kind && kind != 'all'
+      post_objects = Post.send(kind)
+      # other_post_objects = Post.kinds.keys.
+                                # map{ |post_kind| Post.send(post_kind) unless post_kind == kind }.flatten.compact
+      other_post_objects = Post.all - Post.send(kind)
     end
+    result[:simple] = { name: kind || 'all', data: Reaction.where(reactionable: post_objects).group(:name).count }
+
+    # reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
+
+    result[:multiple] = []
+    if kind && kind != 'all'
+      result[:multiple] << result[:simple]
+      result[:multiple] << { name: 'other posts',
+                             data: Reaction.where.not(reactionable: nil).
+                                   where(reactionable_type: 'Post').
+                                   where(reactionable_id: other_post_objects.pluck(:id)).
+                                   group(:name).count }
+    else
+      Post.kinds.keys.each do |post_kind|
+        result[:multiple] << { name: post_kind,
+                               data: Reaction.where(reactionable_type: 'Post',
+                                                    reactionable_id: Post.send(post_kind)).
+                                              group(:name).count}
+      end
+    end
+
     result
   end
 
   ##
+  # Find the top 3 posts, with the most total reactions
   # Gets the kind of the post (status, like, photo, link)
   # if there is no kind, it is applied for all posts
-  # Returns a collection of posts, which have reactions equal to max_reactions_count
   def posts_max_reactions(kind=nil)
     post_objects = Post.all
     post_objects = Post.send(kind) if kind
 
-    max_reactions_count = post_objects.map{ |post| post.reactions.count }.max
-    # posts = post_objects.includes(:reactions).max
+    reactions_count = Reaction.where(reactionable: post_objects).group(:reactionable_id).count
+    # Sort hashes by value (returns array). Keep the last 3 entries.
+    reactions_max_count = reactions_count.sort_by{ |_k,v| v }.last(3).to_h
 
     posts = { }
-    posts = post_objects.select{ |post| post.reactions.count == max_reactions_count }
+    posts = reactions_max_count.map{ |k,_v| Post.find(k) }
+
     posts
   end
 
   ##
-  # Find the posts with the most reactions
+  # Find the posts with the most reactions (per reaction)
   # ===Returns
   # * +Hash+ -> posts
   # posts = { 'like' => { count: 10, posts: PostsCollection } }
@@ -78,17 +102,24 @@ module ApplicationHelper
     puts "kind: #{kind} and post_objects: #{post_objects.count}"
 
     reactions_max = {}
-    reactions.each{ |r| reactions_max[r] = (Reaction.where(name: r, reactionable: post_objects).length || 0) }
+    # Reaction.where(reactionable: post_objects).like.group(:reactionable_id).count
+    # .select{ |k,v| k if v == t.values.max}.map{ |k,v| Post.find(k) }
 
-    puts reactions_max;
-
+    # reactions.each{ |r| reactions_max[r] = (Reaction.where(name: r, reactionable: post_objects).length || 0) }
     posts = { }
+    reactions.each{ |reaction|
+      reaction_hash = Reaction.where(reactionable: post_objects).send(reaction).group(:reactionable_id).count
+      max_reactions = reaction_hash.values.max
+      reactionable_ids = reaction_hash.select{ |k,v| k if v == max_reactions }.keys
+      posts[reaction] =  { count: max_reactions, posts: Post.where(id: reactionable_ids) }
+    }
+
     # Reaction.where(name: r, reactionable: post_objects)
-    reactions.each{ |r| if reactions_max[r] > 0 then
-                          posts[r] = {};
-                          posts[r][:count] = reactions_max[r];
-                          posts[r][:posts] = post_objects.select{ |post| post.reactions.count == reactions_max[r] }
-                        end }
+    # reactions.each{ |r| if reactions_max[r] > 0 then
+    #                       posts[r] = {};
+    #                       posts[r][:count] = reactions_max[r];
+    #                       posts[r][:posts] = post_objects.select{ |post| post.reactions.count == reactions_max[r] }
+    #                     end }
     posts
   end
 

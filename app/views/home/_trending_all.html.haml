@@ -1,25 +1,75 @@
 .col-md-8.col-md-offset-2.text-center
   %h1.text-center
     Trending
-  %h3
-    %i{ class: "fa #{icon_for('like')}" }
-    %i{ class: "fa #{icon_for('wow')}" }
-    %i{ class: "fa #{icon_for('love')}" }
-    %i{ class: "fa #{icon_for('sad')}" }
-    %i{ class: "fa #{icon_for('angry')}" }
-    %i{ class: "fa #{icon_for('haha')}" }
+  %h3.text-muted.text-center
+    Your top 3 posts
 
-  %ul
-  - posts_max_reactions.each do |post|
-    %li
-      = truncate(post.message, length: 150)
-      = link_to '(more info)', post_path(post)
+  - posts_reactions = posts_max_reactions
 
-  .text-muted
-    with
-    = pluralize(posts_max_reactions.first&.reactions&.count, 'reaction')
+  - posts_reactions.each.with_index(1) do |post, index|
+    .col-md-4
+      .panel.panel-green
+        .panel-heading
+          - index.times do
+            .fa.fa-star
+          %br
+          = truncate(post.message, length: 150)
+        .panel-footer
+          = link_to 'More info', post_path(post), class: 'pull-right'
+
+          .pull-left
+            with
+            = pluralize(post.reactions&.count, 'reaction')
+          %br
+.row
+  .col-md-12.text-center
+
+    %br
+    = link_to 'All your posts', posts_path, class: 'btn btn-success'
+.row
+  .col-md-4.col-md-offset-4
+    %hr.bold
+.row
+  .col-md-12.text-center
+    %h1
+      Your posts with the most reactions
+
+  - posts_max_reaction = posts_per_max_reaction
+
+  - posts_max_reaction.each do |reaction, info|
+    %div{ class: "col-md-#{12/posts_max_reaction.count}" }
+      %h2
+        %i{ class: "fa #{icon_for(reaction)}" }
+        = reaction
+      .text-muted
+        from
+        = pluralize(info[:count], 'person')
+
+      - posts = info[:posts]
+      - posts.each do |post|
+        .fa.fa-star
+        = truncate(post.message, length: 150)
+        = link_to '(more info)', post_path(post)
+        %br
 
 .row
-  .col-xs-12.col-md-4.col-md-offset-4
+  .col-md-4.col-md-offset-4
     %hr.bold
-    %br
+.row
+  .col-md-8.col-md-offset-2.text-center
+    %h1.text-center
+      Total reactions for your posts
+
+    %h3
+      %i{ class: "fa #{icon_for('like')}" }
+      %i{ class: "fa #{icon_for('wow')}" }
+      %i{ class: "fa #{icon_for('love')}" }
+      %i{ class: "fa #{icon_for('sad')}" }
+      %i{ class: "fa #{icon_for('angry')}" }
+      %i{ class: "fa #{icon_for('haha')}" }
+.row
+  .col-md-12
+    .col-md-6
+      = line_chart @trending_graph_data[:all][:multiple]
+    .col-md-5.col-md-offset-1
+      = render partial: 'trending_chart', locals: { kind: nil }

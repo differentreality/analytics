@@ -1,0 +1,3 @@
+var kind = "#{@kind}";
+
+$('#total_reactions_' + kind + '_chart').replaceWith("#{escape_javascript(render partial: 'home/graph').html_safe}");

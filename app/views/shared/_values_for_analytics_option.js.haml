@@ -3,6 +3,6 @@ var selector = $('select#y_axis');
 $(selector).empty();
 -# $(selector).prop('disabled', false);
 
-$(selector).append( $('<option value="0"> Make a selection </option>') );
+-# $(selector).append( $('<option value="0"> Make a selection </option>') );
 - @values.each do |value|
   $(selector).append( $('<option value="#{value}"> #{value} </option>') );

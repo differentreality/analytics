@@ -1,0 +1,26 @@
+- kind = kind || @kind
+- trending_graph_data = @trending_graph_data[kind.to_sym]
+- trending_graph_type = @trending_graph_type || 'pie_chart'
+
+%div{ id: "total_reactions_#{kind}_chart" }
+  - case @trending_graph_type
+    - when 'line_chart'
+      = line_chart trending_graph_data[:simple][:data].map{|i| i.to_a.flatten}, discrete: true, curve: false, id: "trending_line_chart_#{kind}"
+    - when 'curve_line_chart'
+      = line_chart trending_graph_data[:simple][:data], discrete: true, id: "trending_curve_line_chart_#{kind}"
+    - when 'pie_chart'
+      = pie_chart trending_graph_data[:simple][:data], discrete: true, donut: false, id: "trending_pie_chart_#{kind}"
+    - when 'doughnut_chart'
+      = pie_chart trending_graph_data[:simple][:data], discrete: true, donut: true, id: "trending_doughnut_chart_#{kind}"
+    - when 'column_chart'
+      = column_chart trending_graph_data[:simple][:data], id: 'column_chart'
+    - when 'bar_chart'
+      = bar_chart trending_graph_data[:simple][:data], discrete: true, id: "trending_bar_chart_#{kind}"
+    - when 'area_chart'
+      = area_chart trending_graph_data[:simple][:data], id: "trending_area_chart_#{kind}"
+    - when 'geo_chart'
+      = geo_chart trending_graph_data[:simple][:data], adapter: 'google', id: "trending_geo_chart_#{kind}"
+    - when 'timeline_chart'
+      = timeline trending_graph_data[:simple][:data], id: "trending_timeline_chart_#{kind}"
+    - when 'multiple_series'
+      = line_chart trending_graph_data[:multiple], id: "trending_multiple_line_chart_#{kind}"

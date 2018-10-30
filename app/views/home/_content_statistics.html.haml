@@ -1,0 +1,30 @@
+.row
+  .col-md-12
+    %div{ role: 'tabpanel' }
+      #tabs.nav-center
+        %ul.text-center.nav.nav-tabs{ role: 'tablist' }
+
+          %li.active{ role: 'presentation' }
+            %a{ href: '#trending', 'aria-controls': 'trending', 'data-toggle': 'tab', role: 'tab' } Trending Content
+
+          %li{ role: 'presentation' }
+            %a{ href: '#content-stats', 'aria-controls': 'content-stats', 'data-toggle': 'tab', role: 'tab' } All Content
+
+          %li{ role: 'presentation' }
+            %a{ href: '#posting_stats', 'aria-controls': 'posting_stats', 'data-toggle': 'tab', role: 'tab' } Activity
+
+          %li{ role: 'presentation' }
+            %a{ href: '#reaction_stats', 'aria-controls': 'reaction_stats', 'data-toggle': 'tab', role: 'tab' } Reactions
+
+      .tab-content
+        .tab-pane.active#trending{ role: 'tabpanel'}
+          = render partial: 'trending'
+
+        .tab-pane#content-stats{ role: 'tabpanel'}
+          = render partial: 'content_stats'
+
+        .tab-pane#posting_stats{ role: 'tabpanel'}
+          = render partial: 'posting_statistics'
+
+        .tab-pane#reaction_stats{ role: 'tabpanel'}
+          = render partial: 'reaction_statistics'

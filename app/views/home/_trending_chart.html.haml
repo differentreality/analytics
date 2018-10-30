@@ -1,6 +1,12 @@
-- graph_data = posts_reactions_graph_data(kind)
-.col-md-6
-  = graph_data
-  = column_chart graph_data
-.col-md-6
-  = pie_chart graph_data
+- kind = kind || 'all'
+
+= render partial: 'graph', locals: { kind: kind }
+.col-md-4.col-md-offset-4.text-center
+  = semantic_form_for :chart, remote: true do |f|
+    = f.hidden_field 'graph_data', value: @trending_graph_data, id: "chart_graph_data_#{kind}"
+    = f.input 'graph_type', label: false,
+                            collection: YAML::load(ENV['graph_types']).map{ |graph| [graph,
+                                                                                     graph,
+                                                                                     data: { kind: kind } ]},
+                            include_blank: false,
+                            selected: 'pie_chart'

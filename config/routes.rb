@@ -6,6 +6,7 @@ Rails.application.routes.draw do
 
 
   post 'make_graph' => 'home#make_graph'
+  post 'trending_graph' => 'home#trending_graph'
   get 'values_for_analytics_option' => 'application#values_for_analytics_option'
 
   get 'webhook' => 'webhooks#confirm_webhook'
