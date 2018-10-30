@@ -3,20 +3,33 @@
     .page-header
       %h1
         Posts
-        = @posts.count
+        (#{@posts.count})
 
 .row
   .col-md-12
     %table.table.table-hover.table-bordered.table-striped.datatable#posts
       %thead
         %th Title
+        %th Reactions
+        %th Kind
         %th ID (Facebook)
         %th Actions
 
       %tbody
         - @posts.each do |post|
           %tr
-            %td= post.message || post.story
+            %td.col-md-6= post.message || post.story
+            %td{ 'data-order' => post.reactions.count }
+              = post.reactions.count
+              Total Reactions
+              %br
+
+              -  post.reactions.group(:name).count.each do |reaction, count|
+                %i{ class: "fas #{icon_for(reaction)}" }
+                = count
+                = reaction
+
+            %td= post.kind.capitalize
             %td= post.object_id
             %td
               = link_to 'Show', post_path(post), class: 'btn btn-success'
