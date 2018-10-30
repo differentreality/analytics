@@ -22,6 +22,11 @@ Rails.application.routes.draw do
       post :make_graph
     end
   end
+
+  resources :events, only: [:index, :show, :new]
+
+  resources :reactions, only: [:index, :new]
+
   post 'update_overall_statistics_table' => 'home#update_overall_statistics_table'
 
   get 'facebook_data' => 'application#facebook_data'
