@@ -17,7 +17,7 @@ Rails.application.routes.draw do
   #   -d "access_token=page-access-token" \
   #   "https://graph.facebook.com/v2.11/1353269864728879/subscribed_apps"
 
-  resources :posts, only: [:index, :show] do
+  resources :posts, only: [:index, :show, :new] do
     member do
       post :make_graph
     end
