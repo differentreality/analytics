@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181018111331) do
+ActiveRecord::Schema.define(version: 20181029101256) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -40,6 +40,8 @@ ActiveRecord::Schema.define(version: 20181018111331) do
     t.string   "name"
     t.string   "object_id"
     t.integer  "shares"
+    t.datetime "start_time"
+    t.datetime "end_time"
     t.datetime "posted_at"
     t.integer  "page_id"
     t.datetime "created_at", null: false
@@ -78,6 +80,7 @@ ActiveRecord::Schema.define(version: 20181018111331) do
     t.integer  "page_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text     "story"
     t.index ["page_id"], name: "index_posts_on_page_id", using: :btree
   end
 
