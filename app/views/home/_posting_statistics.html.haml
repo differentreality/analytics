@@ -17,6 +17,18 @@
 
 .row
   .col-md-12
+    %h2 Average reactions per post
+
+.row
+  .col-md-6
+    #activity_average_chart
+      = render partial: 'home/graph', locals: { data: reactions_groupped(count: 'average'), kind: 'all',
+                                                category: 'activity',
+                                                trending_graph_type: 'multiple_series_column_chart' }
+    = render partial: 'shared/time_group_select', locals: { id: 'average-chart' }
+
+.row
+  .col-md-12
     .page-header
       %h1 Yearly
 
@@ -31,7 +43,7 @@
     %h4 All Posts
 
     = pie_chart @result_overall[:posts][:all][:year][:values],
-                colors: graph_color_set,
+                colors: graph_color_set(@result_overall[:posts][:all][:year][:values]),
                 adapter: 'google',
                 library: { pieSliceText: 'value' }
   - Post.kinds.keys.each do |post_kind|
@@ -44,7 +56,7 @@
 
 
         = pie_chart @result_overall[:posts][post_kind.to_sym][:year][:values],
-                    colors: graph_color_set,
+                    colors: graph_color_set(@result_overall[:posts][post_kind.to_sym][:year][:values].count),
                     adapter: 'chartjs',
                     legend: 'bottom',
                     library: { fillText: 'value' }

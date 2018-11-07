@@ -1,12 +1,4 @@
 .row
-  .col-md-12
-    %h1.text-center
-      - if kind == 'status'
-        Status
-      - else
-        = kind.capitalize.pluralize
-
-.row
   .col-md-8.col-md-offset-2.text-center
     %h1.text-center
       - if kind == 'status'
@@ -24,7 +16,7 @@
       %i{ class: "fa #{icon_for('haha')}" }
 .row
   .col-md-12
-    = render partial: 'trending_chart', locals: { kind: kind }
+    = render partial: 'trending_chart', locals: { kind: kind, category: 'content' }
 
 .row
   .col-md-12

@@ -22,13 +22,13 @@
       = f.label 'From'
       = f.input 'from', as: :string,
                         label: false,
-                        input_html: { id: 'datepicker-graph-from', value: Date.current - 3.months },
+                        input_html: { id: 'datepicker-graph-from' },
                         hint: '(Optional) Limit the results to only include data from this date on.'
     .col-md-4
       = f.label 'To'
       = f.input 'to', as: :string,
                       label: false,
-                      input_html: { id: 'datepicker-graph-to', value: Date.current },
+                      input_html: { id: 'datepicker-graph-to' },
                       hint: '(Optional) Limit the results to only include data to this date.'
     .col-md-4
       = f.label 'Period'
@@ -45,9 +45,9 @@
   $(document).ready(function() {
     $('select#period').change(function(){
       // Set from, to values to last 3-month period
-      var selected_period = $('select#period option:selected');
-      var from = selected_period.data('from');
-      var to = selected_period.data('to');
+      var selected_period = $(this).find('option:selected').val();
+      var from = $(this).find('option:selected').data('from');
+      var to = $(this).find('option:selected').data('to');
 
       $('#datepicker-graph-from').val(from);
       $('#datepicker-graph-to').val(to);
