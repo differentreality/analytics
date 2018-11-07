@@ -24,6 +24,7 @@
 //= require unobtrusive_flash_bootstrap
 //= require tabbable
 //= require Chart.bundle
+//= require highcharts
 //= require chartkick
 //= require bootstrap-switch
 //= require switch

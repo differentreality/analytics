@@ -1,23 +1,34 @@
+- colors = graph_color_set([@result[:data][:simple]&.count, @result[:data][:multiple]&.count].compact.max)
+
 #overall-chart
   %br
   - case @result[:graph_type]
     - when 'line_chart'
-      = line_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, curve: false, id: 'line_chart'
+      = line_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, curve: false, id: 'line_chart', colors: colors
     - when 'curve_line_chart'
-      = line_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, id: 'curve_line_chart'
+      = line_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, id: 'curve_line_chart', colors: colors
     - when 'pie_chart'
-      = pie_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, id: 'pie_chart'
+      = pie_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, id: 'pie_chart', colors: colors
     - when 'doughnut_chart'
-      = pie_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, donut: true, id: 'doughnut_chart'
+      = pie_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, donut: true, id: 'doughnut_chart', colors: colors, adapter: 'highcharts', library: {  plotOptions: { pie: { dataLabels: { format: '<b>{point.name}</b><br>{point.y} ({point.percentage:.2f} %)',
+                    distance: 15,
+                    color: '#FF0266' }}}}
     - when 'column_chart'
-      = column_chart @result[:data][:simple].map{|i| i.to_a.flatten}, id: 'column_chart'
+      = column_chart @result[:data][:simple].map{ |i| i.to_a.flatten },
+        id: 'column_chart',
+        colors: colors,
+        adapter: 'highcharts',
+        library: {  plotOptions: { column: { dataLabels: { format: '<b>{point.name}</b><br>{point.y}',
+                                                           enabled: true, color: '#FF0266' }}}}
     - when 'bar_chart'
-      = bar_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, id: 'bar_chart'
+      = bar_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, id: 'bar_chart', colors: colors
     - when 'area_chart'
-      = area_chart @result[:data][:simple].map{|i| i.to_a.flatten}, id: 'area_chart'
+      = area_chart @result[:data][:simple].map{|i| i.to_a.flatten}, id: 'area_chart', colors: colors
     - when 'geo_chart'
-      = geo_chart @result[:data][:simple], id: 'geo_chart', adapter: 'google'
+      = geo_chart @result[:data][:simple], id: 'geo_chart', adapter: 'google', colors: colors
     - when 'timeline_chart'
-      = timeline @result[:data][:simple], id: 'timeline_chart'
-    - when 'multiple_series'
-      = line_chart @result[:data][:multiple], id: 'multiple_series'
+      = timeline @result[:data][:simple], id: 'timeline_chart', colors: colors
+    - when 'multiple_series_line_chart'
+      = line_chart @result[:data][:multiple], id: 'multiple_series_line_chart', colors: colors
+    - when 'multiple_series_column_chart'
+      = column_chart @result[:data][:multiple], id: 'multiple_series_column_chart', colors: colors

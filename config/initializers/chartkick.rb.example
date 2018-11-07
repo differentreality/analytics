@@ -1,0 +1,4 @@
+Chartkick.options = {
+  adapter: 'highcharts',
+  colors: ['#5b90bf', '#96b5b4', '#adc896', '#ab7967', '#d08770', '#b48ead']
+}

@@ -50,3 +50,4 @@ bundle/bundler/setup.rb
 .env
 shared/log/*
 shared/pids/*
+config/initializers/chartkick.rb
