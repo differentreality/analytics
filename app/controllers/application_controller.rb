@@ -76,6 +76,24 @@ class ApplicationController < ActionController::Base
     redirect_to root_path
   end
 
+  ##
+  # Ajax call to update a chart
+  def make_graph
+    @reactions_group_parameter = params[:group_parameter]
+    @kind = params[:kind]
+    @category = params[:category]
+    @group_format = params[:group_format]
+    @trending_graph_type = params[:graph_type]
+    @graph_id = params[:graph_id]
+    @data = {}
+    @data = ApplicationController.helpers.reactions_groupped(group_parameter: @reactions_group_parameter,
+                                                             group_format: @group_format,
+                                                             count: 'average')
+    respond_to do |format|
+      format.js { render 'shared/make_graph' }
+    end
+  end
+
   def set_overall_result(from=nil, to=nil)
     # Initialize overall statistic values
     # {
@@ -199,7 +217,11 @@ class ApplicationController < ActionController::Base
                            end
 
     # [{ name: 'haha', data: { }}]
+    result[:multiple] = []
     if multiple_diversifier
+      result[:multiple] << { name: 'all',
+                             data: result[:simple] }
+
       result[:multiple] = result_initial.
                           group_by(&multiple_diversifier.to_sym).
                           map{ |kind, data| { name: kind, data: data.map{ |x| x.posted_at.to_s if x.posted_at }.

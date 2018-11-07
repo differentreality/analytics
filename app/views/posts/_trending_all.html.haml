@@ -70,6 +70,6 @@
 .row
   .col-md-12
     .col-md-6
-      = line_chart @trending_graph_data[:all][:multiple]
+      = column_chart @trending_graph_data[:all][:multiple], colors: graph_color_set(@trending_graph_data[:all][:multiple].count)
     .col-md-5.col-md-offset-1
-      = render partial: 'trending_chart', locals: { kind: nil }
+      = render partial: 'trending_chart', locals: { kind: nil, category: 'trending' }

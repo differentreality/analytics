@@ -1,14 +1,64 @@
 $(document).ready(function() {
+
+  $("select[id^='chart_form']").change( function() {
+
+    group_parameter_selector = $("select[id$='group_parameter']");
+    graph_type_selector = $("select[id$='graph_type']");
+
+    var category = group_parameter_selector.find('option:selected').data('category');
+    var kind = group_parameter_selector.find('option:selected').data('kind');
+    var group_parameter = group_parameter_selector.find('option:selected').data('group-parameter');
+    var group_format = group_parameter_selector.find('option:selected').data('format');
+    var graph_type = graph_type_selector.find('option:selected').val();
+    // var graph_type = $(this).find('option:selected').val();
+    // var graph_data = $('#chart_graph_data_status').val();
+    var graph_id = $("[id$='graph_id']").val();
+
+    $.ajax({
+      type: 'POST',
+      url: '/make_graph',
+      data: { group_parameter: group_parameter,
+              kind: kind,
+              category: category,
+              group_format: group_format,
+              graph_type: graph_type,
+              graph_id: graph_id },
+      dataType: 'script'
+    });
+  });
+
+  $('select#reactions_chart_group_parameter').change( function() {
+    var category = $(this).find('option:selected').data('category');
+    var kind = $(this).find('option:selected').data('kind');
+    var group_parameter = $(this).find('option:selected').data('group-parameter');
+    var group_format = $(this).find('option:selected').data('format');
+
+    // var graph_type = $(this).find('option:selected').val();
+    // var graph_data = $('#chart_graph_data_status').val();
+
+    $.ajax({
+      type: 'POST',
+      url: '/reactions_graph',
+      data: { group_parameter: group_parameter,
+              kind: kind,
+              category: category,
+              group_format: group_format },
+      dataType: 'script'
+    });
+  });
+
   $('select#chart_graph_type').change( function() {
     var kind = $(this).find('option:selected').data('kind');
+    var category = $(this).find('option:selected').data('category');
     var graph_type = $(this).find('option:selected').val();
-    var graph_data = $('#chart_graph_data_status').val();
+    // var graph_data = $('#chart_graph_data_status').val();
 
     $.ajax({
       type: 'POST',
       url: '/trending_graph',
       data: { graph_type: graph_type,
-              kind: kind },
+              kind: kind,
+              category: category },
       dataType: 'script'
     });
   });

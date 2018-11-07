@@ -1,0 +1,15 @@
+= semantic_form_for "chart_form_#{form_name}", remote: true do |f|
+  = f.hidden_field :graph_id, value: chart_id
+  = f.input 'group_parameter',
+    label: false,
+    collection: group_parameter_options.map{ |parameter, options| [ parameter,
+                                                            data: { kind: 'all',
+                                                                    category: 'reactions',
+                                                                    group_parameter: parameter,
+                                                                    format: options[:format]}]},
+    include_blank: false,
+    selected: 'day'
+  = f.input 'graph_type', label: false,
+                          collection: YAML::load(ENV['graph_types']),
+                          include_blank: false,
+                          selected: 'bar_chart'

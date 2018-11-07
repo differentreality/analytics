@@ -1,0 +1,17 @@
+.row
+  .col-md-12
+    .page-header
+      %h1 Reactions to your content
+
+.row
+  .col-md-6
+    - reactions = reactions_groupped(count: 'average')
+
+    = line_chart reactions[:multiple], id: "overall_reactions_multiple_line_chart_all", colors: graph_color_set(reactions[:multiple])
+  .col-md-6
+    = render partial: 'home/graph', locals: { kind: 'all',
+                                              category: 'reactions',
+                                              data: reactions,
+                                              id: "total_reactions_all_chart_reactions" }
+    = render partial: 'shared/time_group_select', locals: { form_name: 'reactions',
+                                                            chart_id: "total_reactions_all_chart_reactions" }

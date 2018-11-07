@@ -21,8 +21,12 @@ class HomeController < ApplicationController
     from = Date.parse(params[:from]) if params[:from].present?
     to = Date.parse(params[:to]) if params[:from].present?
     if object == 'all'
+      @result[:data] = {}
+      @result[:data][:multiple] = []
+
       ['posts', 'events', 'reactions'].each do |obj|
-        @result[:data] << { name: obj, data: get_data(obj, period, from, to) }
+        data = get_data(obj, period, from, to)
+        @result[:data][:multiple] << { name: obj, data: data[:simple] }
       end
     else
       @result[:data] = get_data(object, period, from, to) if object && period
@@ -30,7 +34,7 @@ class HomeController < ApplicationController
     respond_to do |format|
       format.html { render template: 'home/index'
                   }
-      format.js { render 'shared/make_graph' }
+      format.js { render 'home/make_graph' }
     end
   end
 
@@ -53,22 +57,40 @@ class HomeController < ApplicationController
     to = Time.current
     period = 'month'
     @result = { data: get_data('posts', period, from, to), graph_type: 'doughnut_chart' }
-
     @trending_graph_type = 'pie_chart'
     @trending_graph_data = {}
     @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(nil)
     Post.kinds.keys.each do |kind|
       @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(kind)
     end
+
+    @reactions_groupped = {}
+    @reactions_groupped[:all] = ApplicationController.helpers.reactions_groupped(group_format: @group_format)
   end
 
-  def trending_graph
-    @trending_graph_type = params[:graph_type]
+  def reactions_graph
+    @reactions_group_parameter = params[:group_parameter]
     @kind = params[:kind]
-    @trending_graph_data = {}
-    @trending_graph_data[@kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@kind)
+    @category = params[:category]
+    @group_format = params[:group_format]
+    @trending_graph_type = params[:trending_graph_type]
+    @data = {}
+    @data = ApplicationController.helpers.reactions_groupped(group_parameter: @reactions_group_parameter,
+                                                             group_format: @group_format,
+                                                             count: 'average')
+  end
 
-    puts @trending_graph_data
+  def activity_graph
+    @reactions_group_parameter = params[:group_parameter]
+    @kind = params[:kind]
+    @category = params[:category]
+    @group_format = params[:group_format]
+    @trending_graph_type = params[:graph_type]
+    @graph_id = 'activity_average_chart'
+    @data = {}
+    @data = ApplicationController.helpers.reactions_groupped(group_parameter: @reactions_group_parameter,
+                                                             group_format: @group_format,
+                                                             count: 'average')
   end
 
   def update_overall_statistics_table

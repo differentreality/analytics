@@ -1,12 +1,15 @@
 Rails.application.routes.draw do
   resources :people
   namespace :api, defaults: { format: 'json' } do
+    resources :posts, only: [:new, :update]
+    get 'initialize_posts' => 'posts#initialize'
     get 'page_fans_city' => 'pages#page_fans_city'
   end
 
-
-  post 'make_graph' => 'home#make_graph'
-  post 'trending_graph' => 'home#trending_graph'
+  post 'trending_graph' => 'posts#trending_graph'
+  post 'reactions_graph' => 'home#reactions_graph'
+  post 'activity_graph' => 'home#activity_graph'
+  post 'make_graph' => 'application#make_graph'
   get 'values_for_analytics_option' => 'application#values_for_analytics_option'
 
   get 'webhook' => 'webhooks#confirm_webhook'

@@ -1,6 +1,7 @@
 module ApplicationHelper
 
-  def graph_color_set
+  def graph_color_set(values_count)
+    # If values are more than 7, choose another color scheme
     return ['#5b90bf', '#96b5b4', '#adc896', '#ab7967', '#d08770', '#b48ead']
   end
 
@@ -38,7 +39,75 @@ module ApplicationHelper
     return "#{object.keys.join(', ')} -> #{object.values.first}"
   end
 
-  def posts_reactions_graph_data(kind=nil)
+  def reactions_groupped(reaction_kind: nil, group_parameter: 'day', group_format: nil, count: 'count')
+    # if groupping by date, do it by hand and do not show dates without data (ie w/ 0 count)
+    result = { }
+    reaction_objects = if reaction_kind
+                         Reaction.send(reaction_kind)
+                       else
+                         Reaction.all
+                       end
+    other_reaction_objects = []
+    other_reaction_objects = Reaction.all - Reaction.send(reaction_kind) if reaction_kind
+
+    result[:multiple] = []
+
+    if count == 'count'
+      result[:simple] = { name: reaction_kind || 'all',
+                          data: reaction_objects.send("group_by_#{group_parameter}",
+                                                      :posted_at,
+                                                      format: group_format).count
+                        }
+      Reaction::KINDS.each do |reaction_kind|
+        result[:multiple] << { name: reaction_kind,
+                               data: reaction_objects.where(name: reaction_kind)
+                                             .send("group_by_#{group_parameter}",
+                                                   :posted_at,
+                                                   format: group_format).send(count) }
+      end
+
+    elsif count == 'average'
+      result[:simple] = { name: reaction_kind || 'all',
+                          data: reaction_objects
+                                .group_by{|r| r.posted_at.strftime(group_parameter_options[group_parameter.to_sym][:format])}
+                                .map { |k, v| [k, (v.size.to_f / v.pluck(:reactionable_type,
+                                                                        :reactionable_id)
+                                                                  .uniq.count).round(2) ] }.to_h }
+
+
+      result[:multiple] << result[:simple]
+      Reaction::KINDS.each do |reaction_kind|
+        result[:multiple] << { name: reaction_kind,
+                               data: reaction_objects.where(name: reaction_kind)
+                                                     .group_by{ |reaction|
+                                                                reaction
+                                                                .posted_at
+                                                                .strftime(group_parameter_options[group_parameter.to_sym][:format])
+                                                              }
+                                                     .map { |k, v| [k, (v.size.to_f / v.pluck(:reactionable_type,
+                                                             :reactionable_id)
+                                                      .uniq.count).round(2) ] }.to_h }
+      end
+    end
+
+    # result[:multiple].second[:data]["Saturday, 03-November-2018"] = 750
+    # result[:simple][:data]["Saturday, 03-November-2018"] = 750
+    return result
+  end
+
+  ##
+  # Group options for reactions
+  def group_parameter_options
+    {  date: { group: 'day', format: '%b. %d, %Y', symbol: '%d' },
+       day: { group: 'day_of_week', format: '%A', symbol: '%A' },
+       week: { group: 'week', format: '%Y-%m-%d', symbol: '%W' },
+       month: { group: 'month', format: '%B', symbol: '%m' },
+       year: { group: 'year', format: '%Y', symbol: '%Y' },
+       hour: { group: 'hour_of_day', format: '%k:00', symbol: '%H'}
+    }
+  end
+
+  def posts_reactions_graph_data(kind=nil, count='count')
     result = { }
     post_objects = Post.all
     if kind && kind != 'all'
@@ -47,24 +116,25 @@ module ApplicationHelper
                                 # map{ |post_kind| Post.send(post_kind) unless post_kind == kind }.flatten.compact
       other_post_objects = Post.all - Post.send(kind)
     end
-    result[:simple] = { name: kind || 'all', data: Reaction.where(reactionable: post_objects).group(:name).count }
+    result[:simple] = { name: kind || 'all',
+                        data: Reaction.where(reactionable: post_objects).group(:name).send(count) }
 
     # reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
 
     result[:multiple] = []
+    result[:multiple] << result[:simple]
     if kind && kind != 'all'
-      result[:multiple] << result[:simple]
       result[:multiple] << { name: 'other posts',
                              data: Reaction.where.not(reactionable: nil).
                                    where(reactionable_type: 'Post').
                                    where(reactionable_id: other_post_objects.pluck(:id)).
-                                   group(:name).count }
+                                   group(:name).send(count) }
     else
       Post.kinds.keys.each do |post_kind|
         result[:multiple] << { name: post_kind,
                                data: Reaction.where(reactionable_type: 'Post',
                                                     reactionable_id: Post.send(post_kind)).
-                                              group(:name).count}
+                                              group(:name).send(count)}
       end
     end
 

@@ -76,6 +76,8 @@
       = link_to 'Your Posts', posts_path, class: 'btn btn-primary btn-lg'
     - if Event.any?
       = link_to 'Your Events', events_path, class: 'btn btn-primary btn-lg'
+    - if Reaction.any?
+      = link_to 'User Engagement', reactions_path, class: 'btn btn-primary btn-lg'
     %br
     %hr
 

@@ -5,6 +5,21 @@ class PostsController < ApplicationController
   def index
     @posts = Post.all
     @posts = @posts.send(params[:kind]) if params[:kind]
+
+    @trending_graph_type = 'pie_chart'
+    @trending_graph_data = {}
+    @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(nil)
+    Post.kinds.keys.each do |kind|
+      @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(kind)
+    end
+  end
+
+  def trending_graph
+    @trending_graph_type = params[:graph_type]
+    @kind = params[:kind]
+    @category = params[:category]
+    @trending_graph_data = {}
+    @trending_graph_data[@kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@kind)
   end
 
   def show

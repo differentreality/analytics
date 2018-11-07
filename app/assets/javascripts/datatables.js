@@ -8,6 +8,7 @@ $(function () {
         destroy: true,
         autoWidth: false,
         bInfo: false,
+        aaSorting: [[0, 'desc']],
         responsive: true,
         pagingType: 'full_numbers',
         lengthMenu: [[12, 24, 50, 100, -1], [12, 24, 50, 100, 'Όλα']],
