@@ -1,6 +1,6 @@
 - kind = kind || @kind || 'all'
 - category = category || @category
-- graph_type = trending_graph_type || @trending_graph_type || 'bar_chart'
+- graph_type = graph_type || @trending_graph_type || 'bar_chart'
 - trending_graph_data = @trending_graph_data[kind.to_sym] if @trending_graph_data
 - data = data || trending_graph_data || @data
 - id = id || @graph_id || "total_reactions_#{kind}_chart_#{category}"
