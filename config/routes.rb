@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  devise_for :users, controllers: { omniauth_callbacks: 'users/omniauth_callbacks'},
+                     path: 'user'
+  devise_scope :user do
+    delete "/users/sign_out" => "devise/sessions#destroy"
+  end
+
   resources :people
   namespace :api, defaults: { format: 'json' } do
     resources :posts, only: [:new, :update]

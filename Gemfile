@@ -51,6 +51,14 @@ gem 'jbuilder', '~> 2.0'
 gem 'unobtrusive_flash', '>=3'
 gem 'validates_email_format_of'
 
+# as authentification framework
+gem 'devise', '~> 4.2.0'
+gem 'devise-i18n'
+
+# to support openID authentication
+gem 'omniauth'
+gem 'omniauth-facebook'
+
 # For charts
 gem 'chartkick'
 gem 'groupdate'
