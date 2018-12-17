@@ -11,26 +11,32 @@ module Users
 
     def handle(provider)
       auth_hash = request.env['omniauth.auth']
-      puts "auth_hash: #{auth_hash}"
+      user_access_token = auth_hash[:credentials][:token]
       uid = auth_hash[:uid]
 
-      # user_accounts = @connection.get_object("#{uid}/accounts")
-      # puts "user accounts: #{user_accounts}"
+      user = User.find_for_auth(auth_hash) # Get or create user
 
-      user = User.find_for_auth(auth_hash) # Get or create users
-      puts "user: #{user.inspect}"
       begin
-        # user.skip_confirmation!
+        user.access_token = user_access_token
         user.save!(validate: false)
-        person = Person.new(name: auth_hash[:info][:name],
-                            object_id: uid,
-                            user_id: user.id)
-        puts "person: #{person.inspect}"
-        person.save!
-        # current_user = user
         sign_in user
+
+        # Create person
+        person = Person.find_or_create_by(name: auth_hash[:info][:name],
+                                          object_id: uid,
+                                          user_id: user.id)
+
+        # Create user pages
+        user_access_token = current_user&.access_token
+        @connection = Koala::Facebook::API.new(user_access_token)
+
+        user_fb_pages = @connection.get_object("#{current_user.person.object_id}/accounts")
+        user_fb_pages.each do |page|
+          page_record = Page.find_or_create_by(name: page['name'],
+                                               object_id: page['id'])
+          page_record.pages_users.where(user: current_user).find_or_create_by(access_token: page['access_token'])
+        end
       rescue => e
-        puts "ERROR: #{e.message}"
         flash[:error] = e.message
       end
       redirect_to root_path

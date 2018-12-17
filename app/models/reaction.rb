@@ -1,6 +1,8 @@
 class Reaction < ApplicationRecord
   belongs_to :reactionable, polymorphic: true
   belongs_to :person
+  belongs_to :page
+
   KINDS = [ 'like', 'love', 'haha', 'wow', 'sad', 'angry']
 
   def self.per_kind(kind)

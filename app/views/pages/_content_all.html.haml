@@ -30,4 +30,4 @@
         - posts.each do |post|
           %li
             = truncate(post.message, length: 150)
-            = link_to '(more info)', page_post_path(@page.object_id, post)
+            = link_to '(more info)', page_post_path(post.page.object_id, post)

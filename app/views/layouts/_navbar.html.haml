@@ -2,14 +2,17 @@
   .navbar.navbar-default.navbar-fixed-top{ role: 'navigation' }
     .navbar-header.fullwidth
       .col-md-12
-        %button.navbar-toggle{ 'type' => 'button', 'data-toggle' => 'collapse', 'data-target' => '.navbar-collapse' }
+        %button.navbar-toggle{ 'type' => 'button', 'data-toggle' => 'collapse', 'data-target' => 'navbar-collapse' }
           %span.sr-only
             Toggle navigation
           %span.icon-bar
           %span.icon-bar
           %span.icon-bar
+
       .col-md-4
-        = link_to "Stella's Demo Rails App", root_path, title: '', class: 'navbar-brand'
+        %ul.nav.navbar-nav
+          %li= link_to "© 2018 More Facebook Analytics by Stella Rouzi", "#{current_page?(root_path) ? '#' : root_path}", class: 'navbar-brand'
+
       .col-md-4
         %ul.nav.navbar-nav
           %li
@@ -26,7 +29,24 @@
               %i.fab.fa-facebook-square
 
               .fb-like{ 'data-href' => 'https://www.facebook.com/', 'data-layout' => 'button', 'data-action' => 'like', 'data-size' => 'small', 'data-show-faces' => 'true', 'data-share' => 'true' }
-
       .col-md-4
         %ul.nav.navbar-nav.navbar-right
-          %li= link_to "© 2018 More Facebook Analytics by Stella Rouzi", "#{current_page?(root_path) ? '#' : root_path}"
+          - if current_user
+            %li.dropdown
+              %a.dropdown-toggle{ style: 'font-weight: bold', "data-toggle" => "dropdown", :href => "#", id: 'user-menu'  }
+                Hello #{current_user.email}!
+                %span.caret
+              %ul.dropdown-menu
+                - current_user.pages.each do |page|
+
+                  %li= link_to page.name, page_path(page.object_id)
+
+            %li= link_to 'Sign out', users_sign_out_path, method: :delete
+
+          - else
+            - provider = 'facebook'
+            %li
+              = link_to "/user/auth/#{provider}",
+                id: "omniauth-#{provider}", title: provider do
+                Sign in with
+                %i{ class: "fab fa-#{provider}"}

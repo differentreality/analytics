@@ -17,7 +17,7 @@ class ReactionsController < ApplicationController
     #    {} ]
 
     facebook_data = connection_result('get_connections',
-                                      "#{@page_id}/posts",
+                                      "#{@page.object_id}/posts",
                                       fields)
 
     result = facebook_data_all_pages(facebook_data) if facebook_data

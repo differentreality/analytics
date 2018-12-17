@@ -1,6 +1,7 @@
 class PostsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: :webhook_notification
   load_resource only: [:show, :make_graph]
+  load_resource :page, find_by: :object_id
 
   def index
     @posts = Post.all
@@ -8,9 +9,9 @@ class PostsController < ApplicationController
 
     @trending_graph_type = 'pie_chart'
     @trending_graph_data = {}
-    @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(nil)
+    @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(@page, nil)
     Post.kinds.keys.each do |kind|
-      @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(kind)
+      @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
     end
   end
 
@@ -19,12 +20,11 @@ class PostsController < ApplicationController
     @kind = params[:kind]
     @category = params[:category]
     @trending_graph_data = {}
-    @trending_graph_data[@kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@kind)
+    @trending_graph_data[@kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, @kind)
   end
 
   def show
     #TODO rename @result to @graph
-    puts "result: #{@result.inspect}"
     @result = { data: { simple: [], multiple: [] }, graph_type: params[:graph_type] || 'column_chart'}
     @result[:data][:simple] = @post.reactions.group(:name).count
   end
@@ -32,11 +32,12 @@ class PostsController < ApplicationController
   # Initialize posts
   def new
     result = []
+    return unless @page.present?
 
     facebook_data = connection_result('get_connections',
-                                      "#{@page_id}/posts",
-                                      '?fields=message, type, created_time, story')
-    puts "CHECK: #{facebook_data.first}"
+                                      "#{@page.object_id}/posts",
+                                      '?fields=message, type, created_time, story',
+                                      @page.pages_users.find_by(user: current_user).access_token)
     result = facebook_data_all_pages(facebook_data) if facebook_data
     # Save posts to database
     result_db_items = []
@@ -57,7 +58,7 @@ class PostsController < ApplicationController
       end
       result_db_items << db_object
     end
-    redirect_to root_path
+    redirect_to root_path(page_id: @page.object_id)
   end
 
   def make_graph

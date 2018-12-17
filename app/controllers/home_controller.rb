@@ -1,16 +1,17 @@
 class HomeController < ApplicationController
   include ApplicationHelper
   skip_before_action :verify_authenticity_token, only: :webhook_notification
+  load_resource :page, find_by: :object_id
 
   def make_graph
     @result = { data: [], graph_type: params[:graph_type]}
 
-    # @result = @graph.get_connections(@page_id, "feed")
+    # @result = @graph.get_connections(@page.object_id, "feed")
     # me/posts?fields=message,created_time, reactions
 
     # me/insights/page_fans
-    # @result = @graph.get_connections(@page_id, "insights/page_fans")
-    # @result = @connection.get_object("#{@page_id}/posts", { fields: 'created_time' })
+    # @result = @graph.get_connections(@page.object_id, "insights/page_fans")
+    # @result = @connection.get_object("#{@page.object_id}/posts", { fields: 'created_time' })
 
     # posts?fields=insights.metric(post_reactions_by_type_total).period(lifetime).as(post_reactions_by_type_total)
 
@@ -25,11 +26,11 @@ class HomeController < ApplicationController
       @result[:data][:multiple] = []
 
       ['posts', 'events', 'reactions'].each do |obj|
-        data = get_data(obj, period, from, to)
+        data = get_data(@page, obj, period, from, to)
         @result[:data][:multiple] << { name: obj, data: data[:simple] }
       end
     else
-      @result[:data] = get_data(object, period, from, to) if object && period
+      @result[:data] = get_data(@page, object, period, from, to) if object && period
     end
     respond_to do |format|
       format.html { render template: 'home/index'
@@ -39,6 +40,9 @@ class HomeController < ApplicationController
   end
 
   def index
+    if current_user
+      redirect_to pages_path
+    end
     @page_title = @page.try(:name) || get_page_title || 'Lambda Space'
     @page_fans_count = @page.try(:fans) || get_page_fans
     @result = {}
@@ -56,16 +60,22 @@ class HomeController < ApplicationController
     from = Time.current - 3.months
     to = Time.current
     period = 'month'
-    @result = { data: get_data('posts', period, from, to), graph_type: 'doughnut_chart' }
+    @result = { data: get_data(@page, 'posts', period, from, to), graph_type: 'doughnut_chart' }
     @trending_graph_type = 'pie_chart'
     @trending_graph_data = {}
-    @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(nil)
+    @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(@page, nil)
     Post.kinds.keys.each do |kind|
-      @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(kind)
+      @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
     end
 
     @reactions_groupped = {}
     @reactions_groupped[:all] = ApplicationController.helpers.reactions_groupped(group_format: @group_format)
+
+    respond_to do |format|
+      format.html# { render template: 'home/index'
+                  #}
+      format.js #{ render 'home/make_graph' }
+    end
   end
 
   def reactions_graph

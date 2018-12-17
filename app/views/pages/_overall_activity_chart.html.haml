@@ -1,0 +1,157 @@
+.row
+  %hr.bold
+
+  = semantic_form_for '', url: make_graph_path do |f|
+    .col-md-4
+      = f.label 'Select variable x'
+      = f.input 'x_axis', collection: YAML::load(ENV['analytics_options']).keys,
+                          label: false,
+                          include_blank: false,
+                          selected: :posts
+    .col-md-4
+      = f.label 'Select variable y'
+      = f.input 'y_axis', collection: YAML::load(ENV['analytics_options'])['posts'],
+                          label: false,
+                          include_blank: false,
+                          selected: 'month'
+    .col-md-4
+      = f.input 'graph_type', collection: YAML::load(ENV['graph_types']),
+                              include_blank: false,
+                              selected: 'doughnut_chart'
+    .col-md-4
+      = f.label 'From'
+      = f.input 'from', as: :string,
+                        label: false,
+                        input_html: { id: 'datepicker-graph-from' },
+                        hint: '(Optional) Limit the results to only include data from this date on.'
+    .col-md-4
+      = f.label 'To'
+      = f.input 'to', as: :string,
+                      label: false,
+                      input_html: { id: 'datepicker-graph-to' },
+                      hint: '(Optional) Limit the results to only include data to this date.'
+    .col-md-4
+      = f.label 'Period'
+      = f.input 'period', label: false, collection: YAML::load(ENV['period_options']).map{ |period| [period, period.parameterize.underscore, data: find_date(period) ]},
+                                        include_blank: false,
+                                        selected: 'last_3_months'
+    .col-md-12
+      = f.submit 'Make Graph!', class: 'btn btn-primary'
+
+    .col-md-12
+      = render partial: 'shared/graph'
+
+:javascript
+  $(document).ready(function() {
+    $('select#period').change(function(){
+      // Set from, to values to last 3-month period
+      var selected_period = $(this).find('option:selected').val();
+      var from = $(this).find('option:selected').data('from');
+      var to = $(this).find('option:selected').data('to');
+
+      $('#datepicker-graph-from').val(from);
+      $('#datepicker-graph-to').val(to);
+      // change the dataset to only include objects posted_at within this period
+      // redraw chart
+
+      var url = "#{make_graph_path}";
+      var x_axis = $('#x_axis option:selected').val();
+      var y_axis = $('#y_axis option:selected').val();
+      var graph_type = $('#graph_type option:selected').val();
+
+      if (y_axis != '' && graph_type !='') {
+        $.ajax({
+          type: 'POST',
+          url: '/make_graph',
+          data: { graph_type: graph_type,
+                  x_axis: x_axis,
+                  y_axis: y_axis,
+                  from: from,
+                  to: to},
+          dataType: 'script'
+        });
+      }
+    });
+
+    $('select#x_axis').change( function() {
+      var key = $('#x_axis option:selected').val();
+
+      if(key == 'all') {
+        $('select#graph_type').val('multiple_series')
+      }
+
+      $.ajax({
+        type: 'GET',
+        url: '/values_for_analytics_option',
+        data: { key: key },
+        dataType: 'script'
+      });
+    });
+
+    $('select#graph_type').change( function() {
+      var url = "#{make_graph_path}";
+      var x_axis = $('#x_axis option:selected').val();
+      var y_axis = $('#y_axis option:selected').val();
+      var graph_type = $('#graph_type option:selected').val();
+
+      if (x_axis != '' && y_axis !='') {
+        var from = $('#datepicker-graph-from').val();
+        var to = $('#datepicker-graph-to').val();
+        $.ajax({
+          type: 'POST',
+          url: '/make_graph',
+          data: { graph_type: graph_type,
+                  x_axis: x_axis,
+                  y_axis: y_axis,
+                  from: from,
+                  to: to },
+          dataType: 'script'
+        });
+      }
+    });
+
+    $('select#x_axis').change( function() {
+      var url = "#{make_graph_path}";
+      var x_axis = $('#x_axis option:selected').val();
+      var y_axis = $('#y_axis option:selected').val();
+      var graph_type = $('#graph_type option:selected').val();
+
+      if (y_axis != '' && graph_type !='') {
+        var from = $('#datepicker-graph-from').val();
+        var to = $('#datepicker-graph-to').val();
+        $.ajax({
+          type: 'POST',
+          url: '/make_graph',
+          data: { graph_type: graph_type,
+                  x_axis: x_axis,
+                  y_axis: y_axis,
+                  from: from,
+                  to: to },
+          dataType: 'script'
+        });
+      }
+    });
+
+    $('select#y_axis').change( function() {
+      var url = "#{make_graph_path}";
+      var x_axis = $('#x_axis option:selected').val();
+      var y_axis = $('#y_axis option:selected').val();
+      var graph_type = $('#graph_type option:selected').val();
+
+      if (x_axis != '' && graph_type !='') {
+        var from = $('#datepicker-graph-from').val();
+        var to = $('#datepicker-graph-to').val();
+
+        $.ajax({
+          type: 'POST',
+          url: '/make_graph',
+          data: { graph_type: graph_type,
+                  x_axis: x_axis,
+                  y_axis: y_axis,
+                  from: from,
+                  to: to },
+          dataType: 'script'
+        });
+      }
+    });
+  });

@@ -31,55 +31,57 @@
     .btn-group.pull-right
       = link_to 'Refresh Page Stats', '#', class: 'btn btn-primary'
 
-.row
-  %br
-  - items = [:post, :reaction, :event]
-  - items_count = 0
-  - items.each do |item|
-    - items_count += 1 unless item.to_s.classify.constantize.any?
-
-  %div{ class: "col-md-offset-#{(12-items_count*3)/2 + 1}" }
-    - unless Post.any?
-      .col-md-3.text-center
-        .panel.panel-purple
-          .panel-heading
-            %h2.link-white-color
-              = link_to 'Get your posts', new_post_path
-          .panel-body
-            Download all the posts
-            %br
-            of your Facebook page
-    - unless Reaction.any?
-      .col-md-3.text-center
-        .panel.panel-purple
-          .panel-heading
-            %h2.link-white-color
-              = link_to 'Get the reactions', new_reaction_path
-          .panel-body
-            Download all the reactions to the posts
-            %br
-            of your Facebook page
-    - unless Event.any?
-      .col-md-3.text-center
-        .panel.panel-purple
-          .panel-heading
-            %h2.link-white-color
-              = link_to 'Get your events', new_event_path
-          .panel-body
-            Download all the events
-            %br
-            of your Facebook page
-.row
-  .col-md-12.text-center
+- if @page
+  .row
     %br
-    - if Post.any?
-      = link_to 'Your Posts', posts_path, class: 'btn btn-primary btn-lg'
-    - if Event.any?
-      = link_to 'Your Events', events_path, class: 'btn btn-primary btn-lg'
-    - if Reaction.any?
-      = link_to 'User Engagement', reactions_path, class: 'btn btn-primary btn-lg'
     %br
-    %hr
+    - items = [:post, :reaction, :event]
+    - items_count = 0
+    - items.each do |item|
+      - items_count += 1 unless @page.send(item.to_s.pluralize).any?
 
-= render partial: 'content_statistics'
-= render partial: 'overall_activity_chart' if Post.any?
+    %div{ class: "col-md-offset-#{(12-items_count*3)/2 + 1}" }
+      - unless @page.posts.any?
+        .col-md-3.text-center
+          .panel.panel-purple
+            .panel-heading
+              %h2.link-white-color
+                = link_to 'Get your posts', new_page_post_path(@page.object_id)
+            .panel-body
+              Download all the posts
+              %br
+              of your Facebook page
+      - unless Reaction.select{ |reaction| reaction.reactionable.page == @page }.any?
+        .col-md-3.text-center
+          .panel.panel-purple
+            .panel-heading
+              %h2.link-white-color
+                = link_to 'Get the reactions', new_reaction_path
+            .panel-body
+              Download all the reactions to the posts
+              %br
+              of your Facebook page
+      - unless @page.events.any?
+        .col-md-3.text-center
+          .panel.panel-purple
+            .panel-heading
+              %h2.link-white-color
+                = link_to 'Get your events', new_page_event_path(@page.object_id)
+            .panel-body
+              Download all the events
+              %br
+              of your Facebook page
+  .row
+    .col-md-12.text-center
+      %br
+      - if @page.posts.any?
+        = link_to 'Your Posts', page_posts_path(@page.object_id), class: 'btn btn-primary btn-lg'
+      - if @page.events.any?
+        = link_to 'Your Events', page_events_path(@page.object_id), class: 'btn btn-primary btn-lg'
+      - if Reaction.select{ |reaction| reaction.reactionable.page == @page }.any?
+        = link_to 'User Engagement', reactions_path, class: 'btn btn-primary btn-lg'
+      %br
+      %hr
+  - if @page && @page.posts.any?
+    = render partial: 'content_statistics'
+    = render partial: 'overall_activity_chart'

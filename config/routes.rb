@@ -5,6 +5,17 @@ Rails.application.routes.draw do
     delete "/users/sign_out" => "devise/sessions#destroy"
   end
 
+  resources :pages do
+    resources :posts, only: [:index, :show, :new] do
+      member do
+        post :make_graph
+      end
+    end
+    resources :events, only: [:index, :show, :new]
+  end
+
+  post 'user_pages' => 'application#user_pages'
+
   resources :people
   namespace :api, defaults: { format: 'json' } do
     resources :posts, only: [:new, :update]
@@ -26,13 +37,6 @@ Rails.application.routes.draw do
   #   -d "access_token=page-access-token" \
   #   "https://graph.facebook.com/v2.11/1353269864728879/subscribed_apps"
 
-  resources :posts, only: [:index, :show, :new] do
-    member do
-      post :make_graph
-    end
-  end
-
-  resources :events, only: [:index, :show, :new]
 
   resources :reactions, only: [:index, :new]
 

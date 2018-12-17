@@ -1,0 +1,54 @@
+- kind = kind || @kind || 'all'
+- category = category || @category
+- graph_type = graph_type || @trending_graph_type || 'bar_chart'
+- trending_graph_data = @trending_graph_data[kind.to_sym] if @trending_graph_data
+- data = data || trending_graph_data || @data
+- id = id || @graph_id || "total_reactions_#{kind}_chart_#{category}"
+- label_color = '#FF0266'
+- colors = graph_color_set([data[:simple][:data].count, data[:multiple].count].max)
+
+%div{ id: id }
+  - case graph_type
+    - when 'line_chart'
+      = line_chart data[:simple][:data].map{|i| i.to_a.flatten}, discrete: true, curve: false, id: "#{category}_line_chart_#{kind}", colors: colors
+
+    - when 'curve_line_chart'
+      = line_chart data[:simple][:data], discrete: true, id: "#{category}_curve_line_chart_#{kind}", colors: colors
+
+    - when 'pie_chart'
+      = pie_chart data[:simple][:data], discrete: true, donut: false, id: "#{category}_pie_chart_#{kind}", colors: colors, library: {  plotOptions: { pie: { dataLabels: { format: '<b>{point.name}</b><br>{point.y} ({point.percentage:.2f} %)',
+                    color: label_color }}}}
+
+    - when 'doughnut_chart'
+      = pie_chart data[:simple][:data], discrete: true, donut: true, id: "#{category}_doughnut_chart_#{kind}", colors: colors, adapter: 'highcharts', library: {  plotOptions: { pie: { dataLabels: { format: '<b>{point.name}</b><br>{point.y} ({point.percentage:.2f} %)',
+                    distance: 15,
+                    color: label_color }}}}
+
+    - when 'column_chart'
+      = column_chart data[:simple][:data], id: "#{category}_column_chart_#{kind}",
+        colors: colors,
+        adapter: 'highcharts',
+        library: {  plotOptions: { column: { dataLabels: { format: '<b>{point.name}</b><br>{point.y}',
+                                                           enabled: true, color: label_color }}}}
+    - when 'bar_chart'
+      = bar_chart data[:simple][:data], discrete: true,
+        id: "#{category}_bar_chart_#{kind}",
+        colors: colors,
+        library: {  plotOptions: { bar: { dataLabels: { format: '<b>{point.name}</b><br>{point.y}',
+                                                           enabled: true, color: label_color }}}}
+    - when 'area_chart'
+      = area_chart data[:simple][:data], id: "#{category}_area_chart_#{kind}", colors: colors
+
+    - when 'geo_chart'
+      = geo_chart data[:simple][:data], adapter: 'google', id: "#{category}_geo_chart_#{kind}", colors: colors
+
+    - when 'timeline_chart'
+      = timeline data[:simple][:data], id: "#{category}_timeline_chart_#{kind}", colors: colors
+
+    - when 'multiple_series_line_chart'
+      = line_chart data[:multiple], id: "#{category}_multiple_line_chart_#{kind}", colors: colors
+
+    - when 'multiple_series_column_chart'
+      = column_chart data[:multiple], id: "#{category}_multiple_column_chart_#{kind}", colors: colors,
+      library: {  plotOptions: { column: { dataLabels: { format: '<b>{point.name}</b><br>{point.y}',
+                                                         enabled: true, color: label_color }}}}

@@ -1,5 +1,7 @@
 class User < ApplicationRecord
   has_one :person
+  has_many :pages_users, dependent: :destroy
+  has_many :pages, through: :pages_users
   devise :omniauthable, omniauth_providers: [:facebook]
 
   # Searches for user based on email. Returns found user or new user.

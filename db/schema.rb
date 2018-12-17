@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181214125610) do
+ActiveRecord::Schema.define(version: 20181217170402) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -62,6 +62,15 @@ ActiveRecord::Schema.define(version: 20181214125610) do
     t.string  "name"
     t.string  "object_id"
     t.integer "fans"
+    t.boolean "default",   default: false
+  end
+
+  create_table "pages_users", force: :cascade do |t|
+    t.integer  "page_id"
+    t.integer  "user_id"
+    t.string   "access_token"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   create_table "people", force: :cascade do |t|
@@ -92,6 +101,7 @@ ActiveRecord::Schema.define(version: 20181214125610) do
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
     t.datetime "posted_at"
+    t.integer  "page_id"
     t.index ["reactionable_type", "reactionable_id"], name: "index_reactions_on_reactionable_type_and_reactionable_id", using: :btree
   end
 
@@ -108,6 +118,7 @@ ActiveRecord::Schema.define(version: 20181214125610) do
     t.string   "last_sign_in_ip"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "access_token"
     t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   end

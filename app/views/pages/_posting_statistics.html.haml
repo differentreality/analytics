@@ -1,0 +1,65 @@
+.row
+  = semantic_form_for '', url: 'update_overall_statistics_table', method: :post, remote: true do |f|
+    .col-md-3.col-md-offset-1
+      = f.label 'From'
+      = f.input 'from', as: :string, label: false, input_html: { id: 'datepicker-graph-from' }, hint: '(Optional) Limit the results to only include data from this date on.'
+    .col-md-3
+      = f.label 'To'
+      = f.input 'to', as: :string, label: false, input_html: { id: 'datepicker-graph-to' }, hint: '(Optional) Limit the results to only include data to this date.'
+    .col-md-3
+      = f.label 'Period'
+      = f.input 'period', label: false, collection: YAML::load(ENV['period_options']).map{ |period| [period, period.parameterize.underscore, data: find_date(period) ]}, include_blank: 'Make a selection'
+    .col-md-1
+      = f.label ''
+      = f.submit 'Update table!', class: 'btn btn-primary'
+
+= render partial: 'overall_statistics_table'
+
+.row
+  .col-md-12
+    %h2 Average reactions per post
+
+.row
+  .col-md-6
+    #activity_average_chart
+      = render partial: 'home/graph', locals: { data: reactions_groupped(count: 'average'), kind: 'all',
+                                                category: 'activity',
+                                                trending_graph_type: 'multiple_series_column_chart' }
+    = render partial: 'shared/time_group_select', locals: { chart_id: 'average-chart',
+                                                            form_name: 'average' }
+
+.row
+  .col-md-12
+    .page-header
+      %h1 Yearly
+
+    = semantic_form_for 'overall_chart_year', remote: true do |f|
+      .row
+        .col-md-4
+          = f.input 'graph_type', collection: YAML::load(ENV['graph_types']), include_blank: 'Choose Graph Type', label: false
+      .row
+        = column_chart @yearly_content, id: 'yearly_content', legend: 'bottom'
+.row
+  .col-md-3
+    %h4 All Posts
+
+    = pie_chart @result_overall[:posts][:all][:year][:values],
+                colors: graph_color_set(@result_overall[:posts][:all][:year][:values]),
+                adapter: 'google',
+                library: { pieSliceText: 'value' }
+  - Post.kinds.keys.each do |post_kind|
+    - if @result_overall[:posts][post_kind.to_sym][:year][:values].present?
+      .col-md-3
+        -# - data = @result_overall[:posts][post_kind.to_sym][:year][:values].keys.map { |year| { name: year, data: { year.to_sym =>  @result_overall[:posts][post_kind.to_sym][:year][:values][year.to_s] } }.to_h }
+        -# = line_chart @result_overall[:posts][post_kind.to_sym][:year][:values], colors: ["#b00", "#666"]
+
+        %h4 #{post_kind.capitalize} Posts
+
+
+        = pie_chart @result_overall[:posts][post_kind.to_sym][:year][:values],
+                    colors: graph_color_set(@result_overall[:posts][post_kind.to_sym][:year][:values].count),
+                    adapter: 'chartjs',
+                    legend: 'bottom',
+                    library: { fillText: 'value' }
+
+  -# different kinds of posts, min max

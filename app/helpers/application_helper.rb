@@ -107,14 +107,19 @@ module ApplicationHelper
     }
   end
 
-  def posts_reactions_graph_data(kind=nil, count='count')
+  def posts_reactions_graph_data(page, kind=nil, count='count')
     result = { }
-    post_objects = Post.all
+    result[:simple] = {}
+    result[:simple][:data] = []
+    result[:multiple] = {}
+    return result unless page
+    @page = page
+    post_objects = @page.posts.all
     if kind && kind != 'all'
-      post_objects = Post.send(kind)
-      # other_post_objects = Post.kinds.keys.
-                                # map{ |post_kind| Post.send(post_kind) unless post_kind == kind }.flatten.compact
-      other_post_objects = Post.all - Post.send(kind)
+      post_objects = @page.posts.send(kind)
+      # other_post_objects = @page.posts.kinds.keys.
+                                # map{ |post_kind| @page.posts.send(post_kind) unless post_kind == kind }.flatten.compact
+      other_post_objects = @page.posts.all - @page.posts.send(kind)
     end
     result[:simple] = { name: kind || 'all',
                         data: Reaction.where(reactionable: post_objects).group(:name).send(count) }
@@ -130,10 +135,10 @@ module ApplicationHelper
                                    where(reactionable_id: other_post_objects.pluck(:id)).
                                    group(:name).send(count) }
     else
-      Post.kinds.keys.each do |post_kind|
+      @page.posts.kinds.keys.each do |post_kind|
         result[:multiple] << { name: post_kind,
                                data: Reaction.where(reactionable_type: 'Post',
-                                                    reactionable_id: Post.send(post_kind)).
+                                                    reactionable_id: @page.posts.send(post_kind)).
                                               group(:name).send(count)}
       end
     end
@@ -146,15 +151,15 @@ module ApplicationHelper
   # Gets the kind of the post (status, like, photo, link)
   # if there is no kind, it is applied for all posts
   def posts_max_reactions(kind=nil)
-    post_objects = Post.all
-    post_objects = Post.send(kind) if kind
+    post_objects = @page.posts.all
+    post_objects = @page.posts.send(kind) if kind
 
     reactions_count = Reaction.where(reactionable: post_objects).group(:reactionable_id).count
     # Sort hashes by value (returns array). Keep the last 3 entries.
     reactions_max_count = reactions_count.sort_by{ |_k,v| v }.last(3).to_h
 
     posts = { }
-    posts = reactions_max_count.map{ |k,_v| Post.find(k) }
+    posts = reactions_max_count.map{ |k,_v| @page.posts.find(k) }
 
     posts
   end
@@ -166,22 +171,22 @@ module ApplicationHelper
   # posts = { 'like' => { count: 10, posts: PostsCollection } }
   def posts_per_max_reaction(kind=nil)
     reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
+    posts = { }
+    return posts unless @page
 
-    post_objects = Post.all
-    post_objects = Post.send(kind) if kind
-    puts "kind: #{kind} and post_objects: #{post_objects.count}"
+    post_objects = @page.posts.all
+    post_objects = @page.posts.send(kind) if kind
 
     reactions_max = {}
     # Reaction.where(reactionable: post_objects).like.group(:reactionable_id).count
     # .select{ |k,v| k if v == t.values.max}.map{ |k,v| Post.find(k) }
 
     # reactions.each{ |r| reactions_max[r] = (Reaction.where(name: r, reactionable: post_objects).length || 0) }
-    posts = { }
     reactions.each{ |reaction|
       reaction_hash = Reaction.where(reactionable: post_objects).send(reaction).group(:reactionable_id).count
       max_reactions = reaction_hash.values.max
       reactionable_ids = reaction_hash.select{ |k,v| k if v == max_reactions }.keys
-      posts[reaction] =  { count: max_reactions, posts: Post.where(id: reactionable_ids) }
+      posts[reaction] =  { count: max_reactions, posts: @page.posts.where(id: reactionable_ids) }
     }
 
     # Reaction.where(name: r, reactionable: post_objects)

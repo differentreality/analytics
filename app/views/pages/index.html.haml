@@ -1,0 +1,17 @@
+.row
+  .col-md-12
+    .page-header
+      %h1 Your pages
+.row.row-eq-height
+  - current_user.pages.each do |page|
+    .col-md-2
+      .panel.panel-purple
+        .panel-heading.text-center
+          %b.link-white-color
+            = link_to page.name, page_path(page)
+        .panel-body
+          Fans:
+          = page.fans
+          %br
+          Posts:
+          = page.posts.count

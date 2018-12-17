@@ -8,23 +8,24 @@ class ApplicationController < ActionController::Base
   before_action :save_return_to
 
   def get_page
-    unless Page.any?
-      page = connection_result('get_object',
-                                 "#{@page_id}")
-      if page
-        Page.create!(name: page['name'],
-                     object_id: page['id'])
-      end
-    end
+    # unless Page.any?
+    #   page_data = connection_result('get_object',
+    #                              "#{@page.object_id}") if @page.object_id
+    #   if page_data
+    #     @page = Page.create!(name: page_data['name'],
+    #                          object_id: page_data['id'])
+    #   end
+    # end
+    @page = @page || Page.first #TODO make this the default selected page
   end
 
   def credentials
-    @access_token = ENV['access_token']
-    @page_id = ENV['facebook_page_id']
-    @page = Page.find_by(object_id: @page_id)
+    object_id = ENV['facebook_page_id']
+    @page = Page.find_by(object_id: object_id)
     # Koala.config.api_version = "v2.0"
     # @graph.get_object("me", {}, api_version: "v2.0")
-    @connection = Koala::Facebook::API.new(@access_token)
+    @access_token = current_user&.access_token || ENV['access_token']
+    @connection = Koala::Facebook::API.new(@access_token) if @access_token
   end
 
   def facebook_data
@@ -38,8 +39,14 @@ class ApplicationController < ActionController::Base
                'name, start_time.as(created_time)'
              end
 
+    object_query = if object == 'page_fans'
+                     'insights/page_fans'
+                   else
+                     object
+                   end
+
     result = connection_result('get_object',
-                               "#{@page_id}/#{object}",
+                               "#{@page.object_id}/#{object_query}",
                                { fields: fields,
                                  since: since_datetime,
                                  until: until_datetime })
@@ -48,6 +55,14 @@ class ApplicationController < ActionController::Base
     while next_page.present?
       next_page.map{ |x| result << x }
       next_page = next_page.next_page
+    end
+
+    if object == 'page_fans'
+      previous_page = result.previous_page
+      while  previous_page.present?
+        previous_page.map{ |x| result << x }
+        previous_page = previous_page.previous_page
+      end
     end
 
     # Save result to database
@@ -127,7 +142,7 @@ class ApplicationController < ActionController::Base
 
         next unless object.to_s.classify.constantize.any?
 
-        @result_overall[object.to_sym][:all][period.to_sym][:values] = get_data(object.to_s, period.to_s, from, to)[:simple]
+        @result_overall[object.to_sym][:all][period.to_sym][:values] = get_data(@page, object.to_s, period.to_s, from, to)[:simple]
 
         @result_overall[object.to_sym][:all][period.to_sym][:max] = @result_overall[object.to_sym][:all][period.to_sym][:values].select{ |k, v| v == @result_overall[object.to_sym][:all][period.to_sym][:values].values.max }
 
@@ -146,7 +161,7 @@ class ApplicationController < ActionController::Base
 
         next unless Post.send(post_kind).any?
 
-        @result_overall[:posts][post_kind.to_sym][period.to_sym][:values] = get_data('post', period.to_s, from, to, post_kind)[:simple]
+        @result_overall[:posts][post_kind.to_sym][period.to_sym][:values] = get_data(@page, 'post', period.to_s, from, to, post_kind)[:simple]
 
         @result_overall[:posts][post_kind.to_sym][period.to_sym][:max] =
         @result_overall[:posts][post_kind.to_sym][period.to_sym][:values].select{ |k, v| v == @result_overall[:posts][post_kind.to_sym][period.to_sym][:values].values.max }
@@ -164,15 +179,16 @@ class ApplicationController < ActionController::Base
   # { "Sunday"=>11, "Monday"=>38, "Tuesday"=>51, "Wednesday"=>37, "Thursday"=>34, "Friday"=>22, "Saturday"=>17 }
   # { "January"=>19, "February"=>27, "March"=>31 }
   # { "2016"=>32, "2017"=>88, "2018"=>90 }
-  def get_data(object, period, from=nil, to=nil, kind=nil, insights: false)
+  def get_data(page, object, period, from=nil, to=nil, kind=nil, insights: false)
     result = {}
     period_symbol = datetime_symbol(period)
-    redirect_to root_path && return unless object.present? && period.present?
+    redirect_to root_path && return unless page.present? && object.present? && period.present?
 
-    result_initial = object.classify.constantize.all
+    result_initial = @page&.send(object.pluralize) || []
     result_initial = result_initial.send(kind) if kind
     result_initial = result_initial.where('posted_at >= ?', from) if from.present?
     result_initial = result_initial.where('posted_at <= ?', to) if to.present?
+
 
             # if object.classify.constantize.all.any?
             #   object.classify.constantize.all
@@ -264,7 +280,14 @@ class ApplicationController < ActionController::Base
     return result
   end
 
-  def connection_result(method, object, params=nil)
+  def connection_result(method, object, access_token=nil, params=nil)
+    unless current_user
+      access_token = @page.pages_users.first.access_token
+    end
+    access_token ||= @page.pages_users.find_by(user: current_user).access_token
+
+    @connection = Koala::Facebook::API.new(access_token)
+
     @result = begin
                 if method == 'get_object'
                   @connection.get_object(object)
@@ -275,13 +298,13 @@ class ApplicationController < ActionController::Base
                 Rails.logger.debug "Could not retrieve data from Facebook. #{e.message}"
                 nil
               end
-    puts "connection result: #{@result}"
     return @result
   end
 
   def get_page_title
+    return unless @page
     @result = begin
-                @connection.get_object(@page_id)
+                @connection.get_object(@page.object_id)
               rescue => e
                 Rails.logger.debug "Could not retrieve data from Facebook. #{e.message}"
                 nil
@@ -290,8 +313,9 @@ class ApplicationController < ActionController::Base
   end
 
   def get_page_fans
+    return unless @page
     @result = begin
-                @connection.get_connections(@page_id, "insights/page_fans")
+                @connection.get_connections(@page.object_id, "insights/page_fans")
               rescue => e
                 Rails.logger.debug "Could not retrieve data from Facebook. #{e.message}"
                 nil

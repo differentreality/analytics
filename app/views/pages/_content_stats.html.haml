@@ -1,0 +1,29 @@
+.col-xs-12.col-md-12
+  %div{ role: 'tabpanel' }
+    #pills.nav-center
+      %ul.text-center.nav.nav-pills{ role: 'tablist' }
+        %li.active{ role: 'presentation' }
+          %a{ href: '#content-all', 'aria-controls': 'content-posts', 'data-toggle': 'tab', role: 'tab' } All
+        %li{ role: 'presentation' }
+          %a{ href: '#content-posts', 'aria-controls': 'content-posts', 'data-toggle': 'tab', role: 'tab' } Status updates
+        %li{ role: 'presentation' }
+          %a{ href: '#content-events', 'aria-controls': 'content-events', 'data-toggle': 'tab', role: 'tab' } Events
+        %li{ role: 'presentation' }
+          %a{ href: '#content-photos', 'aria-controls': 'content-photos', 'data-toggle': 'tab', role: 'tab' } Photos
+        %li{ role: 'presentation' }
+          %a{ href: '#content-videos', 'aria-controls': 'content_videos', 'data-toggle': 'tab', role: 'tab' } Videos
+        %li{ role: 'presentation' }
+          %a{ href: '#content-links', 'aria-controls': 'content_videos', 'data-toggle': 'tab', role: 'tab' } Links
+    .tab-content
+      .tab-pane.active#content-all{ role: 'tabpanel'}
+        = render partial: 'content_all'
+      .tab-pane#content-posts{ role: 'tabpanel'}
+        = render partial: 'content_posts', locals: { kind: 'status' }
+      .tab-pane#content-events{ role: 'tabpanel'}
+        = render partial: 'content_posts', locals: { kind: 'event' }
+      .tab-pane#content-photos{ role: 'tabpanel'}
+        = render partial: 'content_posts', locals: { kind: 'photo' }
+      .tab-pane#content-videos{ role: 'tabpanel'}
+        = render partial: 'content_posts', locals: { kind: 'video' }
+      .tab-pane#content-links{ role: 'tabpanel'}
+        = render partial: 'content_posts', locals: { kind: 'link' }
