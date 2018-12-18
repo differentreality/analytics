@@ -1,3 +1,44 @@
+.row-eq-height {
+  display: flex;
+	flex-wrap: wrap;
+}
+
+.highlight{
+  background-color: red;
+}
+
+.speech-bubble {
+	position: relative;
+	background: #00aabb;
+	border-radius: 1em;
+  color: white;
+  padding: 20px 20px 20px 20px;
+  width: fit-content;
+}
+
+.speech-bubble:after {
+  content: '';
+	position: absolute;
+	left: 0;
+	top: 50%;
+	width: 0;
+	height: 0;
+	border: 20px solid transparent;
+	border-right-color: #00aabb;
+	border-left: 0;
+	border-top: 0;
+	margin-top: -10px;
+	margin-left: -20px;
+}
+
+.navbar-default{
+  background-color: #00aabb !important;
+}
+
+.navbar-default .navbar-nav > li > a:hover {
+  color: #8167b3;
+}
+
 .link-white-color > a {
   color: white !important;
 }

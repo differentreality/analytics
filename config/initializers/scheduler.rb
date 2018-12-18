@@ -2,7 +2,8 @@ require 'rufus-scheduler'
 
 scheduler = Rufus::Scheduler.singleton
 @access_token = ENV['access_token']
-@page.object_id = ENV['facebook_page_id']
+object_id = ENV['facebook_page_id']
+@page = Page.find_by(object_id: object_id)
 @connection = Koala::Facebook::API.new(@access_token)
 #
 # run at 3am of next day
