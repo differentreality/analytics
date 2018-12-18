@@ -1,0 +1,21 @@
+.row
+  .col-xs-12.col-sm-12.col-md-12
+    %h2
+      Page Demographics
+.row
+  .col-xs-10.col-sm-10.col-md-10.col-xs-offset-1.col-sm-offset-1.col-md-offset-1
+    %dl.dl-horizontal#general-stats
+      %dt Fans:
+      %dd= @page_fans_count
+    = link_to 'Get fans per gender and age', api_page_fans_city_path, remote: true
+    = pie_chart @fans_gender_age if @fans_gender_age
+
+    -# = link_to 'Register webhooks', "https://graph.facebook.com/v2.11/#{@page.object_id}/subscribed_apps?access_token=#{@access_token}", method: :post
+    .btn-group
+      = link_to 'Refresh posts', facebook_data_path(object: 'posts'), class: 'btn btn-warning'
+      = link_to 'Refresh events', facebook_data_path(object: 'events'), class: 'btn btn-warning'
+      = link_to 'Refresh all data', facebook_data_path(), class: 'btn btn-warning'
+      = link_to 'Refresh fans data', facebook_data_path(object: 'page_fans'), class: 'btn btn-warning'
+
+    .btn-group.pull-right
+      = link_to 'Refresh Page Stats', '#', class: 'btn btn-primary'

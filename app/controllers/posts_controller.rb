@@ -58,7 +58,7 @@ class PostsController < ApplicationController
       end
       result_db_items << db_object
     end
-    redirect_to root_path(page_id: @page.object_id)
+    redirect_to :back
   end
 
   def make_graph

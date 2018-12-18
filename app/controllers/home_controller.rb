@@ -40,11 +40,14 @@ class HomeController < ApplicationController
   end
 
   def index
+    @page = @page || Page.default #TODO make this the default selected page
+    puts "@page: #{@page.inspect}"
+
     if current_user
       redirect_to pages_path
     end
-    @page_title = @page.try(:name) || get_page_title || 'Lambda Space'
-    @page_fans_count = @page.try(:fans) || get_page_fans
+    @page_title = @page.try(:name)
+    @page_fans_count = @page.try(:fans)
     @result = {}
 
     set_overall_result

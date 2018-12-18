@@ -1,13 +1,13 @@
 - data = posts_reactions_graph_data(@page)
 
 .row
-  .col-md-12
+  .col-md-6.col-md-offset-3
     - data[:simple][:data].each do |reaction, count|
-      .col-xs-3.col-md-1
-        = reaction.to_s.capitalize
-        %br
-        %i{ class: "fas #{icon_for(reaction.to_s)}", title: reaction.to_s.capitalize }
-        = count
+      .col-xs-3.col-md-2.text-center
+        %b= reaction.to_s.capitalize
+        %p
+          %i{ class: "fas #{icon_for(reaction.to_s)}", title: reaction.to_s.capitalize }
+          = count
 
 .row
   .col-md-6

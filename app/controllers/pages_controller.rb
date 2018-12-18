@@ -10,7 +10,7 @@ class PagesController < ApplicationController
     @page_fans_count = @page.try(:fans) || get_page_fans
     @result = {}
 
-    set_overall_result
+    # set_overall_result
 
     @trending_graph_type = 'pie_chart'
     @trending_graph_data = {}
@@ -40,7 +40,6 @@ class PagesController < ApplicationController
 
     @reactions_groupped = {}
     @reactions_groupped[:all] = ApplicationController.helpers.reactions_groupped(group_format: @group_format)
-
   end
 
   def trending_graph

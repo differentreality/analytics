@@ -38,8 +38,8 @@
                 %span.caret
               %ul.dropdown-menu
                 - current_user.pages.each do |page|
-
-                  %li= link_to page.name, page_path(page.object_id)
+                  %li{ class: "#{'highlight' if @page == page }" }
+                    = link_to page.name, page_path(page.object_id)
 
             %li= link_to 'Sign out', users_sign_out_path, method: :delete
 

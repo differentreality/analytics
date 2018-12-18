@@ -1,69 +1,59 @@
 .row
   .col-md-12
-    .page-header.text-center
-      %h1= @page.name
-      - page_id = ENV['facebook_page_id']
-      - page = Page.find_by(object_id: page_id) if page_id
+    .page-header
+      .row
+        .col-md-4.col-md-offset-4
+          %h1.text-center
+            = @page.name
 
-      .text-muted
-        = link_to "https://facebook.com/#{@page.object_id}", "https://facebook.com/#{@page.object_id}"
+          .text-muted.text-center
+            = link_to "https://facebook.com/#{@page.object_id}", "https://facebook.com/#{@page.object_id}"
 
-      .pull-right.speech-bubble
-        - if current_user
-          Hello #{current_user.email}!
-          %br
-          %br
+        .col-md-4
+          .pull-right
+            %br
+            .btn-group
+              - if @page&.posts&.any?
+                = link_to 'Your Posts', page_posts_path(@page.object_id), class: 'btn btn-primary'
+              - else
+                %button.btn.btn-default.disabled
+                  No Posts
 
-          = semantic_form_for :page, url: '#', html: { id: 'form_get_page' } do |f|
-            = f.input :object_id, collection: current_user.pages.collect { |page| [ page.name, page.object_id, data: { access_token: page['access_token']} ] },
-                               include_blank: 'Please select your  Facebook page',
-                               label: false, selected: @page.object_id
-          = link_to 'Sign out', users_sign_out_path, method: :delete, class: 'btn btn-danger'
+              - if @page.events.any?
+                = link_to 'Your Events', page_events_path(@page), class: 'btn btn-primary'
+              - else
+                %button.btn.btn-default.disabled
+                  No Events
 
-        - else
-          - provider = 'facebook'
-          Add your own page!
-          %br
-          %br
-          = link_to "/user/auth/#{provider}",
-            id: "omniauth-#{provider}", title: provider do
-            Sign in with
-            %i{ class: "fab fa-#{provider}"}
+              - if Reaction.select{ |reaction| reaction.reactionable.page == @page }.any?
+                = link_to 'User Engagement', reactions_path, class: 'btn btn-primary'
+              - else
+                %button.btn.btn-default.disabled
+                  No Reactions
 
-.row
-  .col-xs-12.col-sm-12.col-md-12
-    %h2.text-center
-      Page Demographics
-.row
-  .col-xs-10.col-sm-10.col-md-10.col-xs-offset-1.col-sm-offset-1.col-md-offset-1
-    %dl.dl-horizontal#general-stats
-      %dt Fans:
-      %dd= @page_fans_count
-    = link_to 'Get fans per gender and age', api_page_fans_city_path, remote: true
-    = pie_chart @fans_gender_age if @fans_gender_age
-
-    -# = link_to 'Register webhooks', "https://graph.facebook.com/v2.11/#{@page.object_id}/subscribed_apps?access_token=#{@access_token}", method: :post
-    .btn-group
-      = link_to 'Refresh posts', facebook_data_path(object: 'posts'), class: 'btn btn-warning'
-      = link_to 'Refresh events', facebook_data_path(object: 'events'), class: 'btn btn-warning'
-      = link_to 'Refresh all data', facebook_data_path(), class: 'btn btn-warning'
-      = link_to 'Refresh fans data', facebook_data_path(object: 'page_fans'), class: 'btn btn-warning'
-
-    .btn-group.pull-right
-      = link_to 'Refresh Page Stats', '#', class: 'btn btn-primary'
+= render partial: 'demographics'
 
 .row
-  %br
-  %br
+  %hr
   - items = [:post, :reaction, :event]
   - items_count = 0
   - items.each do |item|
     - items_count += 1 unless @page.send(item.to_s.pluralize).any?
 
-  %div{ class: "col-md-offset-#{(12-items_count*3)/2 + 1}" }
-    - unless @page.posts.any?
-      .col-md-3.text-center
-        .panel.panel-purple
+  %div
+    .col-md-2.col-md-offset-3.text-center
+
+      - if @page.posts.any?
+        .panel.panel-primary
+          .panel-heading
+            %h3.link-white-color
+              = link_to new_page_post_path(@page.object_id) do
+                Update
+                %br
+                your posts
+
+      - else
+        .panel.panel-warning
           .panel-heading
             %h2.link-white-color
               = link_to 'Get your posts', new_page_post_path(@page.object_id)
@@ -71,22 +61,41 @@
             Download all the posts
             %br
             of your Facebook page
-    - unless Reaction.select{ |reaction| reaction.reactionable.page == @page }.any?
-      .col-md-3.text-center
-        .panel.panel-purple
+
+    .col-md-2.text-center
+      - if Reaction.select{ |reaction| reaction.reactionable.page == @page }.any?
+        .panel.panel-primary
           .panel-heading
-            %h2.link-white-color
+            %h3.link-white-color
+              = link_to new_reaction_path do
+                Update
+                %br
+                the reactions
+
+      - else
+        .panel.panel-warning
+          .panel-heading
+            %h3.link-white-color
               = link_to 'Get the reactions', new_reaction_path
           .panel-body
             Download all the reactions to the posts
-            %br
             of your Facebook page
-    - unless @page.events.any?
-      .col-md-3.text-center
-        .panel.panel-purple
+
+    .col-md-2.text-center
+      - if @page.events.any?
+        .panel.panel-primary
           .panel-heading
-            %h2.link-white-color
-              = link_to 'Get your events', new_event_path
+            %h3.link-white-color
+              = link_to new_page_event_path(@page) do
+                Update
+                %br
+                your events
+
+      - else
+        .panel.panel-warning
+          .panel-heading
+            %h3.link-white-color
+              = link_to 'Get your events', new_page_event_path(@page)
           .panel-body
             Download all the events
             %br
@@ -94,14 +103,7 @@
 .row
   .col-md-12.text-center
     %br
-    - if @page&.posts&.any?
-      = link_to 'Your Posts', page_posts_path(@page.object_id), class: 'btn btn-primary btn-lg'
-    - if @page.events.any?
-      = link_to 'Your Events', events_path, class: 'btn btn-primary btn-lg'
-    - if Reaction.select{ |reaction| reaction.reactionable.page == @page }.any?
-      = link_to 'User Engagement', reactions_path, class: 'btn btn-primary btn-lg'
-    %br
-    %hr
   - if @page && @page.posts.any?
+    %hr
     = render partial: 'content_statistics'
     = render partial: 'overall_activity_chart'

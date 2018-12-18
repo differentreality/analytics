@@ -124,7 +124,13 @@ module ApplicationHelper
     result[:simple] = { name: kind || 'all',
                         data: Reaction.where(reactionable: post_objects).group(:name).send(count) }
 
-    # reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
+    reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
+
+    reactions.each do |reaction|
+      unless result[:simple][:data][reaction].present?
+        result[:simple][:data][reaction] = 0
+      end
+    end
 
     result[:multiple] = []
     result[:multiple] << result[:simple]

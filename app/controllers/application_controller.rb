@@ -2,22 +2,9 @@ class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   protect_from_forgery with: :exception
   before_action :credentials
-  before_action :get_page
 
   # For APIs, you may want to use :null_session instead.
   before_action :save_return_to
-
-  def get_page
-    # unless Page.any?
-    #   page_data = connection_result('get_object',
-    #                              "#{@page.object_id}") if @page.object_id
-    #   if page_data
-    #     @page = Page.create!(name: page_data['name'],
-    #                          object_id: page_data['id'])
-    #   end
-    # end
-    @page = @page || Page.first #TODO make this the default selected page
-  end
 
   def credentials
     object_id = ENV['facebook_page_id']
@@ -301,8 +288,25 @@ class ApplicationController < ActionController::Base
     return @result
   end
 
+  def api_connection
+    unless current_user
+      access_token = @page.pages_users.first.access_token
+    end
+    access_token ||= @page.pages_users.find_by(user: current_user).access_token
+
+    @connection = Koala::Facebook::API.new(access_token)
+  end
+
   def get_page_title
     return unless @page
+    api_connection
+    unless current_user
+      access_token = @page.pages_users.first.access_token
+    end
+    access_token ||= @page.pages_users.find_by(user: current_user).access_token
+
+    @connection = Koala::Facebook::API.new(access_token)
+
     @result = begin
                 @connection.get_object(@page.object_id)
               rescue => e
@@ -314,6 +318,7 @@ class ApplicationController < ActionController::Base
 
   def get_page_fans
     return unless @page
+    api_connection
     @result = begin
                 @connection.get_connections(@page.object_id, "insights/page_fans")
               rescue => e
