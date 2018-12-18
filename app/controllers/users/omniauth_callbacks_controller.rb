@@ -28,9 +28,9 @@ module Users
 
         # Create user pages
         user_access_token = current_user&.access_token
-        @connection = Koala::Facebook::API.new(user_access_token)
+        connection = Koala::Facebook::API.new(user_access_token)
 
-        user_fb_pages = @connection.get_object("#{current_user.person.object_id}/accounts")
+        user_fb_pages = connection.get_object("#{current_user.person.object_id}/accounts")
         user_fb_pages.each do |page|
           page_record = Page.find_or_create_by(name: page['name'],
                                                object_id: page['id'])

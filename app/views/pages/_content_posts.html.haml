@@ -6,14 +6,8 @@
       - else
         = kind.capitalize.pluralize
       Reactions
+    = render partial: 'home/reactions'
 
-    %h3
-      %i{ class: "fa #{icon_for('like')}" }
-      %i{ class: "fa #{icon_for('wow')}" }
-      %i{ class: "fa #{icon_for('love')}" }
-      %i{ class: "fa #{icon_for('sad')}" }
-      %i{ class: "fa #{icon_for('angry')}" }
-      %i{ class: "fa #{icon_for('haha')}" }
 .row
   .col-md-12
     = render partial: 'trending_chart', locals: { kind: kind, category: 'content' }

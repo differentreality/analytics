@@ -12,6 +12,7 @@ Rails.application.routes.draw do
       end
     end
     resources :events, only: [:index, :show, :new]
+    resources :reactions, only: [:index, :new]
   end
 
   post 'user_pages' => 'application#user_pages'
@@ -36,9 +37,6 @@ Rails.application.routes.draw do
   # curl -i -X POST \
   #   -d "access_token=page-access-token" \
   #   "https://graph.facebook.com/v2.11/1353269864728879/subscribed_apps"
-
-
-  resources :reactions, only: [:index, :new]
 
   post 'update_overall_statistics_table' => 'home#update_overall_statistics_table'
 

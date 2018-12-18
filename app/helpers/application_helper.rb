@@ -117,14 +117,20 @@ module ApplicationHelper
     post_objects = @page.posts.all
     if kind && kind != 'all'
       post_objects = @page.posts.send(kind)
-      # other_post_objects = @page.posts.kinds.keys.
+      # other_post_objects = Post.kinds.keys.
                                 # map{ |post_kind| @page.posts.send(post_kind) unless post_kind == kind }.flatten.compact
       other_post_objects = @page.posts.all - @page.posts.send(kind)
     end
     result[:simple] = { name: kind || 'all',
                         data: Reaction.where(reactionable: post_objects).group(:name).send(count) }
 
-    # reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
+    reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
+
+    reactions.each do |reaction|
+      unless result[:simple][:data][reaction].present?
+        result[:simple][:data][reaction] = 0
+      end
+    end
 
     result[:multiple] = []
     result[:multiple] << result[:simple]
@@ -135,7 +141,7 @@ module ApplicationHelper
                                    where(reactionable_id: other_post_objects.pluck(:id)).
                                    group(:name).send(count) }
     else
-      @page.posts.kinds.keys.each do |post_kind|
+      Post.kinds.keys.each do |post_kind|
         result[:multiple] << { name: post_kind,
                                data: Reaction.where(reactionable_type: 'Post',
                                                     reactionable_id: @page.posts.send(post_kind)).

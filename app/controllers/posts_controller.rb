@@ -4,7 +4,7 @@ class PostsController < ApplicationController
   load_resource :page, find_by: :object_id
 
   def index
-    @posts = Post.all
+    @posts = @page.posts
     @posts = @posts.send(params[:kind]) if params[:kind]
 
     @trending_graph_type = 'pie_chart'
@@ -16,6 +16,7 @@ class PostsController < ApplicationController
   end
 
   def trending_graph
+    @page ||= Page.default
     @trending_graph_type = params[:graph_type]
     @kind = params[:kind]
     @category = params[:category]
@@ -42,11 +43,12 @@ class PostsController < ApplicationController
     # Save posts to database
     result_db_items = []
     result.each do |result_item|
-      db_object = Post.find_by(object_id: result_item['id'])
+      db_object = @page.posts.find_by(object_id: result_item['id'])
       if db_object.present?
         next
       end
-      db_object = Post.new(object_id: result_item['id'],
+
+      db_object = @page.posts.new(object_id: result_item['id'],
                            kind: (result_item['type']&.to_sym),
                            message: result_item['message'],
                            story: result_item['story'],
@@ -58,7 +60,7 @@ class PostsController < ApplicationController
       end
       result_db_items << db_object
     end
-    redirect_to root_path(page_id: @page.object_id)
+    redirect_to :back
   end
 
   def make_graph

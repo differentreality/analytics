@@ -3,44 +3,43 @@ class PagesController < ApplicationController
   load_resource find_by: :object_id
 
   def index
-    @posts = Post.all
+    @posts = @page.posts.all
     @posts = @posts.send(params[:kind]) if params[:kind]
 
     @page_title = @page.try(:name) || get_page_title || 'Lambda Space'
     @page_fans_count = @page.try(:fans) || get_page_fans
     @result = {}
 
-    set_overall_result
-
-    @trending_graph_type = 'pie_chart'
-    @trending_graph_data = {}
-    @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(@page, nil)
-    Post.kinds.keys.each do |kind|
-      @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
-    end
-
-    @yearly_content = []
-
-    @result_overall[:posts].each do |kind_values|
-      @yearly_content << { name: kind_values.first.capitalize,
-                           data: kind_values.second[:year][:values] }
-    end
-
-    # Initial data for chart
-    from = Time.current - 3.months
-    to = Time.current
-    period = 'month'
-    @result = { data: get_data(@page, 'posts', period, from, to), graph_type: 'doughnut_chart' }
-    @trending_graph_type = 'pie_chart'
-    @trending_graph_data = {}
-    @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(@page, nil)
-    Post.kinds.keys.each do |kind|
-      @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
-    end
-
-    @reactions_groupped = {}
-    @reactions_groupped[:all] = ApplicationController.helpers.reactions_groupped(group_format: @group_format)
-
+    # set_overall_result
+    #
+    # @trending_graph_type = 'pie_chart'
+    # @trending_graph_data = {}
+    # @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(@page, nil)
+    # Post.kinds.keys.each do |kind|
+    #   @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
+    # end
+    #
+    # @yearly_content = []
+    #
+    # @result_overall[:posts].each do |kind_values|
+    #   @yearly_content << { name: kind_values.first.capitalize,
+    #                        data: kind_values.second[:year][:values] }
+    # end
+    #
+    # # Initial data for chart
+    # from = Time.current - 3.months
+    # to = Time.current
+    # period = 'month'
+    # @result = { data: get_data(@page, 'posts', period, from, to), graph_type: 'doughnut_chart' }
+    # @trending_graph_type = 'pie_chart'
+    # @trending_graph_data = {}
+    # @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(@page, nil)
+    # Post.kinds.keys.each do |kind|
+    #   @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
+    # end
+    #
+    # @reactions_groupped = {}
+    # @reactions_groupped[:all] = ApplicationController.helpers.reactions_groupped(group_format: @group_format)
   end
 
   def trending_graph

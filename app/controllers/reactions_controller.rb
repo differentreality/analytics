@@ -1,4 +1,5 @@
 class ReactionsController < ApplicationController
+  load_resource :page, find_by: :object_id
 
   def new
     result = []
@@ -25,7 +26,7 @@ class ReactionsController < ApplicationController
     # Save posts to database
     result_db_items = []
     result.each do |result_item|
-      post = Post.find_by(object_id: result_item['id'])
+      post = @page.posts.find_by(object_id: result_item['id'])
       next unless post
       reactions = result_item.keys.select{ |r| r == 'like' || r == 'love' || r == 'haha' || r == 'wow' || r == 'sad' || r == 'angry'}
 

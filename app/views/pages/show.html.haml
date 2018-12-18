@@ -26,7 +26,7 @@
                   No Events
 
               - if Reaction.select{ |reaction| reaction.reactionable.page == @page }.any?
-                = link_to 'User Engagement', reactions_path, class: 'btn btn-primary'
+                = link_to 'User Engagement', page_reactions_path(@page), class: 'btn btn-primary'
               - else
                 %button.btn.btn-default.disabled
                   No Reactions
@@ -67,7 +67,7 @@
         .panel.panel-primary
           .panel-heading
             %h3.link-white-color
-              = link_to new_reaction_path do
+              = link_to new_page_reaction_path(@page) do
                 Update
                 %br
                 the reactions
@@ -76,7 +76,7 @@
         .panel.panel-warning
           .panel-heading
             %h3.link-white-color
-              = link_to 'Get the reactions', new_reaction_path
+              = link_to 'Get the reactions', new_page_reaction_path(@page)
           .panel-body
             Download all the reactions to the posts
             of your Facebook page

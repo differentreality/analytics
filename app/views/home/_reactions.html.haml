@@ -1,0 +1,10 @@
+- data = posts_reactions_graph_data(@page)
+
+%h4
+  - data[:simple][:data].each do |reaction, count|
+    .col-xs-3.col-md-2.text-center
+
+      %b= reaction.to_s.capitalize
+      %p
+        %i{ class: "fas #{icon_for(reaction.to_s)}", title: reaction.to_s.capitalize }
+        = count

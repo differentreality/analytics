@@ -1,31 +1,25 @@
 class ApplicationController < ActionController::Base
   # Prevent CSRF attacks by raising an exception.
   protect_from_forgery with: :exception
-  before_action :credentials
-  before_action :get_page
 
   # For APIs, you may want to use :null_session instead.
   before_action :save_return_to
 
-  def get_page
-    # unless Page.any?
-    #   page_data = connection_result('get_object',
-    #                              "#{@page.object_id}") if @page.object_id
-    #   if page_data
-    #     @page = Page.create!(name: page_data['name'],
-    #                          object_id: page_data['id'])
-    #   end
-    # end
-    @page = @page || Page.first #TODO make this the default selected page
-  end
+  def credentials(access_token=nil)
+    unless access_token
+      object_id = params[:page_id] || params[:id]
+      page = @page || Page.find_by(object_id: object_id) || Page.default
+      return unless page
 
-  def credentials
-    object_id = ENV['facebook_page_id']
-    @page = Page.find_by(object_id: object_id)
-    # Koala.config.api_version = "v2.0"
-    # @graph.get_object("me", {}, api_version: "v2.0")
-    @access_token = current_user&.access_token || ENV['access_token']
-    @connection = Koala::Facebook::API.new(@access_token) if @access_token
+      unless current_user
+        access_token = page.pages_users.first.access_token
+      end
+      access_token ||= page.pages_users.find_by(user: current_user).access_token
+
+      return unless access_token
+    end
+
+    @connection = Koala::Facebook::API.new(access_token)
   end
 
   def facebook_data
@@ -280,14 +274,8 @@ class ApplicationController < ActionController::Base
     return result
   end
 
-  def connection_result(method, object, access_token=nil, params=nil)
-    unless current_user
-      access_token = @page.pages_users.first.access_token
-    end
-    access_token ||= @page.pages_users.find_by(user: current_user).access_token
-
-    @connection = Koala::Facebook::API.new(access_token)
-
+  def connection_result(method, object, params=nil, access_token=nil)
+    credentials(access_token)
     @result = begin
                 if method == 'get_object'
                   @connection.get_object(object)
@@ -303,6 +291,7 @@ class ApplicationController < ActionController::Base
 
   def get_page_title
     return unless @page
+    credentials
     @result = begin
                 @connection.get_object(@page.object_id)
               rescue => e
@@ -314,6 +303,7 @@ class ApplicationController < ActionController::Base
 
   def get_page_fans
     return unless @page
+    credentials
     @result = begin
                 @connection.get_connections(@page.object_id, "insights/page_fans")
               rescue => e
