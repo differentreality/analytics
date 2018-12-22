@@ -15,7 +15,7 @@
           %br
           = truncate(post.message, length: 150)
         .panel-footer
-          = link_to 'More info', post_path(post), class: 'pull-right'
+          = link_to 'More info', page_post_path(@page, post), class: 'pull-right'
 
           .pull-left
             with
@@ -25,7 +25,7 @@
   .col-md-12.text-center
 
     %br
-    = link_to 'All your posts', posts_path, class: 'btn btn-success'
+    = link_to 'All your posts', page_posts_path(@page), class: 'btn btn-success'
 .row
   .col-md-4.col-md-offset-4
     %hr.bold
@@ -49,7 +49,7 @@
       - posts.each do |post|
         .fa.fa-star
         = truncate(post.message, length: 150)
-        = link_to '(more info)', post_path(post)
+        = link_to '(more info)', page_post_path(@page, post)
         %br
 
 .row

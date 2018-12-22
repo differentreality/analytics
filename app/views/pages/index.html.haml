@@ -4,14 +4,42 @@
       %h1 Your pages
 .row.row-eq-height
   - current_user.pages.each do |page|
-    .col-md-2
+    .col-xs-12.col-sm-6.col-md-4.col-lg-3
       .panel.panel-purple
         .panel-heading.text-center
           %b.link-white-color
             = link_to page.name, page_path(page)
         .panel-body
-          Fans:
-          = page.fans
-          %br
-          Posts:
-          = page.posts.count
+
+          %span{ title: 'Your Fans' }
+            %i.fas.fa-users
+            = page.fans || 0
+          &nbsp; &nbsp;
+          %span{ title: 'Your Posts' }
+            %i.fas.fa-file-alt
+            = page.posts.count
+
+          = line_chart @data[:multiple].select{|item| item[:name] == page.name }
+
+          .text-center
+            .btn-group
+              - if page.posts.any?
+                = link_to new_page_post_path(page), class: 'btn btn-primary' do
+                  Update posts
+              - else
+                = link_to new_page_post_path(page), class: 'btn btn-warning' do
+                  Get posts
+
+              - if page.events.any?
+                = link_to new_page_event_path(page), class: 'btn btn-primary' do
+                  Update events
+              - else
+                = link_to new_page_event_path(page), class: 'btn btn-warning' do
+                  Get events
+
+              - if page.reactions.any?
+                = link_to new_page_reaction_path(page), class: 'btn btn-primary' do
+                  Update reactions
+              - else
+                = link_to new_page_reaction_path(page), class: 'btn btn-warning' do
+                  Get reactions

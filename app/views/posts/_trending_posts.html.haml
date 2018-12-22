@@ -20,7 +20,7 @@
             %br
             = truncate(post.message, length: 150)
           .panel-footer
-            = link_to 'More info', post_path(post), class: 'pull-right'
+            = link_to 'More info', page_post_path(@page, post), class: 'pull-right'
 
             .pull-left
               with
@@ -32,7 +32,7 @@
     .text-center
       %br
       - text = kind == 'status' ? 'status updates' : kind.pluralize
-      = link_to "All #{text}", posts_path(kind: kind), class: 'btn btn-success'
+      = link_to "All #{text}", page_posts_path(@page, kind: kind, anchor: 'list'), class: 'btn btn-success'
 .row
   .col-md-4.col-md-offset-4
     %hr.bold
@@ -61,7 +61,7 @@
       - posts.each do |post|
         .fa.fa-star
         = truncate(post.message, length: 150)
-        = link_to '(more info)', post_path(post)
+        = link_to '(more info)', page_post_path(@page, post)
 
 .row
   .col-md-4.col-md-offset-4

@@ -14,7 +14,7 @@
       %dd= @post.posted_at
       %br
       %dt Kind
-      %dd= @post.kind
+      %dd= @post.kind.capitalize
       %br
       %dt Reactions
       %dd
@@ -26,7 +26,7 @@
 .row
   .col-md-12
     %hr
-    = semantic_form_for '', url: make_graph_post_path(@post) do |f|
+    = semantic_form_for '', url: make_graph_page_post_path(@page, @post) do |f|
       .col-md-4
         = f.input 'graph_type', collection: YAML::load(ENV['graph_types']),
                                 selected: 'column_chart',
@@ -48,7 +48,7 @@
     if (x_axis != '' && y_axis !='') {
       $.ajax({
         type: 'POST',
-        url: "#{make_graph_post_url}",
+        url: "#{make_graph_page_post_url(@page)}",
         data: { graph_type: graph_type, x_axis: x_axis, y_axis: y_axis },
         dataType: 'script'
       });

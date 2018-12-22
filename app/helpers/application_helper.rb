@@ -1,5 +1,39 @@
 module ApplicationHelper
 
+  ##
+  # Gets a collection of posts, and a specific post kind (eg. photo)
+  # Returns the proper class for a kind of post (eg. status update)
+  # based on the devision of the posts count for a specific kind and the max count
+  # The result is a value between 0 and 1
+  # ====Returns
+  # * +String+ ->
+  #               default, if the result is less than 0.05
+  #               info, if the result is between 0.05 and 0.20
+  #               primary, if the result is between 0.21 and less than 0.8
+  #               success, if the result is between 0.8 and 1
+  def posts_count_class(posts, kind)
+    # Average posts per kind
+    kinds_count = posts.group(:kind).count
+
+    # Get ranges of values around average
+    max_value = kinds_count.values.max.to_f
+    ranges = []
+
+    puts "kinds count for kind: #{kinds_count[kind]}"
+
+    result = case (kinds_count[kind] || 0) / max_value
+             when 0.8..1
+               'success'
+             when 0.21...0.8
+               'primary'
+             when 0.05..0.20
+               'info'
+             else
+               'default'
+             end
+    return result
+  end
+
   def graph_color_set(values_count)
     # If values are more than 7, choose another color scheme
     return ['#5b90bf', '#96b5b4', '#adc896', '#ab7967', '#d08770', '#b48ead']

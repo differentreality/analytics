@@ -10,7 +10,8 @@ class PostsController < ApplicationController
     @trending_graph_type = 'pie_chart'
     @trending_graph_data = {}
     @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(@page, nil)
-    Post.kinds.keys.each do |kind|
+    @kinds = Post.kinds.keys
+    @kinds.each do |kind|
       @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
     end
   end
@@ -65,19 +66,21 @@ class PostsController < ApplicationController
 
   def make_graph
     #TODO rename @result to @graph
-    @result = { data: { simple: [], multiple: [] }, graph_type: params[:graph_type] || 'column_chart'}
+    @result = { data: { simple: { data: [] }, multiple: [] }, graph_type: params[:graph_type] || 'column_chart'}
 
     if params[:graph_type] == 'multiple_series'
       Reaction::KINDS.each do |reaction|
         @result[:data][:multiple] << { name: reaction, data: @post.reactions.send(reaction).group_by_day(:posted_at).count }
       end
     else
-      @result[:data][:simple] = @post.reactions.group(:name).count
+      @result[:data][:simple][:data] = @post.reactions.group(:name).count
     end
+
+    @graph_id = 'overall-chart'
 
     respond_to do |format|
       format.html
-      format.js { render 'shared/make_graph'}
+      format.js { render 'shared/make_graph' }
     end
   end
 end

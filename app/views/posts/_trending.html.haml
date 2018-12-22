@@ -4,26 +4,14 @@
       %ul.text-center.nav.nav-pills{ role: 'tablist' }
         %li.active{ role: 'presentation' }
           %a{ href: '#trending-all', 'aria-controls': 'trending-posts', 'data-toggle': 'tab', role: 'tab' } All
-        %li{ role: 'presentation' }
-          %a{ href: '#trending-posts', 'aria-controls': 'trending-posts', 'data-toggle': 'tab', role: 'tab' } Status updates
-        %li{ role: 'presentation' }
-          %a{ href: '#trending-events', 'aria-controls': 'trending-events', 'data-toggle': 'tab', role: 'tab' } Events
-        %li{ role: 'presentation' }
-          %a{ href: '#trending-photos', 'aria-controls': 'trending-photos', 'data-toggle': 'tab', role: 'tab' } Photos
-        %li{ role: 'presentation' }
-          %a{ href: '#trending-videos', 'aria-controls': 'trending_videos', 'data-toggle': 'tab', role: 'tab' } Videos
-        %li{ role: 'presentation' }
-          %a{ href: '#trending-links', 'aria-controls': 'trending_videos', 'data-toggle': 'tab', role: 'tab' } Links
+        - @kinds.each do |kind|
+          %li{ role: 'presentation' }
+            %a{ href: "#trending-#{kind}", 'aria-controls': 'trending-posts', 'data-toggle': 'tab', role: 'tab' }
+              = kind.capitalize
+
     .tab-content
       .tab-pane.active#trending-all{ role: 'tabpanel'}
         = render partial: 'trending_all'
-      .tab-pane#trending-posts{ role: 'tabpanel'}
-        = render partial: 'trending_posts', locals: { kind: 'status' }
-      .tab-pane#trending-events{ role: 'tabpanel'}
-        = render partial: 'trending_posts', locals: { kind: 'event' }
-      .tab-pane#trending-photos{ role: 'tabpanel'}
-        = render partial: 'trending_posts', locals: { kind: 'photo' }
-      .tab-pane#trending-videos{ role: 'tabpanel'}
-        = render partial: 'trending_posts', locals: { kind: 'video' }
-      .tab-pane#trending-links{ role: 'tabpanel'}
-        = render partial: 'trending_posts', locals: { kind: 'link' }
+      - @kinds.each do |kind|
+        .tab-pane{ id: "trending-#{kind}", role: 'tabpanel'}
+          = render partial: 'trending_posts', locals: { kind: kind }

@@ -80,7 +80,7 @@
       - if @page.events.any?
         = link_to 'Your Events', page_events_path(@page.object_id), class: 'btn btn-primary btn-lg'
       - if Reaction.select{ |reaction| reaction.reactionable.page == @page }.any?
-        = link_to 'User Engagement', reactions_path, class: 'btn btn-primary btn-lg'
+        = link_to 'User Engagement', page_reactions_path(@page), class: 'btn btn-primary btn-lg'
       %br
       %hr
   - if @page && @page.posts.any?

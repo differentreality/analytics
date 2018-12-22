@@ -20,7 +20,6 @@ class ReactionsController < ApplicationController
     facebook_data = connection_result('get_connections',
                                       "#{@page.object_id}/posts",
                                       fields)
-
     result = facebook_data_all_pages(facebook_data) if facebook_data
 
     # Save posts to database
@@ -32,14 +31,15 @@ class ReactionsController < ApplicationController
 
       reactions.each do |reaction|
         reaction_count = result_item[reaction]['summary']['total_count'].to_i
-        db_objects = Reaction.where(reactionable: post, name: reaction)
+        db_objects = Reaction.where(reactionable: post, name: reaction, page: @page)
 
         unless db_objects && db_objects.length == reaction_count
           times = reaction_count - db_objects.length
           times.times do
             db_object = Reaction.new(reactionable: post,
                                      name: reaction,
-                                     posted_at: Date.current)
+                                     posted_at: Date.current,
+                                     page: @page)
             unless db_object.save
               Rails.logger.info "Could not save new item: #{db_object.inspect}. Errors: #{db_object.errors.full_messages.to_sentence}"
               next
