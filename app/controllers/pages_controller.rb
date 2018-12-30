@@ -62,8 +62,17 @@ class PagesController < ApplicationController
       @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
     end
 
-    @reactions_groupped = {}
-    @reactions_groupped[:all] = ApplicationController.helpers.reactions_groupped(group_format: @group_format)
+    @city_fans = @page.city_fans.all.group_by{ |info| info.country }.collect{ |country, records| max_date = records.max_by{|r| r.date}.date; [ country, records.select{ |r| r.date == max_date  }.sum(&:count) ] }.to_h
+
+    @age_fans = { data: { simple: {}, multiple: [] } }
+
+    @age_fans[:data][:simple] = { data: fans_group(@page.age_fans, nil, nil, 'age_range') }
+    @age_fans[:data][:multiple] << { name: 'all', data: fans_group(@page.age_fans, nil, nil, 'age_range')}
+
+    AgeFan.genders.each do |gender_key, gender_value|
+      data = fans_group(@page.age_fans, 'gender', gender_value, 'age_range')
+      @age_fans[:data][:multiple] << { name: gender_key, data: data }
+    end
 
   end
 

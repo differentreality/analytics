@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     delete "/users/sign_out" => "devise/sessions#destroy"
   end
 
+  post 'renew_age_fans' => 'fans#renew_age_fans'
   resources :pages do
     resources :posts, only: [:index, :show, :new] do
       member do
@@ -13,6 +14,8 @@ Rails.application.routes.draw do
     end
     resources :events, only: [:index, :show, :new]
     resources :reactions, only: [:index, :new]
+    get 'fans/city' => 'fans#city'
+    get 'fans/age' => 'fans#age'
   end
 
   post 'user_pages' => 'application#user_pages'

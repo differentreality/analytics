@@ -31,17 +31,14 @@
                 %button.btn.btn-default.disabled
                   No Reactions
 
-= render partial: 'demographics'
-
-.row
-  %hr
+.row.row-eq-height
   - items = [:post, :reaction, :event]
   - items_count = 0
   - items.each do |item|
     - items_count += 1 unless @page.send(item.to_s.pluralize).any?
 
   %div
-    .col-md-2.col-md-offset-3.text-center
+    .col-md-2.col-md-offset-1.text-center
 
       - if @page.posts.any?
         .panel.panel-primary
@@ -100,6 +97,48 @@
             Download all the events
             %br
             of your Facebook page
+    .col-md-2.text-center
+      - if @page.city_fans.any?
+        .panel.panel-primary
+          .panel-heading
+            %h3.link-white-color
+              = link_to page_fans_city_path(@page) do
+                Update
+                %br
+                your fans' location info
+
+      - else
+        .panel.panel-warning
+          .panel-heading
+            %h3.link-white-color
+              = link_to 'Get your fans location info', page_fans_city_path(@page)
+          .panel-body
+            Download the location information
+            %br
+            of all your fans
+
+    .col-md-2.text-center
+      - if @page.age_fans.any?
+        .panel.panel-primary
+          .panel-heading
+            %h3.link-white-color
+              = link_to page_fans_age_path(@page) do
+                Update
+                %br
+                your fans' age/gender info
+
+      - else
+        .panel.panel-warning
+          .panel-heading
+            %h3.link-white-color
+              = link_to 'Get your fans age/gender info', page_fans_age_path(@page)
+          .panel-body
+            Download the age/gender information
+            %br
+            of all your fans
+%hr
+= render partial: 'demographics'
+
 .row
   .col-md-12.text-center
     %br

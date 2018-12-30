@@ -166,6 +166,24 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  ##
+  # Get a set of records, attribute and group parameter
+  # Return hash of hashes with the count for all age groups
+  # Count is of male or female fans (attribute_value)
+  # ==== Returns
+  # * +Hash+ --> { '13-17' => 1,
+  #                '18-24' => 3
+  #              }
+  def fans_group(records, attribute, attribute_value, group_param)
+    result = @page.age_fans
+    result = result.where(attribute.to_sym => attribute_value) if attribute
+    result = result.group_by{ |info| info.send(group_param) }
+                   .collect{ |groupping, records| max_date = records.max_by{ |r| r.date }.date;
+                                             [ groupping, records.select{ |r| r.date == max_date }.sum(&:count) ] }.to_h
+
+    return result
+  end
+
   # === Returns
   # * +Hash+ -> period and count
   # period can be hour, day, month, year, eg.

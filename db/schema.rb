@@ -10,10 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181217170402) do
+ActiveRecord::Schema.define(version: 20181222223031) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "age_fans", force: :cascade do |t|
+    t.integer  "gender"
+    t.integer  "age_range"
+    t.integer  "count"
+    t.datetime "date"
+    t.integer  "page_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "ahoy_messages", force: :cascade do |t|
     t.string   "token"
@@ -34,6 +44,17 @@ ActiveRecord::Schema.define(version: 20181217170402) do
     t.integer  "customer_id"
     t.index ["token"], name: "index_ahoy_messages_on_token", using: :btree
     t.index ["user_id", "user_type"], name: "index_ahoy_messages_on_user_id_and_user_type", using: :btree
+  end
+
+  create_table "city_fans", force: :cascade do |t|
+    t.text     "country"
+    t.text     "municipality"
+    t.text     "province"
+    t.integer  "count"
+    t.integer  "page_id"
+    t.date     "date"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   create_table "events", force: :cascade do |t|
