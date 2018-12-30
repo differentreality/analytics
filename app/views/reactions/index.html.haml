@@ -5,7 +5,7 @@
 
 .row
   .col-md-6
-    - reactions = reactions_groupped(count: 'average')
+    - reactions = reactions_groupped(@page, count: 'average')
 
     = line_chart reactions[:multiple], id: "overall_reactions_multiple_line_chart_all", colors: graph_color_set(reactions[:multiple])
   .col-md-6

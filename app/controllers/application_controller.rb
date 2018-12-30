@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
 
   # For APIs, you may want to use :null_session instead.
   before_action :save_return_to
+  load_resource :page, find_by: :object_id
 
   def credentials(access_token=nil)
     unless access_token
@@ -196,7 +197,7 @@ class ApplicationController < ActionController::Base
     period_symbol = datetime_symbol(period)
     redirect_to root_path && return unless page.present? && object.present? && period.present?
 
-    result_initial = @page&.send(object.pluralize) || []
+    result_initial = page&.send(object.pluralize) || []
     result_initial = result_initial.send(kind) if kind
     result_initial = result_initial.where('posted_at >= ?', from) if from.present?
     result_initial = result_initial.where('posted_at <= ?', to) if to.present?

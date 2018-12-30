@@ -71,7 +71,7 @@ class HomeController < ApplicationController
     end
 
     @reactions_groupped = {}
-    @reactions_groupped[:all] = ApplicationController.helpers.reactions_groupped(group_format: @group_format)
+    @reactions_groupped[:all] = ApplicationController.helpers.reactions_groupped(@page, group_format: @group_format)
 
     respond_to do |format|
       format.html# { render template: 'home/index'

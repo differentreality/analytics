@@ -19,8 +19,6 @@ module ApplicationHelper
     max_value = kinds_count.values.max.to_f
     ranges = []
 
-    puts "kinds count for kind: #{kinds_count[kind]}"
-
     result = case (kinds_count[kind] || 0) / max_value
              when 0.8..1
                'success'
@@ -73,16 +71,17 @@ module ApplicationHelper
     return "#{object.keys.join(', ')} -> #{object.values.first}"
   end
 
-  def reactions_groupped(reaction_kind: nil, group_parameter: 'day', group_format: nil, count: 'count')
+  def reactions_groupped(page, reaction_kind: nil, group_parameter: 'day', group_format: nil, count: 'count')
+    reactions = page.reactions
     # if groupping by date, do it by hand and do not show dates without data (ie w/ 0 count)
     result = { }
     reaction_objects = if reaction_kind
-                         Reaction.send(reaction_kind)
+                         reactions.send(reaction_kind)
                        else
-                         Reaction.all
+                         reactions.all
                        end
     other_reaction_objects = []
-    other_reaction_objects = Reaction.all - Reaction.send(reaction_kind) if reaction_kind
+    other_reaction_objects = reactions.all - reactions.send(reaction_kind) if reaction_kind
 
     result[:multiple] = []
 
@@ -156,7 +155,7 @@ module ApplicationHelper
       other_post_objects = @page.posts.all - @page.posts.send(kind)
     end
     result[:simple] = { name: kind || 'all',
-                        data: Reaction.where(reactionable: post_objects).group(:name).send(count) }
+                        data: page.reactions.where(reactionable: post_objects).group(:name).send(count) }
 
     reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
 
@@ -170,14 +169,14 @@ module ApplicationHelper
     result[:multiple] << result[:simple]
     if kind && kind != 'all'
       result[:multiple] << { name: 'other posts',
-                             data: Reaction.where.not(reactionable: nil).
+                             data: page.reactions.where.not(reactionable: nil).
                                    where(reactionable_type: 'Post').
                                    where(reactionable_id: other_post_objects.pluck(:id)).
                                    group(:name).send(count) }
     else
       Post.kinds.keys.each do |post_kind|
         result[:multiple] << { name: post_kind,
-                               data: Reaction.where(reactionable_type: 'Post',
+                               data: @page.reactions.where(reactionable_type: 'Post',
                                                     reactionable_id: @page.posts.send(post_kind)).
                                               group(:name).send(count)}
       end

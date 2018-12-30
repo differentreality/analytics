@@ -22,7 +22,7 @@
 .row
   .col-md-6
     #activity_average_chart
-      = render partial: 'home/graph', locals: { data: reactions_groupped(count: 'average'), kind: 'all',
+      = render partial: 'home/graph', locals: { data: reactions_groupped(@page, count: 'average'), kind: 'all',
                                                 category: 'activity',
                                                 trending_graph_type: 'multiple_series_column_chart' }
     = render partial: 'shared/time_group_select', locals: { chart_id: 'average-chart',

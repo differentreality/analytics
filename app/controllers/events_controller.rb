@@ -5,8 +5,10 @@ class EventsController < ApplicationController
     # Call API to get ALL posts
     result = []
 
-    facebook_data = connection_result('get_object',
-                                      "#{@page.object_id}/events")
+    facebook_data = connection_result('get_connections',
+                                      "#{@page.object_id}/events",
+                                      nil,
+                                      @page.pages_users.find_by(user: current_user).access_token)
     result = facebook_data_all_pages(facebook_data) if facebook_data
     # Save posts to database
     result_db_items = []
@@ -17,7 +19,7 @@ class EventsController < ApplicationController
       end
       db_object = @page.events.new(object_id: result_item['id'],
                                    name: result_item['name'],
-                                   posted_at: result_item['created_time'],
+                                   posted_at: result_item['created_time'] || Time.current,
                                    start_time: result_item['start_time'],
                                    end_time: result_item['end_time'])
 
