@@ -1,0 +1,14 @@
+.container
+  .row
+    .col-md-12
+      .page-header
+        %h1 Profile
+  .row
+    .col-md-12
+      %h3
+        To use another User Access Token, add your token below:
+      %br
+      = semantic_form_for current_user, url: user_path(current_user) do |f|
+        = f.input :access_token, as: :string, hint: 'You are not able to see your existing access token for security reasons. Make sure the access token you are adding has the appropriate permissions. Ideally extend its expiration time.', input_html: { value: '' }
+        %br
+        = f.submit class: 'btn btn-primary'

@@ -34,13 +34,15 @@
           - if current_user
             %li.dropdown
               %a.dropdown-toggle{ style: 'font-weight: bold', "data-toggle" => "dropdown", :href => "#", id: 'user-menu'  }
-                Hello #{current_user.email}!
+                Hello #{current_user.email}
                 %span.caret
               %ul.dropdown-menu
                 - current_user.pages.each do |page|
                   %li{ class: "#{'highlight' if @page == page }" }
                     = link_to page.name, page_path(page.object_id)
-
+                %li.divider
+                %li= link_to 'Update Pages', user_get_pages_path(current_user)
+            %li= link_to 'Profile', edit_user_path(current_user)
             %li= link_to 'Sign out', users_sign_out_path, method: :delete
 
           - else

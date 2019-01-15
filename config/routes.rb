@@ -5,6 +5,10 @@ Rails.application.routes.draw do
     delete "/users/sign_out" => "devise/sessions#destroy"
   end
 
+  resources :users, only: [:edit, :update] do
+    get :get_pages
+  end
+
   post 'renew_age_fans' => 'fans#renew_age_fans'
   resources :pages do
     resources :posts, only: [:index, :show, :new] do
