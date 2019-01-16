@@ -7,10 +7,6 @@
 	flex-wrap: wrap;
 }
 
-.highlight{
-  background-color: red;
-}
-
 .speech-bubble {
 	position: relative;
 	background: #00aabb;
@@ -35,16 +31,16 @@
 	margin-left: -20px;
 }
 
-.navbar-default{
-  background-color: #00aabb !important;
-}
-
-.navbar-default .navbar-nav > li > a:hover {
-  color: #8167b3;
-}
-
 .link-white-color > a {
   color: white !important;
+}
+
+.panel-warning > .panel-heading {
+  background-color: #f0ad4e !important;
+}
+
+.panel-warning {
+  border-color: #eea236 !important;
 }
 
 .panel-purple {
@@ -61,4 +57,21 @@
 
 .panel-purple > .panel-heading, .panel-footer {
   background-color: #adc896;
+}
+
+.btn-purple {
+  background-color: #69558f !important;
+  border-color: #69558f !important;
+}
+
+.btn-purple:hover  {
+  background-color: #58457b !important;
+}
+
+// For pills menu
+.nav-center {
+  text-align: center;
+  ul.nav {
+    display: inline-block;
+  }
 }

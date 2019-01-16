@@ -2,11 +2,8 @@ hr.bold {
   border-top: 2px solid #000000 !important;
 }
 
-.nav-center {
-  text-align: center;
-  ul.nav {
-    display: inline-block;
-  }
+.navbar-right {
+  margin-right: 15px !important;
 }
 
 body {
@@ -27,14 +24,14 @@ body {
 }
 
 .navbar-default {
-  background: #039be5;
+  background: #F2F2F2;
   box-shadow: 0px 0.5px 2px #cecece;
   font-size: 16px;
 }
 
 .navbar-default .navbar-brand {
   padding: 15px;
-  color: #ffffff;
+  color: #4f4c4c;
   font-weight: bold;
 }
 
@@ -43,37 +40,22 @@ body {
 .navbar-default .navbar-brand:hover,
 .navbar-default .navbar-brand:focus {
   text-decoration: none;
-  color: #161f3e;
+  color: #8167b3;
   -webkit-transition: all .8s ease;
   transition: all .8s ease;
   font-weight: bold;
 }
 
-.navbar-default .navbar-nav > li > a.highlight:hover,
-.navbar-default .navbar-nav > li > a.highlight:focus {
-  text-decoration: none;
-  color: #282c52 !important;
-  font-weight: bold !important;
-  -webkit-transition: all .8s ease;
-  transition: all .8s ease;
-}
-
+// page list dropwdown menu
 .navbar-default .navbar-nav > li > a {
-  color: #ffffff;
-  // outline: 0;
-  // -webkit-transition: all .8s ease;
-  // transition: all .8s ease;
+  color: #4f4c4c;
 }
 
+// for selected page
 li > a.highlight{
-  color: #282c52 !important;
+  color: #fff !important;
+  background-color: #8167b3 !important;
   font-weight: bold !important;
-}
-
-.navbar-text > a {
-  color: inherit;
-  text-decoration: none;
-  vertical-align: middle;
 }
 
 #footer {
