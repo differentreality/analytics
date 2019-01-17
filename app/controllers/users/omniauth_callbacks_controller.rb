@@ -7,6 +7,12 @@ module Users
       define_method(provider) { handle(provider) }
     end
 
+    def failure
+      Rails.logger.debug "Omniauth authentication failed with error #{params[:error_code]}, #{params[:error_message]}"
+      flash[:error] = 'Unfortunately we could not authenticate you. Please try again or contact us.'
+      redirect_to root_path
+    end
+
     private
 
     def handle(provider)
@@ -14,9 +20,8 @@ module Users
       user_access_token = auth_hash[:credentials][:token]
       uid = auth_hash[:uid]
 
-      user = User.find_for_auth(auth_hash) # Get or create user
-
       begin
+        user = User.find_for_auth(auth_hash) # Get or create user
         user.access_token = user_access_token
         user.save!(validate: false)
         sign_in user
