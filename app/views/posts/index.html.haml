@@ -2,6 +2,7 @@
   .col-md-12
     .page-header
       %h1.text-center
+        = @kind&.capitalize
         Posts
       .text-center
         .btn-group
@@ -51,10 +52,10 @@
                         = post.reactions.count
                         Total Reactions
                         %br
-                        %br
-                        -  post.reactions.group(:name).count.each do |reaction, count|
+                        - posts_reactions = post.reactions.group(:name).count
+                        - Reaction::KINDS.each do |reaction|
                           %i{ class: "fas #{icon_for(reaction)}" }
-                          = count
+                          = posts_reactions[reaction] || 0
                           = reaction
 
                       %td.col-md-6= truncate(post.message, length: 200) || post.story

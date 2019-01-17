@@ -46,22 +46,7 @@
         = kind.capitalize.pluralize
       with the most reactions
 
-  - posts_max_reaction = posts_per_max_reaction(kind)
-
-  - posts_max_reaction.each do |reaction, info|
-    %div{ class: "col-md-#{12/posts_max_reaction.count}" }
-      %h2
-        %i{ class: "fa #{icon_for(reaction)}" }
-        = reaction
-      .text-muted
-        from
-        = pluralize(info[:count], 'person')
-
-      - posts = info[:posts]
-      - posts.each do |post|
-        .fa.fa-star
-        = truncate(post.message, length: 150)
-        = link_to '(more info)', page_post_path(@page, post)
+  = render partial: 'shared/posts_list', locals: { posts_max_reaction: posts_per_max_reaction(kind) }
 
 .row
   .col-md-4.col-md-offset-4

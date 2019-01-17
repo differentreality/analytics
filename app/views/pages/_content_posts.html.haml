@@ -6,33 +6,18 @@
       - else
         = kind.capitalize.pluralize
       Reactions
-    = render partial: 'home/reactions'
+    = render partial: 'home/reactions', locals: { kind: kind }
 
 = render partial: 'shared/content_graphs', locals: { data: @trending_graph_data[kind.to_sym], kind: kind }
 
 .row
-  .col-md-12
+  .col-md-4.col-md-offset-4
+    %hr.bold
+.row
+  .col-md-12.text-center
     %h1
       Your
-      - if kind == 'status'
-        Status
-      - else
-        = kind.capitalize.pluralize
-      with the most reactions
-  - posts_max_reaction = posts_per_max_reaction(kind)
-
-  - posts_max_reaction.each do |reaction, info|
-    %div{ class: "col-md-#{12/posts_max_reaction.count}" }
-      %h2
-        %i{ class: "fa #{icon_for(reaction)}" }
-        = reaction
-      .text-muted
-        from
-        = pluralize(info[:count], 'person')
-
-      - posts = info[:posts]
-      %ul
-        - posts.each do |post|
-          %li
-            = truncate(post.message, length: 150)
-            = link_to '(more info)', page_post_path(@page, post)
+      = kind
+      posts with the most reactions
+  %br
+  = render partial: 'shared/posts_list', locals: { posts_max_reaction: posts_per_max_reaction(kind) }

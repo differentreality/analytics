@@ -29,28 +29,12 @@
 .row
   .col-md-4.col-md-offset-4
     %hr.bold
+
 .row
   .col-md-12.text-center
     %h1
       Your posts with the most reactions
-
-  - posts_max_reaction = posts_per_max_reaction
-
-  - posts_max_reaction.each do |reaction, info|
-    %div{ class: "col-md-#{12/posts_max_reaction.count}" }
-      %h2
-        %i{ class: "fa #{icon_for(reaction)}" }
-        = reaction
-      .text-muted
-        from
-        = pluralize(info[:count], 'person')
-
-      - posts = info[:posts]
-      - posts.each do |post|
-        .fa.fa-star
-        = truncate(post.message, length: 150)
-        = link_to '(more info)', page_post_path(@page, post)
-        %br
+  = render partial: 'shared/posts_list', locals: { posts_max_reaction: posts_per_max_reaction}
 
 .row
   .col-md-4.col-md-offset-4
@@ -67,9 +51,5 @@
       %i{ class: "fa #{icon_for('sad')}" }
       %i{ class: "fa #{icon_for('angry')}" }
       %i{ class: "fa #{icon_for('haha')}" }
-.row
-  .col-md-12
-    .col-md-6
-      = column_chart @trending_graph_data[:all][:multiple], colors: graph_color_set(@trending_graph_data[:all][:multiple].count)
-    .col-md-5.col-md-offset-1
-      = render partial: 'trending_chart', locals: { kind: nil, category: 'trending' }
+
+= render partial: 'shared/content_graphs', locals: { data: @trending_graph_data[:all], kind: 'all' }

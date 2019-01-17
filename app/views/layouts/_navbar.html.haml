@@ -35,8 +35,8 @@
             %span.caret
           %ul.dropdown-menu
             - current_user.pages.each do |page|
-              %li{ class: "#{'highlight' if @page == page }" }
-                = link_to page.name, page_path(page.object_id)
+              %li
+                = link_to page.name, page_path(page.object_id), class: "#{'highlight' if @page == page }"
             %li.divider
             %li= link_to 'Update Pages', user_get_pages_path(current_user)
 
