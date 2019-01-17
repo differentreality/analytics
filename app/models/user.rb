@@ -5,13 +5,23 @@ class User < ApplicationRecord
   devise :omniauthable, omniauth_providers: [:facebook]
 
   def get_pages
-    connection = Koala::Facebook::API.new(access_token)
+    begin
+      connection = Koala::Facebook::API.new(access_token)
 
-    user_fb_pages = connection.get_object('me/accounts')
-    user_fb_pages.each do |page|
-      page_record = Page.find_or_create_by(name: page['name'],
-                                           object_id: page['id'])
-      page_record.pages_users.where(user: current_user).find_or_create_by(access_token: page['access_token'])
+      user_fb_pages = connection.get_object('me/accounts')
+      user_fb_pages.each do |page|
+        page_record = Page.find_or_create_by(name: page['name'],
+                                             object_id: page['id'])
+        pages_users_record = page_record.pages_users.find_by(user: self)
+
+        if pages_users_record
+          pages_users_record.update(access_token: page['access_token'])
+        else
+          page_record.pages_users.create!(user: self, access_token: page['access_token'])
+        end
+      end
+    rescue => e
+      Rails.logger.info "Could not get user pages: #{e.message}"
     end
   end
 
