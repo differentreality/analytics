@@ -1,16 +1,15 @@
-
 %hr.bold
 
-= semantic_form_for '', url: make_graph_path do |f|
+= semantic_form_for '', url: make_overall_graph_path(page_id: @page&.object_id), html: { id: 'overall-form' } do |f|
   .col-md-4
-    = f.label 'Select variable x'
-    = f.input 'x_axis', collection: YAML::load(ENV['analytics_options']).keys,
+    = f.label "Object (If you select 'all', you need to select a multiple series chart)"
+    = f.input 'x_axis', collection: YAML::load(ENV['object_options']),
                         label: false,
                         include_blank: false,
                         selected: :posts
   .col-md-4
-    = f.label 'Select variable y'
-    = f.input 'y_axis', collection: YAML::load(ENV['analytics_options'])['posts'],
+    = f.label 'Group parameter'
+    = f.input 'y_axis', collection: YAML::load(ENV['group_options']),
                         label: false,
                         include_blank: false,
                         selected: 'month'
@@ -39,31 +38,38 @@
     = f.submit 'Make Graph!', class: 'btn btn-primary'
 
   .col-md-12
-    = render partial: 'shared/graph'
+    = render partial: 'shared/graph', locals: { data: @result[:data] }
 
 :javascript
   $(document).ready(function() {
-    $('select#period').change(function(){
-      // Set from, to values to last 3-month period
-      var selected_period = $(this).find('option:selected').val();
-      var from = $(this).find('option:selected').data('from');
-      var to = $(this).find('option:selected').data('to');
+    set_dates($('form#overall-form select#period option:selected'));
 
-      $('#datepicker-graph-from').val(from);
-      $('#datepicker-graph-to').val(to);
-      // change the dataset to only include objects posted_at within this period
-      // redraw chart
+    function set_dates(selected) {
+      var from = selected.data('from');
+      var to = selected.data('to');
 
-      var url = "#{make_graph_path}";
+      $('form#overall-form #datepicker-graph-from').val(from);
+      $('form#overall-form #datepicker-graph-to').val(to);
+    }
+
+    $('form#overall-form select#period').change(function(){
+      var selected = $('form#overall-form select#period option:selected');
+      set_dates(selected);
+      var from = $('form#overall-form #datepicker-graph-from').val();
+      var to = $('form#overall-form #datepicker-graph-to').val();
+
+      var url = "#{make_graph_path(page_id: @page.object_id)}";
       var x_axis = $('#x_axis option:selected').val();
       var y_axis = $('#y_axis option:selected').val();
       var graph_type = $('#graph_type option:selected').val();
+      var page_id = "#{@page.object_id}";
 
       if (y_axis != '' && graph_type !='') {
         $.ajax({
           type: 'POST',
-          url: '/make_graph',
+          url: '/make_overall_graph',
           data: { graph_type: graph_type,
+                  page_id: page_id,
                   x_axis: x_axis,
                   y_axis: y_axis,
                   from: from,
@@ -77,19 +83,19 @@
       var key = $('#x_axis option:selected').val();
 
       if(key == 'all') {
-        $('select#graph_type').val('multiple_series')
+        $('form#overall-form select#graph_type').val('multiple_series_line_chart')
       }
 
-      $.ajax({
-        type: 'GET',
-        url: '/values_for_analytics_option',
-        data: { key: key },
-        dataType: 'script'
-      });
+      // $.ajax({
+      //   type: 'GET',
+      //   url: '/values_for_analytics_option',
+      //   data: { key: key },
+      //   dataType: 'script'
+      // });
     });
 
     $('select#graph_type').change( function() {
-      var url = "#{make_graph_path}";
+      var url = "#{make_graph_path(page_id: @page.object_id)}";
       var x_axis = $('#x_axis option:selected').val();
       var y_axis = $('#y_axis option:selected').val();
       var graph_type = $('#graph_type option:selected').val();
@@ -97,10 +103,13 @@
       if (x_axis != '' && y_axis !='') {
         var from = $('#datepicker-graph-from').val();
         var to = $('#datepicker-graph-to').val();
+        var page_id = "#{@page.object_id}";
+
         $.ajax({
           type: 'POST',
-          url: '/make_graph',
+          url: '/make_overall_graph',
           data: { graph_type: graph_type,
+                  page_id: page_id,
                   x_axis: x_axis,
                   y_axis: y_axis,
                   from: from,
@@ -117,12 +126,15 @@
       var graph_type = $('#graph_type option:selected').val();
 
       if (y_axis != '' && graph_type !='') {
-        var from = $('#datepicker-graph-from').val();
-        var to = $('#datepicker-graph-to').val();
+        var from = $('form#overall-form #datepicker-graph-from').val();
+        var to = $('form#overall-form #datepicker-graph-to').val();
+        var page_id = "#{@page.object_id}";
+
         $.ajax({
           type: 'POST',
-          url: '/make_graph',
+          url: '/make_overall_graph',
           data: { graph_type: graph_type,
+                  page_id: page_id,
                   x_axis: x_axis,
                   y_axis: y_axis,
                   from: from,
@@ -141,11 +153,13 @@
       if (x_axis != '' && graph_type !='') {
         var from = $('#datepicker-graph-from').val();
         var to = $('#datepicker-graph-to').val();
+        var page_id = "#{@page.object_id}"
 
         $.ajax({
           type: 'POST',
-          url: '/make_graph',
+          url: '/make_overall_graph',
           data: { graph_type: graph_type,
+                  page_id: page_id,
                   x_axis: x_axis,
                   y_axis: y_axis,
                   from: from,

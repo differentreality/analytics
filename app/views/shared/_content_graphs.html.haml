@@ -1,0 +1,31 @@
+- colors = graph_color_set([data[:simple].count || 0, data[:multiple].count || 0].max)
+
+.row
+  .col-md-6
+    -# Show chart if there are any non zero values in the data
+    - if data[:multiple].any?{ |hash| hash[:data].values.uniq.select{ |v| v>0 }.any? }
+      = render partial: 'shared/graph', locals: { graph_type: 'multiple_series_column_chart', data: data, id: "content_#{kind}_first", colors: colors}
+
+      = semantic_form_for :chart, remote: true do |f|
+        = f.input 'graph_type', label: false,
+                                collection: YAML::load(ENV['graph_types']).map{ |graph| [graph,
+                                                                                         graph,
+                                                                                         data: { chart_id: "content_#{kind}_first",
+                                                                                                 kind: kind,
+                                                                                                 page_id: @page.object_id } ]},
+                                include_blank: false,
+                                selected: 'multiple_series_column_chart'
+  .col-md-6
+    -# Show chart if there are any non zero values in the data
+    - if data[:simple].values.uniq.select{ |v| v > 0 }.any?
+      = render partial: 'shared/graph', locals: { graph_type: 'pie_chart', data: data, id: "content_#{kind}_second", colors: colors}
+
+      = semantic_form_for :chart, remote: true do |f|
+        = f.input 'graph_type', label: false,
+                                collection: YAML::load(ENV['graph_types']).map{ |graph| [graph,
+                                                                                         graph,
+                                                                                         data: { chart_id: "content_#{kind}_second",
+                                                                                                 kind: kind,
+                                                                                                 page_id: @page.object_id } ]},
+                                include_blank: false,
+                                selected: 'pie_chart'

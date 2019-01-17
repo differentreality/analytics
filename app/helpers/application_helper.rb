@@ -71,6 +71,9 @@ module ApplicationHelper
     return "#{object.keys.join(', ')} -> #{object.values.first}"
   end
 
+  ##
+  # Reactions distribution based on group_parameter
+  # Counts the reactions, eg. per hour
   def reactions_groupped(page, reaction_kind: nil, group_parameter: 'day', group_format: nil, count: 'count')
     reactions = page.reactions
     # if groupping by date, do it by hand and do not show dates without data (ie w/ 0 count)
@@ -123,8 +126,6 @@ module ApplicationHelper
       end
     end
 
-    # result[:multiple].second[:data]["Saturday, 03-November-2018"] = 750
-    # result[:simple][:data]["Saturday, 03-November-2018"] = 750
     return result
   end
 
@@ -140,6 +141,13 @@ module ApplicationHelper
     }
   end
 
+  ##
+  # Reactions count for posts
+  # Counts the reactions (per reaction kind) for all posts, and per post kind
+  # ==== Returns
+  # * +Hash+ --> { simple: { name: 'all', data: { like: 0, love: 0} },
+  #                multiple: [ { name: 'all', data: { like: 0, love: 0 } },
+  #                            { name: 'link', data: {} } ] }
   def posts_reactions_graph_data(page, kind=nil, count='count')
     result = { }
     result[:simple] = {}
@@ -147,26 +155,26 @@ module ApplicationHelper
     result[:multiple] = {}
     return result unless page
     @page = page
-    post_objects = @page.posts.all
+    post_objects = page.posts.all
+
     if kind && kind != 'all'
-      post_objects = @page.posts.send(kind)
+      post_objects = page.posts.send(kind)
       # other_post_objects = Post.kinds.keys.
                                 # map{ |post_kind| @page.posts.send(post_kind) unless post_kind == kind }.flatten.compact
-      other_post_objects = @page.posts.all - @page.posts.send(kind)
+      other_post_objects = page.posts.all - page.posts.send(kind)
     end
-    result[:simple] = { name: kind || 'all',
-                        data: page.reactions.where(reactionable: post_objects).group(:name).send(count) }
+    result[:simple] = page.reactions.where(reactionable_type: 'Post', reactionable_id: post_objects.pluck(:id)).group(:name).send(count)
 
-    reactions = ['like', 'love', 'haha', 'wow', 'sad', 'angry']
-
+    reactions = Reaction::KINDS
     reactions.each do |reaction|
-      unless result[:simple][:data][reaction].present?
-        result[:simple][:data][reaction] = 0
+      unless result[:simple][reaction].present?
+        result[:simple][reaction] = 0
       end
     end
 
     result[:multiple] = []
-    result[:multiple] << result[:simple]
+    result[:multiple] << { name: kind || 'all', data: result[:simple] }
+
     if kind && kind != 'all'
       result[:multiple] << { name: 'other posts',
                              data: page.reactions.where.not(reactionable: nil).
@@ -177,7 +185,7 @@ module ApplicationHelper
       Post.kinds.keys.each do |post_kind|
         result[:multiple] << { name: post_kind,
                                data: @page.reactions.where(reactionable_type: 'Post',
-                                                    reactionable_id: @page.posts.send(post_kind)).
+                                                           reactionable_id: @page.posts.send(post_kind).pluck(:id)).
                                               group(:name).send(count)}
       end
     end

@@ -5,7 +5,8 @@ class PostsController < ApplicationController
 
   def index
     @posts = @page.posts
-    @posts = @posts.send(params[:kind]) if params[:kind]
+    @kind = params[:kind]
+    @posts = @posts.send(@kind) if @kind
 
     @trending_graph_type = 'pie_chart'
     @trending_graph_data = {}
@@ -18,17 +19,20 @@ class PostsController < ApplicationController
 
   def trending_graph
     @page ||= Page.default
-    @trending_graph_type = params[:graph_type]
+    # @trending_graph_type = params[:graph_type]
+    @graph_type = params[:graph_type]
+    @chart_id = params[:chart_id]
     @kind = params[:kind]
     @category = params[:category]
     @trending_graph_data = {}
     @trending_graph_data[@kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, @kind)
+
+    render 'home/make_graph'
   end
 
   def show
-    #TODO rename @result to @graph
-    @result = { data: { simple: [], multiple: [] }, graph_type: params[:graph_type] || 'column_chart'}
-    @result[:data][:simple] = @post.reactions.group(:name).count
+    @result = { simple: [], multiple: [], graph_type: params[:graph_type] || 'column_chart'}
+    @result[:simple] = @post.reactions.group(:name).count
   end
 
   # Initialize posts
@@ -66,21 +70,22 @@ class PostsController < ApplicationController
 
   def make_graph
     #TODO rename @result to @graph
-    @result = { data: { simple: { data: [] }, multiple: [] }, graph_type: params[:graph_type] || 'column_chart'}
+    @result = { simple: [], multiple: [], graph_type: params[:graph_type] || 'column_chart'}
 
-    if params[:graph_type] == 'multiple_series'
+    if params[:graph_type] == 'multiple_series_column_chart' || params[:graph_type] == 'multiple_series_line_chart'
       Reaction::KINDS.each do |reaction|
-        @result[:data][:multiple] << { name: reaction, data: @post.reactions.send(reaction).group_by_day(:posted_at).count }
+        @result[:multiple] << { name: reaction, data: @post.reactions.send(reaction).group_by_day(:posted_at).count }
       end
     else
-      @result[:data][:simple][:data] = @post.reactions.group(:name).count
+      @result[:simple] = @post.reactions.group(:name).count
     end
 
-    @graph_id = 'overall-chart'
+    @chart_id = "post_#{@post.id}"
+    @graph_type = params[:graph_type]
 
     respond_to do |format|
       format.html
-      format.js { render 'shared/make_graph' }
+      format.js { render 'home/make_graph' }
     end
   end
 end

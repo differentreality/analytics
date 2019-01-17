@@ -51,6 +51,9 @@ $(document).ready(function() {
     var kind = $(this).find('option:selected').data('kind');
     var category = $(this).find('option:selected').data('category');
     var graph_type = $(this).find('option:selected').val();
+    var chart_id = $(this).find('option:selected').data('chart-id');
+    var page_id = $(this).find('option:selected').data('page-id');
+
     // var graph_data = $('#chart_graph_data_status').val();
 
     $.ajax({
@@ -58,7 +61,9 @@ $(document).ready(function() {
       url: '/trending_graph',
       data: { graph_type: graph_type,
               kind: kind,
-              category: category },
+              chart_id: chart_id,
+              category: category,
+              page_id: page_id },
       dataType: 'script'
     });
   });

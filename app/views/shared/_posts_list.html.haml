@@ -1,0 +1,19 @@
+- posts_max_reaction.each do |reaction, info|
+  %div{ class: "col-md-#{12/posts_max_reaction.count}" }
+    %h2
+      %i{ class: "fa #{icon_for(reaction)}" }
+      = reaction
+    .text-muted
+      from
+      = pluralize(info[:count], 'person')
+
+    - posts = info[:posts]
+    - posts.each do |post|
+      .word-break
+        .fa.fa-star
+        - if post.message
+          = word_wrap(truncate(post.message, length: 150))
+        - elsif post.story
+          %i= word_wrap(truncate(post.story, length: 150))
+        = link_to '(more info)', page_post_path(post.page.object_id, post)
+      %br

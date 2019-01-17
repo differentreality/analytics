@@ -4,26 +4,7 @@ class FansController < ApplicationController
   def age
     result = collect_data("#{@page.object_id}/insights/page_fans_gender_age")
 
-    # Create DB records
-    result.each do |result_item|
-      result_item['values'].first['value'].each do |gender_age, count|
-        keys_split = gender_age.split('.').collect(&:strip)
-        gender = case keys_split.first
-                 when 'F'
-                   0
-                 when 'M'
-                   1
-                 when 'U'
-                   2
-                 end
-
-        db_object = @page.age_fans.where(gender: gender,
-                                         age_range: keys_split.second,
-                                         date: result_item['values'].first['end_time']).find_or_create_by(count: count)
-      end
-    end
-
-    redirect_to :back
+    redirect_back(fallback_location: page_path(@page))
   end
 
   def city
@@ -49,21 +30,11 @@ class FansController < ApplicationController
     redirect_to :back
   end
 
-  def renew_age_fans
-    @result = { data: { } }
-    @result[:data][:multiple] = []
-    # @result = { data: [], graph_type: params[:graph_type]}
-
-    @result[:data][:simple] = { data: fans_group(@page.age_fans, nil, nil, 'age_range') }
-    @result[:data][:multiple] << { name: 'all', data: fans_group(@page.age_fans, nil, nil, 'age_range') }
-
-    AgeFan.genders.each do |gender_key, gender_value|
-      data = fans_group(@page.age_fans, 'gender', gender_value, 'age_range')
-      @result[:data][:multiple] << { name: gender_key, data: data }
-    end
+  def renew_fans
+    fans_graph_data(params[:groupping])
 
     @graph_type = params[:graph_type]
-    @graph_id = 'demographics_age'
+    @chart_id = params[:graph_id]
 
     respond_to do |format|
       format.js { render 'home/make_graph' }
@@ -73,30 +44,52 @@ class FansController < ApplicationController
   def destroy
   end
 
+  def create_records_from_facebook(result)
+    result.each do |result_item|
+      result_item['values'].first['value'].each do |gender_age, count|
+        keys_split = gender_age.split('.').collect(&:strip)
+        gender = case keys_split.first
+                 when 'F'
+                   0
+                 when 'M'
+                   1
+                 when 'U'
+                   2
+                 end
+
+        db_object = @page.age_fans.where(gender: gender,
+                                         age_range: keys_split.second,
+                                         date: result_item['values'].first['end_time']).find_or_create_by(count: count)
+      end
+    end
+  end
+
   private
     def collect_data(object)
-      result = connection_result('get_object', object, { since: Time.new(2017, 11, 22).to_i,
-                                                         until: Time.new(2017, 11, 24).to_i })
-      if result
-        begin
-          latest_result = result
+      result = connection_result('get_object', object, { })
 
-          earliest_date = result.last['values'].last['end_time'] if result
-          latest_date = result.last['values'].last['end_time'] if result
+      if result
+        create_records_from_facebook(result)
+        begin
+          latest_result ||= result
+
+          earliest_date = result.last['values'].last['end_time'] if result.any?
+          latest_date = result.last['values'].last['end_time'] if result.any?
 
           # Grab all previous pages
           previous_page = latest_result&.previous_page
           while previous_page.present?
+            create_records_from_facebook(previous_page)
             earliest_date = previous_page.last['values'].last['end_time']
             previous_page.map{ |x| result << x }
-            previous_page = previous_page.previous_page
+            previous_page = previous_page&.previous_page
           end
 
         rescue => e
+        # rescue Koala::Facebook::APIError => e
           Rails.logger.debug "ERROR: #{e.message}"
           latest_result = connection_result('get_object',
                                             "#{@page.object_id}/insights/page_fans_city", { until: earliest_date.to_i })
-          retry
         end
 
         # Grab all next pages

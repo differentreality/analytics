@@ -1,3 +1,1 @@
-var chart_id = "#{@graph_id}";
-
-$('#' + chart_id).replaceWith("#{escape_javascript(render partial: 'home/graph', locals: { id: @graph_id}).html_safe}");
+$('#overall-chart').replaceWith("#{escape_javascript(render partial: 'shared/graph' ).html_safe}");

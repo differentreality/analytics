@@ -22,24 +22,23 @@
           = line_chart @data[:multiple].select{|item| item[:name] == page.name }
 
           .text-center
-            .btn-group
-              - if page.posts.any?
-                = link_to new_page_post_path(page), class: 'btn btn-primary' do
-                  Update posts
-              - else
-                = link_to new_page_post_path(page), class: 'btn btn-warning' do
-                  Get posts
+            - if page.posts.any?
+              = link_to new_page_post_path(page), class: 'btn btn-primary' do
+                Update posts
+            - else
+              = link_to new_page_post_path(page), class: 'btn btn-warning' do
+                Get posts
 
-              - if page.events.any?
-                = link_to new_page_event_path(page), class: 'btn btn-primary' do
-                  Update events
-              - else
-                = link_to new_page_event_path(page), class: 'btn btn-warning' do
-                  Get events
+            - if page.events.any?
+              = link_to new_page_event_path(page), class: 'btn btn-primary' do
+                Update events
+            - else
+              = link_to new_page_event_path(page), class: 'btn btn-warning' do
+                Get events
 
-              - if page.reactions.any?
-                = link_to new_page_reaction_path(page), class: 'btn btn-primary' do
-                  Update reactions
-              - else
-                = link_to new_page_reaction_path(page), class: 'btn btn-warning' do
-                  Get reactions
+            - if page.reactions.any?
+              = link_to new_page_reaction_path(page), class: 'btn btn-primary' do
+                Update reactions
+            - else
+              = link_to new_page_reaction_path(page), class: 'btn btn-warning' do
+                Get reactions

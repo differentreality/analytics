@@ -9,7 +9,7 @@ Rails.application.routes.draw do
     get :get_pages
   end
 
-  post 'renew_age_fans' => 'fans#renew_age_fans'
+  post 'renew_fans' => 'fans#renew_fans'
   resources :pages do
     resources :posts, only: [:index, :show, :new] do
       member do
@@ -35,6 +35,7 @@ Rails.application.routes.draw do
   post 'reactions_graph' => 'home#reactions_graph'
   post 'activity_graph' => 'home#activity_graph'
   post 'make_graph' => 'application#make_graph'
+  post 'make_overall_graph' => 'application#make_overall_graph'
   get 'values_for_analytics_option' => 'application#values_for_analytics_option'
 
   get 'webhook' => 'webhooks#confirm_webhook'

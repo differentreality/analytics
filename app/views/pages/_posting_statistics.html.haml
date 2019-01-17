@@ -1,5 +1,5 @@
 .row
-  = semantic_form_for '', url: 'update_overall_statistics_table', method: :post, remote: true do |f|
+  = semantic_form_for '', url: 'update_overall_statistics_table', method: :post, remote: true, html: { id: 'posting-statistics-form' } do |f|
     .col-md-3.col-md-offset-1
       = f.label 'From'
       = f.input 'from', as: :string, label: false, input_html: { id: 'datepicker-graph-from' }, hint: '(Optional) Limit the results to only include data from this date on.'
@@ -20,9 +20,13 @@
     %h2 Average reactions per post
 
 .row
-  .col-md-6
+  .col-md-12
     #activity_average_chart
-      = render partial: 'home/graph', locals: { data: reactions_groupped(@page, count: 'average'), kind: 'all',
+      - graph_data = reactions_groupped(@page, count: 'average')
+      graph data:
+      %br
+      = graph_data
+      = render partial: 'home/graph', locals: { data: graph_data, kind: 'all',
                                                 category: 'activity',
                                                 trending_graph_type: 'multiple_series_column_chart' }
     = render partial: 'shared/time_group_select', locals: { chart_id: 'average-chart',
@@ -33,19 +37,19 @@
     .page-header
       %h1 Yearly
 
-    = semantic_form_for 'overall_chart_year', remote: true do |f|
-      .row
-        .col-md-4
-          = f.input 'graph_type', collection: YAML::load(ENV['graph_types']), include_blank: 'Choose Graph Type', label: false
-      .row
-        = column_chart @yearly_content, id: 'yearly_content', legend: 'bottom'
+= semantic_form_for 'overall_chart_year', remote: true do |f|
+  .row
+    .col-md-4
+      = f.input 'graph_type', collection: YAML::load(ENV['graph_types']), include_blank: 'Choose Graph Type', label: false
+  .row
+    = column_chart @yearly_content, id: 'yearly_content', legend: 'bottom'
 .row
   .col-md-3
     %h4 All Posts
 
     = pie_chart @result_overall[:posts][:all][:year][:values],
                 colors: graph_color_set(@result_overall[:posts][:all][:year][:values]),
-                adapter: 'google',
+                adapter: 'highcharts',
                 library: { pieSliceText: 'value' }
   - Post.kinds.keys.each do |post_kind|
     - if @result_overall[:posts][post_kind.to_sym][:year][:values].present?

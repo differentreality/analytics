@@ -8,9 +8,7 @@
       Reactions
     = render partial: 'home/reactions'
 
-.row
-  .col-md-12
-    = render partial: 'trending_chart', locals: { kind: kind, category: 'content' }
+= render partial: 'shared/content_graphs', locals: { data: @trending_graph_data[kind.to_sym], kind: kind }
 
 .row
   .col-md-12

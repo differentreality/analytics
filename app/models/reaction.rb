@@ -3,7 +3,7 @@ class Reaction < ApplicationRecord
   belongs_to :person
   belongs_to :page
 
-  KINDS = [ 'like', 'love', 'haha', 'wow', 'sad', 'angry']
+  KINDS = [ 'like', 'love', 'wow', 'haha', 'sad', 'angry']
 
   def self.per_kind(kind)
     find_by(name: kind)

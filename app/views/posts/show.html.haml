@@ -34,7 +34,7 @@
                                 input_html: { autofocus: true }
 .row
   .col-md-6
-    = render partial: 'shared/graph'
+    = render partial: 'shared/graph', locals: { id: "post_#{@post.id}"}
     %br
 
 :javascript

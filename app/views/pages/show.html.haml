@@ -25,21 +25,15 @@
                 %button.btn.btn-default.disabled
                   No Events
 
-              - if Reaction.select{ |reaction| reaction.reactionable.page == @page }.any?
+              - if @page.reactions.any?
                 = link_to 'User Engagement', page_reactions_path(@page), class: 'btn btn-primary'
               - else
                 %button.btn.btn-default.disabled
                   No Reactions
 
-.row.row-eq-height
-  - items = [:post, :reaction, :event]
-  - items_count = 0
-  - items.each do |item|
-    - items_count += 1 unless @page.send(item.to_s.pluralize).any?
-
+.row
   %div
-    .col-md-2.col-md-offset-1.text-center
-
+    .col-md-2.col-md-offset-1.col-lg-2.col-lg-offset-1.text-center
       - if @page.posts.any?
         .panel.panel-primary
           .panel-heading
@@ -60,7 +54,7 @@
             of your Facebook page
 
     .col-md-2.text-center
-      - if Reaction.select{ |reaction| reaction.reactionable.page == @page }.any?
+      - if @page.reactions.any?
         .panel.panel-primary
           .panel-heading
             %h3.link-white-color
@@ -97,6 +91,7 @@
             Download all the events
             %br
             of your Facebook page
+
     .col-md-2.text-center
       - if @page.city_fans.any?
         .panel.panel-primary
@@ -140,8 +135,7 @@
 = render partial: 'demographics'
 
 .row
-  .col-md-12.text-center
-    %br
+  %br
   - if @page && @page.posts.any?
     %hr
     = render partial: 'content_statistics'

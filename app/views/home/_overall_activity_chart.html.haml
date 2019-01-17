@@ -4,13 +4,13 @@
   = semantic_form_for '', url: make_graph_path do |f|
     .col-md-4
       = f.label 'Select variable x'
-      = f.input 'x_axis', collection: YAML::load(ENV['analytics_options']).keys,
+      = f.input 'x_axis', collection: YAML::load(ENV['object_options']),
                           label: false,
                           include_blank: false,
                           selected: :posts
     .col-md-4
       = f.label 'Select variable y'
-      = f.input 'y_axis', collection: YAML::load(ENV['analytics_options'])['posts'],
+      = f.input 'y_axis', collection: YAML::load(ENV['group_options']),
                           label: false,
                           include_blank: false,
                           selected: 'month'

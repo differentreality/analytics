@@ -87,16 +87,60 @@ class ApplicationController < ActionController::Base
   end
 
   ##
+  # Set @result variable for the overall graph
+  # @result = { data: { simple: [], multiple: [] }, graph_type: params[:graph_type] || 'column_chart'}
+  # @result[:data][:simple] = @page.reactions.group(:name).count
+  def make_overall_graph
+    object = params[:x_axis]
+    period = params[:y_axis]
+    from = params[:from]
+    to = params[:to]
+    graph_type = params[:graph_type]
+
+    @result = { simple: [], multiple: [], graph_type: graph_type || 'column_chart'}
+
+    if object == 'all'
+      ['posts', 'events', 'reactions'].each do |obj|
+        data = get_data(@page, obj, period, from, to)
+        @result[:multiple] << { name: obj, data: data[:simple] }
+      end
+    else
+      data = get_data(@page, object, period, from, to)
+      @result[:simple] = data[:simple]
+
+      kinds = case object
+              when 'posts'
+                Post.kinds.keys
+              when 'reactions'
+                Reaction::KINDS
+              end
+      kinds&.each do |kind|
+        @result[:multiple] << { name: kind, data: get_data(@page, object, period, from, to, kind)[:simple] }
+      end
+
+      unless @result[:multiple].any?
+        @result[:multiple] << { name: object, data: data }
+      end
+    end
+
+    respond_to do |format|
+      format.js { render 'shared/make_graph' }
+      format.html { redirect_to page_path(@page) }
+    end
+  end
+
+  ##
   # Ajax call to update a chart
   def make_graph
-    @reactions_group_parameter = params[:group_parameter]
+    @reactions_group_parameter = params[:group_parameter] || params[:y_axis]
     @kind = params[:kind]
     @category = params[:category]
     @group_format = params[:group_format]
     @trending_graph_type = params[:graph_type]
-    @graph_id = params[:graph_id]
+    @graph_id = params[:graph_id] || 'overall-chart'
     @data = {}
-    @data = ApplicationController.helpers.reactions_groupped(group_parameter: @reactions_group_parameter,
+    @data = ApplicationController.helpers.reactions_groupped(@page,
+                                                             group_parameter: @reactions_group_parameter,
                                                              group_format: @group_format,
                                                              count: 'average')
     respond_to do |format|
@@ -104,25 +148,23 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  ##
+  # Initialize overall statistic values
+  # {
+  #  :posts=>{ :year=> {:min=>{"2016"=>32},
+  #                     :values=>{"2016"=>32, "2017"=>88, "2018"=>89},
+  #                     :max=>{"2018"=>89}
+  #                    },
+  #            :month => {},
+  #            :day => {},
+  #            :hour => {}
+  #          },
+  #  :events=>{ :year=>{:min=>{"2016"=>10}, :values=>{"2016"=>10, "2017"=>28, "2018"=>23}, :max=>{"2017"=>28}}}
+  # }
   def set_overall_result(from=nil, to=nil)
-    # Initialize overall statistic values
-    # {
-    #  :posts=>{ :year=> {:min=>{"2016"=>32},
-    #                     :values=>{"2016"=>32, "2017"=>88, "2018"=>89},
-    #                     :max=>{"2018"=>89}
-    #                    },
-    #            :month => {},
-    #            :day => {},
-    #            :hour => {}
-    #          },
-    #  :events=>{ :year=>{:min=>{"2016"=>10}, :values=>{"2016"=>10, "2017"=>28, "2018"=>23}, :max=>{"2017"=>28}}}
-    # }
-
-    # @posts_per_year = Post.all.group_by{ |post| post.}
+    return { } unless @page.present?
 
     @result_overall = {}
-    # = @result_posts[:year].select{ |k, v| v == @result_posts[:year].values.max }.to_a.join(' -> ')
-    # [:posts, :events].each do |object|
     @result_overall[:posts] = {}
 
     [:posts, :events, :reactions].each do |object|
@@ -185,6 +227,90 @@ class ApplicationController < ActionController::Base
     return result
   end
 
+  def fans_group_location(group_param: 'country', country: nil)
+    records = @page.city_fans.all
+    records = records.where(country: country) if country
+    records.group_by{ |info| info.send(group_param) }.collect{ |groupping, records| max_date = records.max_by{|r| r.date}.date; [ groupping, records.select{ |r| r.date == max_date  }.sum(&:count) ] }.to_h
+  end
+
+  ##
+  # Creates graph data for fans per age and gender
+  # groupping parameter is either age or city
+  # ==== Returns
+  # * +Hash+ --> { simple: {},
+  #                multiple: {}
+  #              }
+  def fans_graph_data(groupping)
+    @result = { simple: {}, multiple: [] }
+
+    if groupping == 'age'
+      records = @page.age_fans
+      @result[:simple] = fans_group(records, nil, nil, 'age_range')
+      @result[:multiple] << { name: 'all', data: fans_group(records, nil, nil, 'age_range')}
+
+      AgeFan.genders.each do |gender_key, gender_value|
+        data = fans_group(records, 'gender', gender_value, 'age_range')
+        @result[:multiple] << { name: gender_key, data: data }
+      end
+
+    elsif groupping == 'city'
+      @result[:simple] = fans_group_location(group_param: 'municipality')
+
+      countries = @page.city_fans.pluck(:country).uniq
+
+      countries.each do |country|
+        @result[:multiple] << { name: country,
+                                data: fans_group_location(group_param: 'municipality', country: country)}
+      end
+
+    elsif groupping == 'country'
+      @result[:simple] = fans_group_location(group_param: 'country')
+    end
+
+    return @result
+  end
+
+  ##
+  # Gets a hash and sorts it
+  # ==== Gets
+  # hash to be sorted, and optionally a period_symbol
+  # ==== Returns
+  # * +Hash+ -> hash sorted
+  def hash_sort(data_hash, period_symbol=nil)
+    sort_by = case period_symbol
+              when '%B'
+                Date::MONTHNAMES
+              when '%A'
+                Date::DAYNAMES
+              when '%H'
+                ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10',
+                 '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
+                 '21', '22', '23', '00']
+              else
+                nil
+              end
+
+    if sort_by
+      sort_by.compact.each do |sort_value|
+        data_hash[sort_value.to_s] = data_hash.fetch(sort_value.to_s, 0)
+      end
+
+
+      data_hash.map{ |result_item| result_item[:data] = sort_by.compact.each do |sort_value|
+                                                      result_item[:data].fetch(sort_value.to_s, 0)
+                                                    end
+                } if data_hash.keys.include?(:data)
+    end
+
+    data_hash = if sort_by
+             data_hash.sort_by{ |k,v| [sort_by.find_index(k), v]}.to_h
+           else
+             data_hash.sort.to_h
+           end
+
+    return data_hash
+  end
+
   # === Returns
   # * +Hash+ -> period and count
   # period can be hour, day, month, year, eg.
@@ -193,50 +319,25 @@ class ApplicationController < ActionController::Base
   # { "January"=>19, "February"=>27, "March"=>31 }
   # { "2016"=>32, "2017"=>88, "2018"=>90 }
   def get_data(page, object, period, from=nil, to=nil, kind=nil, insights: false)
+    # Initialize variables
     result = {}
+    result[:simple] = []
+    result[:multiple] = []
     period_symbol = datetime_symbol(period)
     redirect_to root_path && return unless page.present? && object.present? && period.present?
 
+    # Initialize data according to parameters
     result_initial = page&.send(object.pluralize) || []
     result_initial = result_initial.send(kind) if kind
     result_initial = result_initial.where('posted_at >= ?', from) if from.present?
     result_initial = result_initial.where('posted_at <= ?', to) if to.present?
 
-
-            # if object.classify.constantize.all.any?
-            #   object.classify.constantize.all
-            #   #  facebook_data(object, last_object.try(:posted_at).to_i, Time.now.to_i)
-            #  else
-            #    facebook_data(object)
-            #  end
-    # When NOT to call FB API ??
-    # Renew items from different button??
-
-    # from fb data
-    # if period_symbol && result && result.any?
-    #   result = result.map{ |x| x['created_time'].to_s }.group_by{ |x| x.to_datetime.strftime(period_symbol) }.map{ |k, v| [k,v.count]  }
-    # end
-
-    # from DB data
     result[:simple] = result_initial.map{ |x| x.posted_at.to_s if x.posted_at }.
                                      compact.
                                      group_by{ |x| x.to_datetime&.strftime(period_symbol) }.
                                      map{ |k, v| [k,v.count] }.to_h
 
-    sort_by = case period_symbol
-              when '%B'
-                Date::MONTHNAMES
-              when '%A'
-                Date::DAYNAMES
-              else
-                nil
-              end
-
-    result[:simple] = if sort_by
-                        result[:simple].sort_by{ |k,v| [sort_by.find_index(k), v]}.to_h
-                      else
-                        result[:simple].sort.to_h
-                      end
+    result[:simple] = hash_sort(result[:simple], period_symbol)
 
     multiple_diversifier = case object
                            when 'posts'
@@ -245,7 +346,6 @@ class ApplicationController < ActionController::Base
                              'name'
                            end
 
-    # [{ name: 'haha', data: { }}]
     result[:multiple] = []
     if multiple_diversifier
       result[:multiple] << { name: 'all',
@@ -253,18 +353,26 @@ class ApplicationController < ActionController::Base
 
       result[:multiple] = result_initial.
                           group_by(&multiple_diversifier.to_sym).
-                          map{ |kind, data| { name: kind, data: data.map{ |x| x.posted_at.to_s if x.posted_at }.
-                          compact.group_by{ |x| x.to_datetime&.strftime(period_symbol) }.
-                          map{ |k, v| [k,v.count] }.
-                          to_h  } }
+                          map{ |kind, data| { name: kind,
+                                              data: data.map{ |x| x.posted_at.to_s if x.posted_at }.
+                                                        compact.
+                                                        group_by{ |x| x.to_datetime&.strftime(period_symbol) }.
+                                                        map{ |k, v| [k,v.count] }.
+                                                        to_h
+                                            }
+                              }
+    end
+
+    if result[:multiple].any?
+      result[:multiple].map!{ |result_item| { name: result_item[:name],
+                                              data: hash_sort(result_item[:data], period_symbol) } }
     end
 
     return result
   end
 
   def values_for_analytics_option
-    analytics_options_hash = YAML::load(ENV['analytics_options'])
-    @values = analytics_options_hash[params['key']]
+    @values = YAML::load(ENV['object_options'])
 
     respond_to do |format|
       format.js { render partial: 'shared/values_for_analytics_option' }
@@ -287,7 +395,7 @@ class ApplicationController < ActionController::Base
     next_page = result.next_page
     while next_page.present?
       next_page.map{ |x| result << x }
-      next_page = next_page.next_page
+      next_page = next_page&.next_page
     end
 
     return result
@@ -297,7 +405,7 @@ class ApplicationController < ActionController::Base
     credentials(access_token)
     @result = begin
                 if method == 'get_object'
-                  @connection.get_object(object)
+                  @connection.get_object(object, params)
                 elsif method == 'get_connections'
                   @connection.get_connections(object, params)
                 end
@@ -350,12 +458,16 @@ class ApplicationController < ActionController::Base
     result = case text
              when 'day'
                '%A'
+             when 'day_of_month'
+               '%d'
+             when 'week'
+               '%W'
              when 'month'
                '%B'
-             when 'hour'
-               '%H'
              when 'year'
                '%Y'
+             when 'hour'
+               '%H'
              end
     return result
   end

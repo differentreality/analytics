@@ -1,14 +1,8 @@
-- data = posts_reactions_graph_data(@page)
-
 .row
   .col-md-6.col-md-offset-3
     = render partial: 'home/reactions'
 
-.row
-  .col-md-6
-    = column_chart data[:multiple], id: 'content-all-column-chart', colors: graph_color_set(data[:multiple].count)
-  .col-md-6
-    = pie_chart data[:simple][:data], adapter: 'google', colors: graph_color_set(data[:simple][:data].count), id: 'content-all-pie-chart'
+= render partial: 'shared/content_graphs', locals: { data: @trending_graph_data[:all], kind: 'all' }
 
 .row
   - posts_per_max_reaction.each do |reaction, info|

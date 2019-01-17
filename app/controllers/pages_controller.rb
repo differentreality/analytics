@@ -8,6 +8,8 @@ class PagesController < ApplicationController
     @data[:simple] = {}
     @data[:simple][:data] = []
 
+    redirect_to root_path and return unless current_user
+
     current_user.pages.each do |page|
       @data[:multiple] << { name: page.name,
                             data: page.posts.group(:kind).count }
@@ -23,9 +25,14 @@ class PagesController < ApplicationController
   end
 
   def show
-    #TODO rename @result to @graph
     @posts = @page.posts.all
     @posts = @posts.send(params[:kind]) if params[:kind]
+
+    # Load fan data first, because the functions used also set @result variable
+    # Here we want the @result variable overriden
+    @country_fans = fans_graph_data('country')
+    @city_fans = fans_graph_data('city')
+    @age_fans = fans_graph_data('age')
 
     @trending_graph_type = 'pie_chart'
     @trending_graph_data = {}
@@ -33,9 +40,6 @@ class PagesController < ApplicationController
     Post.kinds.keys.each do |kind|
       @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
     end
-
-    @result = { data: { simple: [], multiple: [] }, graph_type: params[:graph_type] || 'column_chart'}
-    @result[:data][:simple] = @page.reactions.group(:name).count
 
     @page_title = @page.try(:name) || get_page_title || 'Lambda Space'
     @page_fans_count = @page.try(:fans) || get_page_fans
@@ -61,19 +65,6 @@ class PagesController < ApplicationController
     Post.kinds.keys.each do |kind|
       @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
     end
-
-    @city_fans = @page.city_fans.all.group_by{ |info| info.country }.collect{ |country, records| max_date = records.max_by{|r| r.date}.date; [ country, records.select{ |r| r.date == max_date  }.sum(&:count) ] }.to_h
-
-    @age_fans = { data: { simple: {}, multiple: [] } }
-
-    @age_fans[:data][:simple] = { data: fans_group(@page.age_fans, nil, nil, 'age_range') }
-    @age_fans[:data][:multiple] << { name: 'all', data: fans_group(@page.age_fans, nil, nil, 'age_range')}
-
-    AgeFan.genders.each do |gender_key, gender_value|
-      data = fans_group(@page.age_fans, 'gender', gender_value, 'age_range')
-      @age_fans[:data][:multiple] << { name: gender_key, data: data }
-    end
-
   end
 
   # Initialize posts
@@ -121,7 +112,7 @@ class PagesController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.js { render 'shared/make_graph'}
+      format.js { render 'home/make_graph'}
     end
   end
 end

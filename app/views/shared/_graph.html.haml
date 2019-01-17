@@ -1,34 +1,87 @@
-- colors = graph_color_set([@result[:data][:simple]&.count, @result[:data][:multiple]&.count].compact.max)
+- kind = kind || @kind || 'all'
+- category = category || @category
+- graph_type = graph_type || @graph_type || @result[:graph_type] || 'bar_chart'
+- trending_graph_data = @trending_graph_data[kind.to_sym] if @trending_graph_data
+- data = data || trending_graph_data || @data || @result
+- id = id || @chart_id || 'overall-chart' || "total_reactions_#{kind}_chart_#{category}"
+- label_color = '#FF0266'
+- colors ||= graph_color_set([data[:simple]&.count || 0, data[:multiple]&.count || 0].max)
 
-#overall-chart
+%div{ id: id }
   %br
-  - case @result[:graph_type]
+  - case graph_type
     - when 'line_chart'
-      = line_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, curve: false, id: 'line_chart', colors: colors
+      = line_chart data[:simple].map{ |i| i.to_a.flatten },
+        id: "#{id}_line_chart",
+        discrete: true,
+        curve: false,
+        colors: colors,
+        library: { xAxis: { crosshair: true } }
+
     - when 'curve_line_chart'
-      = line_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, id: 'curve_line_chart', colors: colors
+      = line_chart data[:simple].map{ |i| i.to_a.flatten },
+        id: "#{id}_curve_line_chart",
+        discrete: true,
+        colors: colors,
+        library: { xAxis: { crosshair: true } }
+
     - when 'pie_chart'
-      = pie_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, id: 'pie_chart', colors: colors
+      = pie_chart data[:simple].map{ |i| i.to_a.flatten },
+        id: "#{id}_pie_chart",
+        discrete: true,
+        colors: colors,
+        library: {  plotOptions: { pie: { dataLabels: { format: '<b>{point.name}</b><br>{point.y} ({point.percentage:.1f} %)' } } } }
+
     - when 'doughnut_chart'
-      = pie_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, donut: true, id: 'doughnut_chart', colors: colors, adapter: 'highcharts', library: {  plotOptions: { pie: { dataLabels: { format: '<b>{point.name}</b><br>{point.y} ({point.percentage:.2f} %)',
+      = pie_chart data[:simple].map{|i| i.to_a.flatten},
+        id: "#{id}_doughnut_chart",
+        discrete: true,
+        donut: true,
+        legend: 'bottom',
+        colors: colors,
+        adapter: 'highcharts',
+        library: {  plotOptions: { pie: { dataLabels: { format: '<b>{point.name}</b><br>{point.y} ({point.percentage:.1f} %)',
                     distance: 15,
                     color: '#FF0266' }}}}
+
     - when 'column_chart'
-      = column_chart @result[:data][:simple].map{ |i| i.to_a.flatten },
-        id: 'column_chart',
+      = column_chart data[:simple].map{ |i| i.to_a.flatten },
+        id: "#{id}_column_chart",
         colors: colors,
         adapter: 'highcharts',
         library: {  plotOptions: { column: { dataLabels: { format: '<b>{point.name}</b><br>{point.y}',
                                                            enabled: true, color: '#FF0266' }}}}
+
     - when 'bar_chart'
-      = bar_chart @result[:data][:simple].map{|i| i.to_a.flatten}, discrete: true, id: 'bar_chart', colors: colors
+      = bar_chart data[:simple].map{|i| i.to_a.flatten},
+        id: "#{id}_bar_chart",
+        adapter: 'highcharts',
+        discrete: true,
+        colors: colors
+
     - when 'area_chart'
-      = area_chart @result[:data][:simple].map{|i| i.to_a.flatten}, id: 'area_chart', colors: colors
+      = area_chart data[:simple].map{|i| i.to_a.flatten},
+        id: "#{id}_area_chart",
+        colors: colors,
+        library: { xAxis: { crosshair: true } }
+
     - when 'geo_chart'
-      = geo_chart @result[:data][:simple], id: 'geo_chart', adapter: 'google', colors: colors
+      = geo_chart data[:simple],
+        id: "#{id}_geo_chart",
+        colors: colors,
+        adapter: 'google'
+
     - when 'timeline_chart'
-      = timeline @result[:data][:simple], id: 'timeline_chart', colors: colors
+      = timeline data[:simple],
+        id: "#{id}_timeline_chart",
+        colors: colors
+
     - when 'multiple_series_line_chart'
-      = line_chart @result[:data][:multiple], id: 'multiple_series_line_chart', colors: colors
+      = line_chart data[:multiple],
+        id: "#{id}_multiple_series_line_chart",
+        colors: colors
+
     - when 'multiple_series_column_chart'
-      = column_chart @result[:data][:multiple], id: 'multiple_series_column_chart', colors: colors
+      = column_chart data[:multiple],
+        id: "#{id}_multiple_series_column_chart",
+        colors: colors

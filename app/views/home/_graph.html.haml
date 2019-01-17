@@ -1,11 +1,12 @@
 - kind = kind || @kind || 'all'
 - category = category || @category
-- graph_type = graph_type || @trending_graph_type || 'bar_chart'
+- graph_type = graph_type || @trending_graph_type || @graph_type || 'bar_chart'
 - trending_graph_data = @trending_graph_data[kind.to_sym] if @trending_graph_data
-- data = data || trending_graph_data || @data || @result[:data]
+- data = data || trending_graph_data || @data || @result
 - id = id || @graph_id || "total_reactions_#{kind}_chart_#{category}"
 - label_color = '#FF0266'
 - colors = graph_color_set([data[:simple][:data].count, data[:multiple].count].max)
+
 
 %div{ id: id }
   - case graph_type
