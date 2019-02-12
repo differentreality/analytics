@@ -47,8 +47,7 @@ class PostsController < ApplicationController
 
     facebook_data = connection_result('get_connections',
                                       "#{@page.object_id}/posts",
-                                      '?fields=message, type, created_time, story',
-                                      @page.pages_users.find_by(user: current_user).access_token)
+                                      '?fields=message, type, created_time, story')
     result = facebook_data_all_pages(facebook_data) if facebook_data
     # Save posts to database
     result_db_items = []
