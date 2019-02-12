@@ -6,7 +6,7 @@
       - else
         = kind.capitalize.pluralize
       Reactions
-    = render partial: 'home/reactions', locals: { kind: kind }
+    = render partial: 'shared/reactions', locals: { kind: kind }
 
 = render partial: 'shared/content_graphs', locals: { data: @trending_graph_data[kind.to_sym], kind: kind }
 

@@ -8,7 +8,9 @@ class PagesController < ApplicationController
     @data[:simple] = {}
     @data[:simple][:data] = []
 
-    redirect_to root_path and return unless current_user
+    @page ||= Page.default
+
+    redirect_to page_path(@page) and return unless current_user
 
     current_user.pages.each do |page|
       @data[:multiple] << { name: page.name,
@@ -112,7 +114,7 @@ class PagesController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.js { render 'home/make_graph'}
+      format.js { render 'shared/make_graph'}
     end
   end
 end

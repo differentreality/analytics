@@ -1,4 +1,4 @@
 var kind = "#{@kind}";
 var category = "#{@category}";
 
-$('#total_reactions_' + kind + '_chart_' + category).replaceWith("#{escape_javascript(render partial: 'home/graph').html_safe}");
+$('#total_reactions_' + kind + '_chart_' + category).replaceWith("#{escape_javascript(render partial: 'shared/graph').html_safe}");

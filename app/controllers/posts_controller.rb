@@ -8,6 +8,11 @@ class PostsController < ApplicationController
     @kind = params[:kind]
     @posts = @posts.send(@kind) if @kind
 
+    page_logo_info = connection_result('get_connections',
+                                        "#{@page.object_id}/",
+                                        '?fields=picture')
+    @logo_link = page_logo_info['picture']['data']['url']
+
     @trending_graph_type = 'pie_chart'
     @trending_graph_data = {}
     @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(@page, nil)
@@ -27,7 +32,7 @@ class PostsController < ApplicationController
     @trending_graph_data = {}
     @trending_graph_data[@kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, @kind)
 
-    render 'home/make_graph'
+    render 'shared/make_graph'
   end
 
   def show
@@ -85,7 +90,7 @@ class PostsController < ApplicationController
 
     respond_to do |format|
       format.html
-      format.js { render 'home/make_graph' }
+      format.js { render 'shared/make_graph' }
     end
   end
 end

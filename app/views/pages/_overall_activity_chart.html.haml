@@ -96,13 +96,13 @@
 
     $('select#graph_type').change( function() {
       var url = "#{make_graph_path(page_id: @page.object_id)}";
-      var x_axis = $('#x_axis option:selected').val();
-      var y_axis = $('#y_axis option:selected').val();
-      var graph_type = $('#graph_type option:selected').val();
+      var x_axis = $('form#overall-form #x_axis option:selected').val();
+      var y_axis = $('form#overall-form #y_axis option:selected').val();
+      var graph_type = $('form#overall-form #graph_type option:selected').val();
 
       if (x_axis != '' && y_axis !='') {
-        var from = $('#datepicker-graph-from').val();
-        var to = $('#datepicker-graph-to').val();
+        var from = $('form#overall-form #datepicker-graph-from').val();
+        var to = $('form#overall-form #datepicker-graph-to').val();
         var page_id = "#{@page.object_id}";
 
         $.ajax({
@@ -121,9 +121,9 @@
 
     $('select#x_axis').change( function() {
       var url = "#{make_graph_path}";
-      var x_axis = $('#x_axis option:selected').val();
-      var y_axis = $('#y_axis option:selected').val();
-      var graph_type = $('#graph_type option:selected').val();
+      var x_axis = $('form#overall-form #x_axis option:selected').val();
+      var y_axis = $('form#overall-form #y_axis option:selected').val();
+      var graph_type = $('form#overall-form #graph_type option:selected').val();
 
       if (y_axis != '' && graph_type !='') {
         var from = $('form#overall-form #datepicker-graph-from').val();
@@ -146,13 +146,13 @@
 
     $('select#y_axis').change( function() {
       var url = "#{make_graph_path}";
-      var x_axis = $('#x_axis option:selected').val();
-      var y_axis = $('#y_axis option:selected').val();
-      var graph_type = $('#graph_type option:selected').val();
+      var x_axis = $('form#overall-form #x_axis option:selected').val();
+      var y_axis = $('form#overall-form #y_axis option:selected').val();
+      var graph_type = $('form#overall-form #graph_type option:selected').val();
 
       if (x_axis != '' && graph_type !='') {
-        var from = $('#datepicker-graph-from').val();
-        var to = $('#datepicker-graph-to').val();
+        var from = $('form#overall-form #datepicker-graph-from').val();
+        var to = $('form#overall-form #datepicker-graph-to').val();
         var page_id = "#{@page.object_id}"
 
         $.ajax({

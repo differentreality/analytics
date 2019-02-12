@@ -1,6 +1,6 @@
 .row
   .col-md-6.col-md-offset-3
-    = render partial: 'home/reactions'
+    = render partial: 'shared/reactions'
 
 = render partial: 'shared/content_graphs', locals: { data: @trending_graph_data[:all], kind: 'all' }
 

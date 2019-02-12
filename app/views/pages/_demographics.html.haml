@@ -6,22 +6,23 @@
   .col-xs-10.col-sm-10.col-md-10.col-xs-offset-1.col-sm-offset-1.col-md-offset-1
     %h3.text-center
       Location distribution
-
   .col-xs-12.col-sm-6.col-md-4
     Fans from
     = @page.city_fans.pluck(:country).uniq.count
     countries
+  .col-xs-12.col-sm-6.col-md-4
+    Fans from
+    = @page.city_fans.pluck(:municipality).uniq.count
+    cities
 
+.row
+  .col-xs-12.col-sm-6.col-md-4
     = render partial: 'shared/graph', locals: { graph_type: 'column_chart', data: @country_fans, id: 'demographics_country'}
     = semantic_form_for '', url: make_graph_path do |f|
       = f.input 'graph_type_fans_per_country', collection: YAML::load(ENV['graph_types']),
                                                include_blank: false
 
   .col-xs-12.col-sm-6.col-md-4
-    Fans from
-    = @page.city_fans.pluck(:municipality).uniq.count
-    cities
-
     = render partial: 'shared/graph', locals: { graph_type: 'column_chart', data: @city_fans, id: 'demographics_city'}
     = semantic_form_for '', url: make_graph_path do |f|
       = f.input 'graph_type_fans_per_city', collection: YAML::load(ENV['graph_types']),

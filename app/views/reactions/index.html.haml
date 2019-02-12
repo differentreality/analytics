@@ -7,11 +7,12 @@
   .col-md-6
     - reactions = reactions_groupped(@page, count: 'average')
 
-    = line_chart reactions[:multiple], id: "overall_reactions_multiple_line_chart_all", colors: graph_color_set(reactions[:multiple])
+    = line_chart reactions[:multiple], id: 'overall_reactions_multiple_line_chart_all', colors: graph_color_set(reactions[:multiple])
   .col-md-6
-    = render partial: 'home/graph', locals: { kind: 'all',
-                                              category: 'reactions',
-                                              data: reactions,
-                                              id: "total_reactions_all_chart_reactions" }
+    = render partial: 'shared/graph', locals: { kind: 'all',
+                                                category: 'reactions',
+                                                data: reactions,
+                                                graph_type: 'bar_chart',
+                                                id: 'total_reactions' }
     = render partial: 'shared/time_group_select', locals: { form_name: 'reactions',
-                                                            chart_id: "total_reactions_all_chart_reactions" }
+                                                            chart_id: "total_reactions" }

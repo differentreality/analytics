@@ -26,9 +26,10 @@
       graph data:
       %br
       = graph_data
-      = render partial: 'home/graph', locals: { data: graph_data, kind: 'all',
-                                                category: 'activity',
-                                                trending_graph_type: 'multiple_series_column_chart' }
+      = render partial: 'shared/graph', locals: { data: graph_data, kind: 'all',
+                                                  category: 'activity',
+                                                  id: 'activity_overall',
+                                                  trending_graph_type: 'multiple_series_column_chart' }
     = render partial: 'shared/time_group_select', locals: { chart_id: 'average-chart',
                                                             form_name: 'average' }
 

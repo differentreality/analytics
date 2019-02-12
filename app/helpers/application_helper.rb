@@ -89,11 +89,10 @@ module ApplicationHelper
     result[:multiple] = []
 
     if count == 'count'
-      result[:simple] = { name: reaction_kind || 'all',
-                          data: reaction_objects.send("group_by_#{group_parameter}",
-                                                      :posted_at,
-                                                      format: group_format).count
-                        }
+      result[:simple] = reaction_objects.send("group_by_#{group_parameter}",
+                                              :posted_at,
+                                              format: group_format).count
+
       Reaction::KINDS.each do |reaction_kind|
         result[:multiple] << { name: reaction_kind,
                                data: reaction_objects.where(name: reaction_kind)
@@ -103,15 +102,14 @@ module ApplicationHelper
       end
 
     elsif count == 'average'
-      result[:simple] = { name: reaction_kind || 'all',
-                          data: reaction_objects
-                                .group_by{|r| r.posted_at.strftime(group_parameter_options[group_parameter.to_sym][:format])}
-                                .map { |k, v| [k, (v.size.to_f / v.pluck(:reactionable_type,
-                                                                        :reactionable_id)
-                                                                  .uniq.count).round(2) ] }.to_h }
+      result[:simple] = reaction_objects
+                        .group_by{|r| r.posted_at.strftime(group_parameter_options[group_parameter.to_sym][:format])}
+                        .map { |k, v| [k, (v.size.to_f / v.pluck(:reactionable_type,
+                                                                 :reactionable_id)
+                                                                 .uniq.count).round(2) ] }.to_h
 
 
-      result[:multiple] << result[:simple]
+      result[:multiple] << { name: reaction_kind || 'all', data: result[:simple] }
       Reaction::KINDS.each do |reaction_kind|
         result[:multiple] << { name: reaction_kind,
                                data: reaction_objects.where(name: reaction_kind)
@@ -132,8 +130,8 @@ module ApplicationHelper
   ##
   # Group options for reactions
   def group_parameter_options
-    {  date: { group: 'day', format: '%b. %d, %Y', symbol: '%d' },
-       day: { group: 'day_of_week', format: '%A', symbol: '%A' },
+    {  date: { group: 'day of month (1/2/etc)', format: '%b. %d, %Y', symbol: '%d' },
+       day: { group: 'day of the week (Mon/Tue/etc)', format: '%A', symbol: '%A' },
        week: { group: 'week', format: '%Y-%m-%d', symbol: '%W' },
        month: { group: 'month', format: '%B', symbol: '%m' },
        year: { group: 'year', format: '%Y', symbol: '%Y' },

@@ -2,14 +2,44 @@
   .col-md-12
     .page-header
       .row
-        .col-md-4.col-md-offset-4
+        -# Only show in md and lg screens
+        .col-md-2.text-center.hidden-xs.hidden-sm
+          %br
+          - if can? :destroy, @page
+            = link_to 'Delete Page and its data', page_path, method: :delete, class: 'btn btn-danger', data: { confirm: 'Are you sure you want to delete this page and all of its data? You will need to re-initialize the page data, if you wish to see relevant information and charts again.' }
+
+        .col-md-4.col-md-offset-2
           %h1.text-center
             = @page.name
+            = image_tag @logo_link, class: 'pull-left' if @logo_link
 
           .text-muted.text-center
             = link_to "https://facebook.com/#{@page.object_id}", "https://facebook.com/#{@page.object_id}"
 
-        .col-md-4
+        -# Buttons menu for small screens (xs, sm)
+        .col-xs-12.hidden-md.hidden-lg.text-center
+          - if @page&.posts&.any?
+            = link_to 'Your Posts', page_posts_path(@page.object_id), class: 'btn btn-primary btn-lg'
+          - else
+            %button.btn.btn-default.disabled.btn-lg
+              No Posts
+
+          -# - if @page.events.any?
+          -#   = link_to 'Your Events', page_events_path(@page), class: 'btn btn-primary btn-lg'
+          -# - else
+          -#   %button.btn.btn-default.disabled.btn-lg
+          -#     No Events
+
+          - if @page.reactions.any?
+            = link_to 'User Engagement', page_reactions_path(@page), class: 'btn btn-primary btn-lg'
+          - else
+            %button.btn.btn-default.disabled.btn-lg
+              No Reactions
+
+          = link_to 'Delete Page and its data', '#', class: 'btn btn-lg btn-danger'
+
+        -# Buttons menu for medium/large screens (md, lg)
+        .col-md-4.hidden-xs.hidden-sm
           .pull-right
             %br
             .btn-group
@@ -19,21 +49,20 @@
                 %button.btn.btn-default.disabled
                   No Posts
 
-              - if @page.events.any?
-                = link_to 'Your Events', page_events_path(@page), class: 'btn btn-primary'
-              - else
-                %button.btn.btn-default.disabled
-                  No Events
+              -# - if @page.events.any?
+              -#   = link_to 'Your Events', page_events_path(@page), class: 'btn btn-primary'
+              -# - else
+              -#   %button.btn.btn-default.disabled
+              -#     No Events
 
               - if @page.reactions.any?
                 = link_to 'User Engagement', page_reactions_path(@page), class: 'btn btn-primary'
               - else
                 %button.btn.btn-default.disabled
                   No Reactions
-
 .row
   %div
-    .col-md-2.col-md-offset-1.col-lg-2.col-lg-offset-1.text-center
+    .col-xs-6.col-xs-offset-0.col-md-2.col-md-offset-1.col-lg-2.col-lg-offset-1.text-center
       - if @page.posts.any?
         .panel.panel-primary
           .panel-heading
@@ -53,7 +82,7 @@
             %br
             of your Facebook page
 
-    .col-md-2.text-center
+    .col-xs-6.col-md-2.text-center
       - if @page.reactions.any?
         .panel.panel-primary
           .panel-heading
@@ -72,7 +101,7 @@
             Download all the reactions to the posts
             of your Facebook page
 
-    .col-md-2.text-center
+    .col-xs-6.col-md-2.text-center
       - if @page.events.any?
         .panel.panel-primary
           .panel-heading
@@ -92,7 +121,7 @@
             %br
             of your Facebook page
 
-    .col-md-2.text-center
+    .col-xs-6.col-md-2.text-center
       - if @page.city_fans.any?
         .panel.panel-primary
           .panel-heading
@@ -112,7 +141,7 @@
             %br
             of all your fans
 
-    .col-md-2.text-center
+    .col-xs-6.col-md-2.text-center
       - if @page.age_fans.any?
         .panel.panel-primary
           .panel-heading

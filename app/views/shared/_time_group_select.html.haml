@@ -2,11 +2,12 @@
   = f.hidden_field :graph_id, value: chart_id
   = f.input 'group_parameter',
     label: false,
-    collection: group_parameter_options.map{ |parameter, options| [ parameter,
-                                                            data: { kind: 'all',
-                                                                    category: 'reactions',
-                                                                    group_parameter: parameter,
-                                                                    format: options[:format]}]},
+    collection: group_parameter_options.map{ |parameter, options| [ options[:group],
+                                                                    data: { kind: 'all',
+                                                                            category: 'reactions',
+                                                                            page_id: @page.object_id,
+                                                                            group_parameter: parameter,
+                                                                            format: options[:format]}]},
     include_blank: false,
     selected: 'day'
   = f.input 'graph_type', label: false,

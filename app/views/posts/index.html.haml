@@ -4,6 +4,11 @@
       %h1.text-center
         = @kind&.capitalize
         Posts
+        = image_tag @logo_link, class: 'pull-left' if @logo_link
+      .text-muted.text-center
+        for
+        = @page.name
+        = link_to "https://facebook.com/#{@page.object_id}", "https://facebook.com/#{@page.object_id}"
       .text-center
         .btn-group
           = link_to page_posts_path(@page), class: "btn btn-warning" do

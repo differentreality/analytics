@@ -37,7 +37,7 @@ class FansController < ApplicationController
     @chart_id = params[:graph_id]
 
     respond_to do |format|
-      format.js { render 'home/make_graph' }
+      format.js { render 'shared/make_graph' }
     end
   end
 

@@ -1,3 +1,0 @@
-var chart_id = "#{@chart_id}";
-
-$('#' + chart_id).replaceWith("#{escape_javascript(render partial: 'shared/graph', locals: { id: @graph_id }).html_safe}");

@@ -34,8 +34,12 @@ class ApplicationController < ActionController::Base
                'name, start_time.as(created_time)'
              end
 
-    object_query = if object == 'page_fans'
+    object_query = if object == 'fans'
                      'insights/page_fans'
+                   elsif object == 'city_fans'
+                     'insights/page_fans_city'
+                   elsif object == 'age_fans'
+                     'insights/page_fans_gender_age'
                    else
                      object
                    end
@@ -45,14 +49,13 @@ class ApplicationController < ActionController::Base
                                { fields: fields,
                                  since: since_datetime,
                                  until: until_datetime })
-
     next_page = result.next_page
     while next_page.present?
       next_page.map{ |x| result << x }
       next_page = next_page.next_page
     end
 
-    if object == 'page_fans'
+    if object == 'fans'
       previous_page = result.previous_page
       while  previous_page.present?
         previous_page.map{ |x| result << x }
@@ -91,6 +94,7 @@ class ApplicationController < ActionController::Base
   # @result = { data: { simple: [], multiple: [] }, graph_type: params[:graph_type] || 'column_chart'}
   # @result[:data][:simple] = @page.reactions.group(:name).count
   def make_overall_graph
+    # TODO sort returned hash (eg. overall chart group day of month for all)
     object = params[:x_axis]
     period = params[:y_axis]
     from = params[:from]
@@ -124,7 +128,7 @@ class ApplicationController < ActionController::Base
     end
 
     respond_to do |format|
-      format.js { render 'shared/make_graph' }
+      format.js { render 'shared/overall_graph' }
       format.html { redirect_to page_path(@page) }
     end
   end
@@ -137,7 +141,8 @@ class ApplicationController < ActionController::Base
     @category = params[:category]
     @group_format = params[:group_format]
     @trending_graph_type = params[:graph_type]
-    @graph_id = params[:graph_id] || 'overall-chart'
+    @chart_id = params[:graph_id] || 'overall-chart'
+    @graph_type = params[:graph_type]
     @data = {}
     @data = ApplicationController.helpers.reactions_groupped(@page,
                                                              group_parameter: @reactions_group_parameter,

@@ -1,9 +1,9 @@
 class Page < ApplicationRecord
-  has_many :posts
-  has_many :events
-  has_many :reactions
-  has_many :city_fans
-  has_many :age_fans
+  has_many :posts, dependent: :destroy
+  has_many :events, dependent: :destroy
+  has_many :reactions, dependent: :destroy
+  has_many :city_fans, dependent: :destroy
+  has_many :age_fans, dependent: :destroy
 
   has_many :pages_users, dependent: :destroy
   has_many :users, through: :pages_users
