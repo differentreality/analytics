@@ -7,8 +7,7 @@ class EventsController < ApplicationController
 
     facebook_data = connection_result('get_connections',
                                       "#{@page.object_id}/events",
-                                      nil,
-                                      @page.pages_users.find_by(user: current_user).access_token)
+                                      nil)
     result = facebook_data_all_pages(facebook_data) if facebook_data
     # Save posts to database
     result_db_items = []
