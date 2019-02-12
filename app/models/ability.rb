@@ -6,7 +6,8 @@ class Ability
     # See the wiki for details:
     # https://github.com/CanCanCommunity/cancancan/wiki/Defining-Abilities
     user_pages = Page.all.select{ |page| page.pages_users.include? user }
-    can :manage, Page
+    can :manage, Page, id: user_pages
+    can :show, Page, default: true
     can :manage, Post, page_id: user_pages
     can :manage, Reaction, page_id: user_pages
   end

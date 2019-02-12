@@ -1,6 +1,6 @@
 class PagesController < ApplicationController
   skip_before_action :verify_authenticity_token, only: :webhook_notification
-  load_resource find_by: :object_id
+  load_and_authorize_resource find_by: :object_id
 
   def index
     @data = {}
