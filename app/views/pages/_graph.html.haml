@@ -3,7 +3,7 @@
 - graph_type = graph_type || @trending_graph_type || 'bar_chart'
 - trending_graph_data = @trending_graph_data[kind.to_sym] if @trending_graph_data
 - data = data || trending_graph_data || @data
-- id = id || @graph_id || "total_reactions_#{kind}_chart_#{category}"
+- id = id || @chart_id || "total_reactions_#{kind}_chart_#{category}"
 - label_color = '#FF0266'
 - colors = graph_color_set([data[:simple].count, data[:multiple].count].max)
 

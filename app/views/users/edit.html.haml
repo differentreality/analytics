@@ -12,3 +12,12 @@
         = f.input :access_token, as: :string, hint: 'You are not able to see your existing access token for security reasons. Make sure the access token you are adding has the appropriate permissions. Ideally extend its expiration time.', input_html: { value: '', autofocus: true }
         %br
         = f.submit class: 'btn btn-primary'
+      %hr
+
+  .row
+    .col-md-12
+      .text-center
+        = link_to user_path, method: :delete, data: { confirm: 'Are you sure you want to delete your user account along with all the records for your pages/posts etc? You cannot undo this! ' }, class: 'btn btn-danger' do
+          %h3 Delete your user, and your data
+        .hint
+          If you wish to only delete a specific page, navigate to that page and click the delete button from the top menu.

@@ -21,7 +21,7 @@ class HomeController < ApplicationController
     @category = params[:category]
     @group_format = params[:group_format]
     @trending_graph_type = params[:graph_type]
-    @graph_id = 'activity_average_chart'
+    @chart_id = 'activity_average_chart'
     @data = {}
     @data = ApplicationController.helpers.reactions_groupped(group_parameter: @reactions_group_parameter,
                                                              group_format: @group_format,

@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     delete "/users/sign_out" => "devise/sessions#destroy"
   end
 
-  resources :users, only: [:edit, :update] do
+  resources :users, only: [:edit, :update, :destroy] do
     get :get_pages
   end
 
@@ -35,6 +35,9 @@ Rails.application.routes.draw do
   post 'make_graph' => 'application#make_graph'
   post 'make_overall_graph' => 'application#make_overall_graph'
   get 'values_for_analytics_option' => 'application#values_for_analytics_option'
+
+  post 'update_overall_statistics_table' => 'application#update_overall_statistics_table'
+  post 'yearly_content' => 'application#yearly_content'
 
   get 'webhook' => 'webhooks#confirm_webhook'
   post 'webhook' => 'webhooks#webhook_notification'

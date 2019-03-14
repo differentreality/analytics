@@ -2,6 +2,10 @@
   word-break: break-word;
  }
 
+table#overall-statistics {
+  table-layout: fixed;
+}
+
 .row-eq-height {
   display: flex;
 	flex-wrap: wrap;

@@ -60,39 +60,39 @@
                   %td
                     = result.second[:year][:max].values.first
                     .text-muted
-                      = result.second[:year][:max].keys.join(', ')
+                      = result.second[:year][:max].keys.join(', ') if (result.second[:year][:max].values.first || 0) > 0
 
                   %td
                     = result.second[:year][:min].values.first
                     .text-muted
-                      = result.second[:year][:min].keys.join(', ')
+                      = result.second[:year][:min].keys.join(', ') if (result.second[:year][:min].values.first || 0) > 0
 
                   %td
                     = result.second[:month][:max].values.first
                     .text-muted
-                      = result.second[:month][:max].keys.join(', ')
+                      = result.second[:month][:max].keys.join(', ') if (result.second[:month][:max].values.first || 0) > 0
 
                   %td
                     = result.second[:month][:min].values.first
                     .text-muted
-                      = result.second[:month][:min].keys.join(', ')
+                      = result.second[:month][:min].keys.join(', ') if (result.second[:month][:min].values.first || 0) > 0
 
                   %td
                     = result.second[:day][:max].values.first
                     .text-muted
-                      = result.second[:day][:max].keys.join(', ')
+                      = result.second[:day][:max].keys.join(', ') if (result.second[:day][:max].values.first || 0) > 0
 
                   %td
                     = result.second[:day][:min].values.first
                     .text-muted
-                      = result.second[:day][:min].keys.join(', ')
+                      = result.second[:day][:min].keys.join(', ') if (result.second[:day][:min].values.first || 0) > 0
 
                   %td
                     = result.second[:hour][:max].values.first
                     .text-muted
-                      = hour_range_text(result.second[:hour][:max].keys)
+                      = hour_range_text(result.second[:hour][:max].keys) if (result.second[:hour][:max].values.first || 0) > 0
 
                   %td
                     = result.second[:hour][:min].values.first
                     .text-muted
-                      = hour_range_text(result.second[:hour][:min].keys)
+                      = hour_range_text(result.second[:hour][:min].keys) if (result.second[:hour][:min].values.first || 0) > 0

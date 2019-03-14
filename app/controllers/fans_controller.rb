@@ -89,7 +89,8 @@ class FansController < ApplicationController
         # rescue Koala::Facebook::APIError => e
           Rails.logger.debug "ERROR: #{e.message}"
           latest_result = connection_result('get_object',
-                                            "#{@page.object_id}/insights/page_fans_city", { until: earliest_date.to_i })
+                                            object,
+                                            { until: earliest_date.to_i })
         end
 
         # Grab all next pages
@@ -103,7 +104,8 @@ class FansController < ApplicationController
         rescue Koala::Facebook::APIError => e
           Rails.logger.debug "ERROR: #{e.message}"
           latest_result = connection_result('get_object',
-                                            "#{@page.object_id}/insights/page_fans_city", { since: latest_date.to_i })
+                                            object,
+                                            { since: latest_date.to_i })
           retry
         end
 

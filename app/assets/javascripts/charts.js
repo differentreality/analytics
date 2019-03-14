@@ -1,17 +1,15 @@
 $(document).ready(function() {
 
-  $("select[id^='chart_form']").change( function() {
-
+  $("form[id^='chart_form'] select").change( function() {
     group_parameter_selector = $("select[id$='group_parameter']");
-    graph_type_selector = $("select[id$='graph_type']");
+    graph_type_selector = $("form[id^='chart_form'] select[id$='graph_type']");
+    console.log('graph selector: ' + graph_type_selector);
 
     var category = group_parameter_selector.find('option:selected').data('category');
     var kind = group_parameter_selector.find('option:selected').data('kind');
     var group_parameter = group_parameter_selector.find('option:selected').data('group-parameter');
     var group_format = group_parameter_selector.find('option:selected').data('format');
     var graph_type = graph_type_selector.find('option:selected').val();
-    // var graph_type = $(this).find('option:selected').val();
-    // var graph_data = $('#chart_graph_data_status').val();
     var graph_id = $("[id$='graph_id']").val();
     var page_id = group_parameter_selector.find('option:selected').data('page-id');
 
@@ -29,40 +27,12 @@ $(document).ready(function() {
     });
   });
 
-  // $('select#reactions_chart_group_parameter').change( function() {
-  //   group_parameter_selector = $("select[id$='group_parameter']");
-  //   graph_type_selector = $("select[id$='graph_type']");
-  //
-  //   var category = $(this).find('option:selected').data('category');
-  //   var kind = $(this).find('option:selected').data('kind');
-  //   var group_parameter = $(this).find('option:selected').data('group-parameter');
-  //   var group_format = $(this).find('option:selected').data('format');
-  //   var graph_type = graph_type_selector.find('option:selected').val();
-  //   var page_id = $(this).find('option:selected').data('page-id');
-  //   alert(page_id);
-  //
-  //   // var graph_type = $(this).find('option:selected').val();
-  //   // var graph_data = $('#chart_graph_data_status').val();
-  //
-  //   $.ajax({
-  //     type: 'POST',
-  //     url: '/reactions_graph',
-  //     data: { group_parameter: group_parameter,
-  //             kind: kind,
-  //             category: category,
-  //             group_format: group_format },
-  //     dataType: 'script'
-  //   });
-  // });
-
   $('select#chart_graph_type').change( function() {
     var kind = $(this).find('option:selected').data('kind');
     var category = $(this).find('option:selected').data('category');
     var graph_type = $(this).find('option:selected').val();
     var chart_id = $(this).find('option:selected').data('chart-id');
     var page_id = $(this).find('option:selected').data('page-id');
-
-    // var graph_data = $('#chart_graph_data_status').val();
 
     $.ajax({
       type: 'POST',

@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   has_one :person
   has_many :pages_users, dependent: :destroy
-  has_many :pages, through: :pages_users
+  has_many :pages, through: :pages_users, dependent: :destroy
   devise :omniauthable, omniauth_providers: [:facebook]
 
   def get_pages

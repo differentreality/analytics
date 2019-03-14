@@ -1,5 +1,5 @@
 .row
-  = semantic_form_for '', url: 'update_overall_statistics_table', method: :post, remote: true, html: { id: 'posting-statistics-form' } do |f|
+  = semantic_form_for '', url: update_overall_statistics_table_path(page_id: @page), method: :post, remote: true, html: { id: 'posting-statistics-form' } do |f|
     .col-md-3.col-md-offset-1
       = f.label 'From'
       = f.input 'from', as: :string, label: false, input_html: { id: 'datepicker-graph-from' }, hint: '(Optional) Limit the results to only include data from this date on.'
@@ -8,7 +8,12 @@
       = f.input 'to', as: :string, label: false, input_html: { id: 'datepicker-graph-to' }, hint: '(Optional) Limit the results to only include data to this date.'
     .col-md-3
       = f.label 'Period'
-      = f.input 'period', label: false, collection: YAML::load(ENV['period_options']).map{ |period| [period, period.parameterize.underscore, data: find_date(period) ]}, include_blank: 'Make a selection'
+      = f.input 'period',
+        label: false,
+        collection: YAML::load(ENV['period_options']).map{ |period| [period,
+                                                                     period.parameterize.underscore,
+                                                                     data: find_date(period) ]},
+        include_blank: false
     .col-md-1
       = f.label ''
       = f.submit 'Update table!', class: 'btn btn-primary'
@@ -17,54 +22,83 @@
 
 .row
   .col-md-12
-    %h2 Average reactions per post
+    .page-header
+      %h1 Average reactions per post
 
-.row
-  .col-md-12
-    #activity_average_chart
-      - graph_data = reactions_groupped(@page, count: 'average')
-      graph data:
-      %br
-      = graph_data
-      = render partial: 'shared/graph', locals: { data: graph_data, kind: 'all',
-                                                  category: 'activity',
-                                                  id: 'activity_overall',
-                                                  trending_graph_type: 'multiple_series_column_chart' }
-    = render partial: 'shared/time_group_select', locals: { chart_id: 'average-chart',
+  .col-md-4
+    = render partial: 'shared/time_group_select', locals: { chart_id: 'activity_average_chart',
                                                             form_name: 'average' }
+  .col-md-12
+    - graph_data = reactions_groupped(@page, count: 'average')
+
+    = render partial: 'shared/graph', locals: { data: graph_data, kind: 'all',
+                                                category: 'activity',
+                                                id: 'activity_average_chart',
+                                                graph_type: 'multiple_series_column_chart' }
 
 .row
   .col-md-12
     .page-header
       %h1 Yearly
 
-= semantic_form_for 'overall_chart_year', remote: true do |f|
-  .row
+.row
+  = semantic_form_for 'overall_chart_year', remote: true do |f|
     .col-md-4
-      = f.input 'graph_type', collection: YAML::load(ENV['graph_types']), include_blank: 'Choose Graph Type', label: false
-  .row
-    = column_chart @yearly_content, id: 'yearly_content', legend: 'bottom'
+      = f.input 'graph_type',
+        collection: YAML::load(ENV['graph_types']).map{ |graph| [graph,
+                                                                 graph,
+                                                                 data: { chart_id: 'yearly_content',
+                                                                         page_id: @page.object_id } ]},
+                              include_blank: 'Choose Graph Type',
+                              label: false
+.row
+  .col-md-12
+    = render partial: 'shared/graph', locals: { data: @yearly_content,
+                                                id: 'yearly_content',
+                                                graph_type: 'multiple_series_column_chart'}
 .row
   .col-md-3
     %h4 All Posts
-
     = pie_chart @result_overall[:posts][:all][:year][:values],
-                colors: graph_color_set(@result_overall[:posts][:all][:year][:values]),
                 adapter: 'highcharts',
-                library: { pieSliceText: 'value' }
+                library: { pieSliceText: 'value', plotOptions: { pie: { dataLabels: { format: '<b>{point.name}</b><br>{point.y} ({point.percentage:.1f} %)' } } } }
+
   - Post.kinds.keys.each do |post_kind|
     - if @result_overall[:posts][post_kind.to_sym][:year][:values].present?
-      .col-md-3
-        -# - data = @result_overall[:posts][post_kind.to_sym][:year][:values].keys.map { |year| { name: year, data: { year.to_sym =>  @result_overall[:posts][post_kind.to_sym][:year][:values][year.to_s] } }.to_h }
-        -# = line_chart @result_overall[:posts][post_kind.to_sym][:year][:values], colors: ["#b00", "#666"]
-
+      .col-xs-12.col-sm-6.col-md-4
         %h4 #{post_kind.capitalize} Posts
 
-
         = pie_chart @result_overall[:posts][post_kind.to_sym][:year][:values],
-                    colors: graph_color_set(@result_overall[:posts][post_kind.to_sym][:year][:values].count),
-                    adapter: 'chartjs',
+                    adapter: 'highcharts',
                     legend: 'bottom',
-                    library: { fillText: 'value' }
+                    library: { pieSliceText: 'value', fillText: 'value', plotOptions: { pie: { dataLabels: { format: '<b>{point.name}</b><br>{point.y} ({point.percentage:.1f} %)' } } } }
 
   -# different kinds of posts, min max
+
+:javascript
+  $(document).ready( function() {
+    $('form#posting-statistics-form select#period').change( function(){
+      var selected = $('form#posting-statistics-form select#period option:selected');
+      var from = selected.data('from');
+      var to = selected.data('to');
+      $('form#posting-statistics-form #datepicker-graph-from').val(from);
+      $('form#posting-statistics-form #datepicker-graph-to').val(to);
+    });
+
+    // specific id: overall_chart_year_graph_type
+    $("select[id$='graph_type']").change( function() {
+      var selected = $(this).find('option:selected')
+      var graph_type = selected.val();
+      var chart_id = selected.data('chart-id');
+      var page_id = selected.data('page-id');
+
+      $.ajax({
+        type: 'POST',
+        url: '/yearly_content',
+        data: { graph_type: graph_type,
+                chart_id: chart_id,
+                page_id: page_id},
+        dataType: 'script'
+      });
+    });
+  });

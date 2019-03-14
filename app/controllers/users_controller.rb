@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_action :authenticate_user!
+  load_and_authorize_resource
 
   def get_pages
     begin
@@ -31,7 +32,21 @@ class UsersController < ApplicationController
       flash[:error] = 'Could not update profile. ' + current_user.errors.full_messages.to_sentence
       render :edit and return
     end
+  end
 
+  def destroy
+    # user_id = @user.id
+    begin
+      user_pages = @user.pages.select{ |page| page.users == [@user] }
+      user_pages.each(&:destroy)
+      @user.destroy
+      flash[:notice] = "We have permanently deleted your user account, and #{user_pages.count} page(s)."
+      redirect_to root_path
+    rescue => e
+      Rails.logger.debug "Error deleting user #{@user.inspect} and user pages: #{user_pages.count}. #{e.message}"
+      flash[:error] = 'There was an error while deleting your account and its information. Please try again or contact us.'
+      redirect_to edit_user_path
+    end
   end
 
   private

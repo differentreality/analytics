@@ -6,6 +6,11 @@ class ApplicationController < ActionController::Base
   before_action :save_return_to
   load_resource :page, find_by: :object_id
 
+  rescue_from CanCan::AccessDenied do |exception|
+    Rails.logger.debug "Access denied on #{exception.action} #{exception.subject.inspect}"
+    redirect_to root_path, alert: exception.message
+  end
+
   def credentials(access_token=nil)
     unless access_token
       object_id = params[:page_id] || params[:id]
@@ -94,6 +99,7 @@ class ApplicationController < ActionController::Base
   # @result = { data: { simple: [], multiple: [] }, graph_type: params[:graph_type] || 'column_chart'}
   # @result[:data][:simple] = @page.reactions.group(:name).count
   def make_overall_graph
+    sign_in User.last
     # TODO sort returned hash (eg. overall chart group day of month for all)
     object = params[:x_axis]
     period = params[:y_axis]
@@ -141,8 +147,8 @@ class ApplicationController < ActionController::Base
     @category = params[:category]
     @group_format = params[:group_format]
     @trending_graph_type = params[:graph_type]
+    @graph_type = @trending_graph_type
     @chart_id = params[:graph_id] || 'overall-chart'
-    @graph_type = params[:graph_type]
     @data = {}
     @data = ApplicationController.helpers.reactions_groupped(@page,
                                                              group_parameter: @reactions_group_parameter,
@@ -150,6 +156,42 @@ class ApplicationController < ActionController::Base
                                                              count: 'average')
     respond_to do |format|
       format.js { render 'shared/make_graph' }
+    end
+  end
+
+  def yearly_content
+    Rails.logger.debug "page: #{@page.inspect} and params: #{params[:page_id]}"
+    @graph_type = params[:graph_type]
+    @chart_id = params[:chart_id]
+    set_yearly_content
+    @result = @yearly_content
+
+    respond_to do |format|
+      format.html
+      format.js { render 'shared/make_graph'}
+    end
+  end
+
+  def set_yearly_content
+    set_overall_result
+
+    @yearly_content = {}
+    @yearly_content[:simple] = []
+    @yearly_content[:multiple] = []
+
+    @result_overall[:posts].each do |kind_values|
+      @yearly_content[:multiple] << { name: kind_values.first.capitalize,
+                                      data: kind_values.second[:year][:values] }
+    end
+
+    @yearly_content[:simple] << @yearly_content[:multiple].select{ |h| h[:name] == :All}.first[:data]
+  end
+
+  def update_overall_statistics_table
+    set_overall_result(params[:from], params[:to])
+
+    respond_to do |format|
+      format.js { render 'pages/update_overall_statistics_table' }
     end
   end
 

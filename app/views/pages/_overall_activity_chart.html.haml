@@ -1,44 +1,41 @@
 %hr.bold
-
-= semantic_form_for '', url: make_overall_graph_path(page_id: @page&.object_id), html: { id: 'overall-form' } do |f|
-  .col-md-4
-    = f.label "Object (If you select 'all', you need to select a multiple series chart)"
-    = f.input 'x_axis', collection: YAML::load(ENV['object_options']),
+.row
+  = semantic_form_for '', url: make_overall_graph_path(page_id: @page&.object_id), html: { id: 'overall-form' } do |f|
+    .col-md-4
+      = f.label "Object (If you select 'all', you need to select a multiple series chart)"
+      = f.input 'x_axis', collection: YAML::load(ENV['object_options']),
+                          label: false,
+                          include_blank: false,
+                          selected: :posts
+    .col-md-4
+      = f.label 'Group parameter'
+      = f.input 'y_axis', collection: YAML::load(ENV['group_options']),
+                          label: false,
+                          include_blank: false,
+                          selected: 'month'
+    .col-md-4
+      = f.input 'graph_type', collection: YAML::load(ENV['graph_types']),
+                              include_blank: false,
+                              selected: 'doughnut_chart'
+    .col-md-4
+      = f.label 'From'
+      = f.input 'from', as: :string,
                         label: false,
-                        include_blank: false,
-                        selected: :posts
-  .col-md-4
-    = f.label 'Group parameter'
-    = f.input 'y_axis', collection: YAML::load(ENV['group_options']),
-                        label: false,
-                        include_blank: false,
-                        selected: 'month'
-  .col-md-4
-    = f.input 'graph_type', collection: YAML::load(ENV['graph_types']),
-                            include_blank: false,
-                            selected: 'doughnut_chart'
-  .col-md-4
-    = f.label 'From'
-    = f.input 'from', as: :string,
+                        input_html: { id: 'datepicker-graph-from' },
+                        hint: '(Optional) Limit the results to only include data from this date on.'
+    .col-md-4
+      = f.label 'To'
+      = f.input 'to', as: :string,
                       label: false,
-                      input_html: { id: 'datepicker-graph-from' },
-                      hint: '(Optional) Limit the results to only include data from this date on.'
-  .col-md-4
-    = f.label 'To'
-    = f.input 'to', as: :string,
-                    label: false,
-                    input_html: { id: 'datepicker-graph-to' },
-                    hint: '(Optional) Limit the results to only include data to this date.'
-  .col-md-4
-    = f.label 'Period'
-    = f.input 'period', label: false, collection: YAML::load(ENV['period_options']).map{ |period| [period, period.parameterize.underscore, data: find_date(period) ]},
-                                      include_blank: false,
-                                      selected: 'last_3_months'
-  .col-md-12
-    = f.submit 'Make Graph!', class: 'btn btn-primary'
-
-  .col-md-12
-    = render partial: 'shared/graph', locals: { data: @result[:data] }
+                      input_html: { id: 'datepicker-graph-to' },
+                      hint: '(Optional) Limit the results to only include data to this date.'
+    .col-md-4
+      = f.label 'Period'
+      = f.input 'period', label: false, collection: YAML::load(ENV['period_options']).map{ |period| [period, period.parameterize.underscore, data: find_date(period) ]},
+                                        include_blank: false,
+                                        selected: 'last_year'
+    .col-md-12
+      = render partial: 'shared/graph', locals: { data: @result[:data] }
 
 :javascript
   $(document).ready(function() {

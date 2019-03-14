@@ -84,4 +84,5 @@
     - when 'multiple_series_column_chart'
       = column_chart data[:multiple],
         id: "#{id}_multiple_series_column_chart",
-        colors: colors
+        colors: colors,
+        library: { xAxis: { crosshair: true } }

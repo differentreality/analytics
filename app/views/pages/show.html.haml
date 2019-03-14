@@ -163,9 +163,9 @@
 %hr
 = render partial: 'demographics'
 
-.row
-  %br
-  - if @page && @page.posts.any?
-    %hr
-    = render partial: 'content_statistics'
-    = render partial: 'overall_activity_chart'
+
+%br
+- if @page && @page.posts.any?
+  %hr
+  = render partial: 'content_statistics'
+  = render partial: 'overall_activity_chart'

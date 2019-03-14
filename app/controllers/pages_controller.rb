@@ -47,14 +47,11 @@ class PagesController < ApplicationController
     @page_fans_count = @page.try(:fans) || get_page_fans
     @result = {}
 
+    # Sets variable @result_overall in ApplicationController
     set_overall_result
 
-    @yearly_content = []
-
-    @result_overall[:posts].each do |kind_values|
-      @yearly_content << { name: kind_values.first.capitalize,
-                           data: kind_values.second[:year][:values] }
-    end
+    # Sets variable @yearly_content for Activity tab
+    set_yearly_content
 
     # Initial data for chart
     from = Time.current - 3.months
