@@ -54,8 +54,8 @@ class PagesController < ApplicationController
     set_yearly_content
 
     # Initial data for chart
-    from = Time.current - 3.months
-    to = Time.current
+    from = Date.new(Date.current.year - 1)
+    to = Date.new(Date.current.year - 1).end_of_year
     period = 'month'
     @result = { data: get_data(@page, 'posts', period, from, to), graph_type: 'doughnut_chart' }
     @trending_graph_type = 'pie_chart'
