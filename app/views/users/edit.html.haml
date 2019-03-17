@@ -12,6 +12,28 @@
         = f.input :access_token, as: :string, hint: 'You are not able to see your existing access token for security reasons. Make sure the access token you are adding has the appropriate permissions. Ideally extend its expiration time.', input_html: { value: '', autofocus: true }
         %br
         = f.submit class: 'btn btn-primary'
+
+      %p
+        %br
+        The following steps will help you
+        %b retrieve your User Access Token
+        %ol
+          %li
+            = link_to 'Create your own app', 'https://developers.facebook.com/apps'
+          %li
+            Use
+            = link_to 'the API explorer', 'https://developers.facebook.com/tools/explorer'
+            and select your newly created app
+          %li
+            Select the option
+            %b Get User Access Token
+          %li Make sure you select the neccessary permissions (manage_pages and read_insights)
+          %li
+            From the info icon, you can also
+            %b extend
+            the time validity of your token
+          %li Copy-Paste your token above. That's it!
+
       %hr
 
   .row
