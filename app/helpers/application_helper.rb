@@ -248,7 +248,7 @@ module ApplicationHelper
     when 'like'
       'fa-thumbs-up text-primary'
     when 'love'
-      'fa-heart text-danger'
+      'fa-heart text-pink'
     when 'wow'
       'fa-surprise text-success'
     when 'haha'

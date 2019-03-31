@@ -5,7 +5,7 @@
 - data = data || trending_graph_data || @data || @result
 - id = id || @chart_id || 'overall-chart' || "total_reactions_#{kind}_chart_#{category}"
 - label_color = '#FF0266'
-- colors ||= graph_color_set([data[:simple]&.count || 0, data[:multiple]&.count || 0].max)
+- colors = @colors || graph_color_set([data[:simple]&.count || 0, data[:multiple]&.count || 0].max)
 
 %div{ id: id }
   %br

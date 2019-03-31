@@ -107,6 +107,10 @@ class ApplicationController < ActionController::Base
     to = params[:to]
     graph_type = params[:graph_type]
 
+    if params[:x_axis] == 'reactions'
+      @colors = ['#337ab7', '#ffc0cb', '#3c763d', '#8a6d3b', '#31708f', '#a94442']
+    end
+
     @result = { simple: [], multiple: [], graph_type: graph_type || 'column_chart'}
 
     if object == 'all'
