@@ -100,6 +100,26 @@ class ApplicationController < ActionController::Base
     ['#337ab7', '#ffc0cb', '#3c763d', '#8a6d3b', '#31708f', '#a94442', 'fff']
   end
 
+  def make_overall_graph_time_periods
+    object = params[:x_axis]
+    period = params[:y_axis]
+    time_periods = params[:time_periods]
+    graph_type = params[:graph_type]
+
+    if params[:x_axis] == 'reactions'
+      @colors = reactions_chart_colors
+    end
+
+    respond_to do |format|
+      format.js { render 'shared/overall_graph' }
+      format.html { redirect_to page_path(@page,
+                                          time_periods: time_periods,
+                                          object: object,
+                                          graph_type: graph_type,
+                                          period: period) }
+    end
+  end
+
   ##
   # Set @result variable for the overall graph
   # @result = { simple: [], multiple: [] , graph_type: params[:graph_type] || 'column_chart'}
@@ -426,6 +446,73 @@ class ApplicationController < ActionController::Base
                                               data: hash_sort(result_item[:data], period_symbol) } }
     end
 
+    return result
+  end
+
+  ##
+  # Returns data groupped by categories (kinds of posts, kinds of reactions)
+  # It is assumed that the time restriction is already known, and applied elsewhere
+  # We collect time period information only to filter the records
+  # ==== Returns
+  # * +Hash+ -> { }
+  # result in get_data_reverse: {:simple=>{"link"=>0, "status"=>0, "photo"=>0, "video"=>0, "offer"=>0, "event"=>0, "note"=>0}, :multiple=>[]}
+  # result: {:data=>[{:simple=>{}, :multiple=>[{:name=>"period1", :data=>{"status"=>4, "photo"=>3, "link"=>3, "video"=>1}}, {:name=>"period2", :data=>{"link"=>0, "status"=>0, "photo"=>0, "video"=>0, "offer"=>0, "event"=>0, "note"=>0}}]}], :graph_type=>"multiple_series_column_chart", :colors=>["#5b90bf", "#96b5b4", "#adc896", "#ab7967", "#d08770", "#b48ead"]}
+  #
+  #
+  #  period1_data: {:simple=>{"status"=>4, "photo"=>3, "link"=>3, "video"=>1}, :multiple=>[{:name=>"link", :data=>{"January"=>0, "February"=>0, "March"=>0, "April"=>0, "May"=>0, "June"=>2, "July"=>1, "August"=>0, "September"=>0, "October"=>0, "November"=>0, "December"=>0}}, {:name=>"status", :data=>{"January"=>0, "February"=>0, "March"=>0, "April"=>0, "May"=>0, "June"=>2, "July"=>2, "August"=>0, "September"=>0, "October"=>0, "November"=>0, "December"=>0}}, {:name=>"photo", :data=>{"January"=>0, "February"=>0, "March"=>0, "April"=>0, "May"=>0, "June"=>3, "July"=>0, "August"=>0, "September"=>0, "October"=>0, "November"=>0, "December"=>0}}, {:name=>"video", :data=>{"January"=>0, "February"=>0, "March"=>0, "April"=>0, "May"=>0, "June"=>1, "July"=>0, "August"=>0, "September"=>0, "October"=>0, "November"=>0, "December"=>0}}]}
+
+  # No need for result[:multiple][:all] because we are in time periods
+  # we call this method inside the time_periods loop
+  # for each iteration, we only need 1 result in result[:multiple]
+
+  def get_data_reverse(page, object, period, from=nil, to=nil, kind=nil, insights: false)
+    # Initialize variables
+    result = {}
+    result[:simple] = []
+    result[:multiple] = []
+    period_symbol = datetime_symbol(period)
+    redirect_to root_path && return unless page.present? && object.present? && period.present?
+
+    # Initialize data according to parameters
+    result_initial = page&.send(object.pluralize) || []
+    result_initial = result_initial.send(kind) if kind
+    result_initial = result_initial.where('posted_at >= ?', from) if from.present?
+    result_initial = result_initial.where('posted_at <= ?', to) if to.present?
+
+    unless result[:simple].any?
+      result[:simple] = Post.kinds.collect{ |kind| [kind.first, 0] }.to_h
+    end
+    # result[:simple] = hash_sort(result[:simple], period_symbol)
+
+    # result[:multiple] = result_initial.group(:kind).count
+    # result[:multiple][:all] = result_initial.count
+
+    multiple_diversifier = case object
+                           when 'posts'
+                             'kind'
+                           when 'reactions'
+                             'name'
+                           end
+
+    if multiple_diversifier
+      result[:multiple] = result_initial.group(multiple_diversifier.to_sym).count
+    end
+
+    #   result_initial.group(multiple_diversifier.to_sym).count.each do |kind, count|
+    #     result[:multiple] << { name: kind,
+    #                            data: count }
+    #   end
+    #
+    #   result[:multiple] << { name: 'all',
+    #                          data: result[:simple] }
+    #
+    #
+    # end
+
+    # if result[:multiple].any?
+    #   result[:multiple].map!{ |result_item| { name: result_item[:name],
+    #                                           data: hash_sort(result_item[:data], period_symbol) } }
+    # end
     return result
   end
 

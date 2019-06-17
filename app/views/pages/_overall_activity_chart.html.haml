@@ -1,55 +1,99 @@
 %hr.bold
 .row
-  = semantic_form_for '', url: make_overall_graph_path(page_id: @page&.object_id), html: { id: 'overall-form' } do |f|
-    .col-md-4
-      = f.label "Object (If you select 'all', you need to select a multiple series chart)"
-      = f.input 'x_axis', collection: YAML::load(ENV['object_options']),
-                          label: false,
-                          include_blank: false,
-                          selected: :posts
-    .col-md-4
-      = f.label 'Group parameter'
-      = f.input 'y_axis', collection: YAML::load(ENV['group_options']),
-                          label: false,
-                          include_blank: false,
-                          selected: 'month'
-    .col-md-4
-      = f.input 'graph_type', collection: YAML::load(ENV['graph_types']),
-                              include_blank: false,
-                              selected: 'doughnut_chart'
-    .col-md-4
-      = f.label 'From'
-      = f.input 'from', as: :string,
-                        label: false,
-                        input_html: { id: 'datepicker-graph-from' },
-                        hint: '(Optional) Limit the results to only include data from this date on.'
-    .col-md-4
-      = f.label 'To'
-      = f.input 'to', as: :string,
-                      label: false,
-                      input_html: { id: 'datepicker-graph-to' },
-                      hint: '(Optional) Limit the results to only include data to this date.'
-    .col-md-4
-      = f.label 'Period'
-      = f.input 'period', label: false, collection: YAML::load(ENV['period_options']).map{ |period| [period, period.parameterize.underscore, data: find_date(period) ]},
-                                        include_blank: false,
-                                        selected: 'last_year'
+  = semantic_form_for '', url: make_overall_graph_time_periods_path(page_id: @page&.object_id), html: { id: 'overall-form' } do |f|
     .col-md-12
-      = render partial: 'shared/graph', locals: { data: @result[:data] }
+      = f.inputs 'Basic chart information' do
+        .col-md-4
+          = f.label "Object (If you select 'all', you need to select a multiple series chart)"
+          = f.input 'x_axis', collection: YAML::load(ENV['object_options']),
+                              label: false,
+                              include_blank: false,
+                              selected: :posts
+        .col-md-4
+          = f.label 'Group parameter'
+          = f.input 'y_axis', collection: YAML::load(ENV['group_options']),
+                              label: false,
+                              include_blank: false,
+                              selected: 'month'
+        .col-md-4
+          = f.input 'graph_type', collection: YAML::load(ENV['graph_types']),
+                                  include_blank: false,
+                                  selected: params[:graph_type] || @graph_type || 'doughnut_chart'
+    .col-md-12
+      = f.inputs 'Time constraints (optional)' do
+        %p
+          You can
+          %b optionally
+          limit the results to only include data within the dates defined. If there is no date for either from or to field, there will be no limitation imposed as to when the data starts or ends.
+          %br
+          Select multiple time periods to compare data between the selected time periods.
+      .col-md-3
+        = label_tag 'From (optional)'
+      .col-md-3
+        = label_tag 'To (optional)'
+      .col-md-3
+        = label_tag 'Period (optional)'
+      .col-md-3
+        = label_tag 'Remove time period'
+
+      .col-md-12
+        #time-periods
+          - if @time_periods
+            - @time_periods.each do |time_period|
+              = render partial: 'shared/time_period_fields', locals: { from: time_period[:from],
+                                                                       to: time_period[:to],
+                                                                       selected: time_period[:selected] || 'custom' }
+          - else
+            .row
+              .col-md-3
+                = text_field_tag 'time_periods[][from]', @from || '', class: 'form-control', id: 'datepicker-graph-from'
+
+              .col-md-3
+                = text_field_tag 'time_periods[][to]', @to || '', class: 'form-control', id: 'datepicker-graph-to'
+
+              .col-md-3
+                = select_tag 'period',
+                  options_for_select(YAML::load(ENV['period_options']).map{ |period| [period,
+                                                                                      period.parameterize.underscore,
+                                                                                      data: find_date(period) ]},
+                                                                                      include_blank: false,
+                                                                                      selected: @selected_period || 'custom'),
+                  class: 'form-control'
+
+              .col-md-3
+
+      .col-md-10
+        %br
+        = f.submit 'Make graph!', class: 'btn btn-primary pull-left'
+        = link_to 'Add time period', add_time_period_path(page_id: @page.object_id), class: 'btn btn-success pull-right', remote: true
+.row
+  .col-md-12
+    %p
+      %hr
+      = render partial: 'shared/graph', locals: { data: @result[:data], colors: @result[:colors], graph_type: @result[:graph_type] }
 
 :javascript
   $(document).ready(function() {
-    set_dates($('form#overall-form select#period option:selected'));
+    // set_dates($('form#overall-form select#period option:selected'));
 
     function set_dates(selected) {
       var from = selected.data('from');
       var to = selected.data('to');
 
-      $('form#overall-form #datepicker-graph-from').val(from);
-      $('form#overall-form #datepicker-graph-to').val(to);
+      // Change the dates in the from/to input fields
+      // (according to period dropdown selection - last_year, current_year, etc)
+      // ONLY IF the fields are empty (initial chart), OR if there is only one time period
+      if ($('form#overall-form #datepicker-graph-from').val() === '' || selected.closest('.row').find('#datepicker-graph-from').length == 1) {
+        alert('in this');
+        $('form#overall-form #datepicker-graph-from').val(from);
+      }
+
+      if ($('form#overall-form #datepicker-graph-to').val() === '' || selected.closest('.row').find('#datepicker-graph-to').length == 1) {
+        $('form#overall-form #datepicker-graph-to').val(to);
+      }
     }
 
-    $('form#overall-form select#period').change(function(){
+    $('select#period').change(function(){
       var selected = $('form#overall-form select#period option:selected');
       set_dates(selected);
       var from = $('form#overall-form #datepicker-graph-from').val();

@@ -1,0 +1,109 @@
+- from ||= ''
+- to ||= ''
+- selected ||= 'custom'
+
+.row
+  .col-md-3
+    = text_field_tag 'time_periods[][from]', from, class: 'form-control', id: 'datepicker-graph-from'
+
+  .col-md-3
+    = text_field_tag 'time_periods[][to]', to, class: 'form-control', id: 'datepicker-graph-to'
+
+  .col-md-3
+    = select_tag 'period',
+      options_for_select(YAML::load(ENV['period_options']).map{ |period| [period,
+                                                                          period.parameterize.underscore,
+                                                                          data: find_date(period) ]},
+                         include_blank: '(Please select)',
+                         selected: selected),
+      class: 'form-control',
+      onchange: 'set_dates($(this))'
+  .col-md-3
+    = link_to 'javascript: void(0)', onclick: 'remove_field($(this))', title: 'Remove time period' do
+      %i.fa.fa-times.btn.btn-danger
+
+:javascript
+    function remove_field($this) {
+      // Get .row
+      $this.parent().parent().remove();
+    }
+
+    function set_dates(selected) {
+      var from = selected.find('option:selected').data('from');
+      var to = selected.find('option:selected').data('to');
+
+      selected.closest('.row').find('#datepicker-graph-from').val(from);
+      selected.closest('.row').find('#datepicker-graph-to').val(to);
+    }
+
+    $(document).ready(function() {
+      $("input[id^='datepicker']").datepicker({
+          useCurrent: false,
+          pickTime: true,
+          sideBySide: true,
+          showButtonPanel: true,
+          autoclose: true,
+          language: 'en',
+          format: 'yyyy-mm-dd',
+          endDate: (new Date()).toISOString().substring(0, 10),
+          startView: 1,
+          todayBtn: true
+      });
+
+      $('form#overall-form select#period').each( function() {
+        // set_dates( $(this) );
+      });
+    });
+
+
+    // function period_change(selected) {
+    //   var selected_value = selected.val();
+    //   set_dates(selected);
+    //
+    //   // inside #time-periods
+    //   // collect all time periods (from and to values)
+    //   // console.log($('#time-periods').children('.row').length);
+    //   var time_periods = [];
+    //
+    //   var time_periods = $('#time-periods').children('.row').each(function () {
+    //     console.log( "item is: " + $(this) );
+    //     var from = $(this).find('#datepicker-graph-from').val();
+    //     var to = $(this).find('#datepicker-graph-to').val();
+    //     console.log('from: ' + from);
+    //     console.log('to: ' + to);
+    //
+    //     // return {
+    //     //   from: 'from',
+    //     //   to: 'to'
+    //     // }
+    //     //  return { from: from, to: to };
+    //     time_periods.push( { from: from, to: to });
+    //   });
+    //
+    //   // var from = selected.closest('.row').find('#datepicker-graph-from').val();
+    //   // var to = selected.closest('.row').find('#datepicker-graph-to').val();
+    //
+    //   var url = "#{make_graph_path(page_id: @page.object_id)}";
+    //   var x_axis = $('#x_axis option:selected').val();
+    //   var y_axis = $('#y_axis option:selected').val();
+    //   var graph_type = $('#graph_type option:selected').val();
+    //   var page_id = "#{@page.object_id}";
+    //
+    //   console.log('time periods: ' + time_periods.serialize() );
+    //
+    //   if (y_axis != '' && graph_type !='') {
+    //     $.ajax({
+    //       type: 'GET',
+    //       url: '/make_overall_graph',
+    //       data: { graph_type: graph_type,
+    //               page_id: page_id,
+    //               // send all time periods
+    //               x_axis: x_axis,
+    //               y_axis: y_axis,
+    //               time_periods: $.param(time_periods)
+    //             },
+    //       dataType: 'json',
+    //       contentType: 'application/json'
+    //     });
+    //   }
+    // }

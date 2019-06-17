@@ -47,22 +47,66 @@ class PagesController < ApplicationController
     @page_fans_count = @page.try(:fans) || get_page_fans
     @result = {}
 
-    # Sets variable @result_overall in ApplicationController
+    # Sets variable @result_overall in ApplicationController for Activity tab
     set_overall_result
 
     # Sets variable @yearly_content for Activity tab
     set_yearly_content
 
-    # Initial data for chart
-    from = Date.new(Date.current.year - 1)
-    to = Date.new(Date.current.year - 1).end_of_year
-    period = 'month'
-    @result = { data: get_data(@page, 'posts', period, from, to), graph_type: 'doughnut_chart' }
-    @trending_graph_type = 'pie_chart'
-    @trending_graph_data = {}
-    @trending_graph_data[:all] = ApplicationController.helpers.posts_reactions_graph_data(@page, nil)
-    Post.kinds.keys.each do |kind|
-      @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
+    # Initial data for overall chart
+    # unless already defined (readirected with params from make_overall_graph)
+    # used for reverse charts
+    if params[:graph_type]
+      @time_periods = params[:time_periods]
+      object = params[:object]
+      period = params[:period]
+      @graph_type = params[:graph_type]
+
+      @result = { data: { simple: [], multiple: [] }, graph_type: @graph_type }
+
+      @time_periods.each do |time_period|
+        @result[:data][:multiple] << { name: "#{time_period[:from].to_s.tr('-', '.')} - #{time_period[:to].to_s.tr('-', '.')}",
+                                       data: get_data_reverse(@page,
+                                                              object,
+                                                              period,
+                                                              time_period[:from],
+                                                              time_period[:to])[:multiple] }
+        # @result[:data][:multiple] << { name: 'All', data: get_data_reverse(@page,
+        #                                                                    object,
+        #                                                                    period,
+        #                                                                    time_period[:from],
+        #                                                                    time_period[:to])[:count]}
+
+      end
+
+    else
+      # Initial data for chart
+      @from = Date.new(Date.current.year - 1)
+      @to = Date.new(Date.current.year - 1).end_of_year
+      period = 'month'
+      @result = { data: get_data(@page, 'posts', period, @from, @to) }
+
+      #
+      # # Create a hash for each time period item
+      # period1_from = Date.new(2017, 01, 01)
+      # period1_to = Date.new(2017, 12, 31)
+      # period2_from = Date.new(2016, 01, 01)
+      # period2_to = Date.new(2016, 12, 31)
+      # period1_data = get_data_reverse(@page, 'posts', period, period1_from, period1_to )
+      # period2_data = get_data_reverse(@page, 'posts', period, period2_from, period2_to )
+      # @time_periods = [ { from: period1_from, to: period1_to },
+      #                   { from: period2_from, to: period2_to }]
+      #
+      # data = {}
+      # data[:simple] = {}
+      # data[:multiple] = [ { name: "#{period1_from.to_s.tr('-', '.')} - #{period1_to.to_s.tr('-', '.')}",
+      #                       data: period1_data[:simple] },
+      #                     { name: "#{period2_from.to_s.tr('-', '.')} - #{period2_to.to_s.tr('-', '.')}",
+      #                       data: period2_data[:simple] } ]
+      #
+      # @result = { data: data,
+      #             graph_type: 'multiple_series_column_chart',
+      #             colors: ['#5b90bf', '#96b5b4', '#adc896', '#ab7967', '#d08770', '#b48ead'] }
     end
   end
 
