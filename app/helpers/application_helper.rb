@@ -1,6 +1,12 @@
 module ApplicationHelper
 
   ##
+  # Set the colors per reaction kind
+  def reactions_chart_colors
+    return ['#337ab7', '#ffc0cb', '#3c763d', '#8a6d3b', '#31708f', '#a94442', 'fff']
+  end
+
+  ##
   # Gets a collection of posts, and a specific post kind (eg. photo)
   # Returns the proper class for a kind of post (eg. status update)
   # based on the devision of the posts count for a specific kind and the max count
@@ -50,13 +56,29 @@ module ApplicationHelper
              when 'all'
                { from: '', to: '' }
              when 'current_year'
-               { from: Date.new(Date.current.year).to_s, to: Date.new(Date.current.year).end_of_year.to_s }
+               { from: Date.new(Date.current.year).to_s,
+                 to: Date.new(Date.current.year).end_of_year.to_s }
              when 'last_3_months'
-               { from: (Date.current - 3.months).to_s, to: Date.current.to_s }
+               { from: (Date.current - 3.months).to_s,
+                 to: Date.current.to_s }
              when 'last_6_months'
-               { from: (Date.current - 6.months).to_s, to: Date.current.to_s }
+               { from: (Date.current - 6.months).to_s,
+                 to: Date.current.to_s }
              when 'last_year'
-               { from: Date.new(Date.current.year - 1).to_s, to: Date.new(Date.current.year - 1).end_of_year.to_s }
+               { from: Date.new(Date.current.year - 1).to_s,
+                 to: Date.new(Date.current.year - 1).end_of_year.to_s }
+             when 'latest_christmas'
+               { from: Date.new(Date.current.year - 1, 12, 15).to_s,
+                 to: Date.new(Date.current.year, 1, 15).to_s }
+             when 'latest_easter'
+               year = Date.current.month > 4 ? Date.current.year : Date.current.year - 1
+               { from: Date.new(year, 4, 1).to_s,
+                 to: Date.new(year, 5, 30).to_s }
+             when 'latest_summer'
+               year = Date.current.month > 6 ? Date.current.year : Date.current.year - 1
+
+               { from: Date.new(year, 6, 1).to_s,
+                 to: Date.new(year, 8, 31).to_s }
              end
 
     return result
@@ -109,7 +131,6 @@ module ApplicationHelper
                                                                  .uniq.count).round(2) ] }.to_h
 
 
-      result[:multiple] << { name: reaction_kind || 'all', data: result[:simple] }
       Reaction::KINDS.each do |reaction_kind|
         result[:multiple] << { name: reaction_kind,
                                data: reaction_objects.where(name: reaction_kind)
@@ -122,6 +143,7 @@ module ApplicationHelper
                                                              :reactionable_id)
                                                       .uniq.count).round(2) ] }.to_h }
       end
+      result[:multiple] << { name: reaction_kind || 'All', data: result[:simple] }
     end
 
     return result

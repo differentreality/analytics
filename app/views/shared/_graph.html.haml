@@ -1,11 +1,11 @@
 - kind = kind || @kind || 'all'
 - category = category || @category
-- graph_type = graph_type || @graph_type || @result[:graph_type] || 'bar_chart'
+- graph_type = graph_type || @graph_type || @result[:graph_type] || 'doughnut_chart'
 - trending_graph_data = @trending_graph_data[kind.to_sym] if @trending_graph_data
 - data = data || trending_graph_data || @data || @result
 - id = id || @chart_id || 'overall-chart' || "total_reactions_#{kind}_chart_#{category}"
 - label_color = '#FF0266'
-- colors = @colors || graph_color_set([data[:simple]&.count || 0, data[:multiple]&.count || 0].max)
+- colors = colors || @colors || graph_color_set([data[:simple]&.count || 0, data[:multiple]&.count || 0].max)
 
 %div{ id: id }
   %br
@@ -49,8 +49,8 @@
         id: "#{id}_column_chart",
         colors: colors,
         adapter: 'highcharts',
-        library: {  plotOptions: { column: { dataLabels: { format: '<b>{point.name}</b><br>{point.y}',
-                                                           enabled: true, color: '#FF0266' }}}}
+        library: {  plotOptions: { series: { dataLabels: { format: '<b>{point.name}</b><br>{point.y}',
+                                                           enabled: true }}}}
 
     - when 'bar_chart'
       = bar_chart data[:simple].map{|i| i.to_a.flatten},
@@ -79,7 +79,10 @@
     - when 'multiple_series_line_chart'
       = line_chart data[:multiple],
         id: "#{id}_multiple_series_line_chart",
-        colors: colors
+        colors: colors,
+        library: { plotOptions: { tooltip: { crosshairs: [true,true] },
+                                  series: { allowPointSelect: true },
+                                  line: { dataLabels: { enabled: true } } } }
 
     - when 'multiple_series_column_chart'
       = column_chart data[:multiple],

@@ -95,11 +95,16 @@ class ApplicationController < ActionController::Base
   end
 
   ##
+  # Set the color for reaction kinds
+  def reactions_chart_colors
+    ['#337ab7', '#ffc0cb', '#3c763d', '#8a6d3b', '#31708f', '#a94442', 'fff']
+  end
+
+  ##
   # Set @result variable for the overall graph
-  # @result = { data: { simple: [], multiple: [] }, graph_type: params[:graph_type] || 'column_chart'}
+  # @result = { simple: [], multiple: [] , graph_type: params[:graph_type] || 'column_chart'}
   # @result[:data][:simple] = @page.reactions.group(:name).count
   def make_overall_graph
-    sign_in User.last
     # TODO sort returned hash (eg. overall chart group day of month for all)
     object = params[:x_axis]
     period = params[:y_axis]
@@ -108,7 +113,7 @@ class ApplicationController < ActionController::Base
     graph_type = params[:graph_type]
 
     if params[:x_axis] == 'reactions'
-      @colors = ['#337ab7', '#ffc0cb', '#3c763d', '#8a6d3b', '#31708f', '#a94442']
+      @colors = reactions_chart_colors
     end
 
     @result = { simple: [], multiple: [], graph_type: graph_type || 'column_chart'}
@@ -153,6 +158,9 @@ class ApplicationController < ActionController::Base
     @trending_graph_type = params[:graph_type]
     @graph_type = @trending_graph_type
     @chart_id = params[:graph_id] || 'overall-chart'
+    if (params[:x_axis] == 'reactions') || (params[:category] == 'reactions')
+      @colors = reactions_chart_colors
+    end
     @data = {}
     @data = ApplicationController.helpers.reactions_groupped(@page,
                                                              group_parameter: @reactions_group_parameter,
@@ -297,7 +305,7 @@ class ApplicationController < ActionController::Base
     if groupping == 'age'
       records = @page.age_fans
       @result[:simple] = fans_group(records, nil, nil, 'age_range')
-      @result[:multiple] << { name: 'all', data: fans_group(records, nil, nil, 'age_range')}
+      @result[:multiple] << { name: 'All', data: fans_group(records, nil, nil, 'age_range')}
 
       AgeFan.genders.each do |gender_key, gender_value|
         data = fans_group(records, 'gender', gender_value, 'age_range')
@@ -399,9 +407,6 @@ class ApplicationController < ActionController::Base
 
     result[:multiple] = []
     if multiple_diversifier
-      result[:multiple] << { name: 'all',
-                             data: result[:simple] }
-
       result[:multiple] = result_initial.
                           group_by(&multiple_diversifier.to_sym).
                           map{ |kind, data| { name: kind,
@@ -412,6 +417,8 @@ class ApplicationController < ActionController::Base
                                                         to_h
                                             }
                               }
+      result[:multiple] << { name: 'All',
+                             data: result[:simple] }
     end
 
     if result[:multiple].any?

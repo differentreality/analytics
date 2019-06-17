@@ -42,7 +42,7 @@
       %h1 Yearly
 
 .row
-  = semantic_form_for 'overall_chart_year', remote: true do |f|
+  = semantic_form_for 'overall_chart_year', remote: true, html: { id: 'overall-chart-year' } do |f|
     .col-md-4
       = f.input 'graph_type',
         collection: YAML::load(ENV['graph_types']).map{ |graph| [graph,
@@ -57,7 +57,7 @@
                                                 id: 'yearly_content',
                                                 graph_type: 'multiple_series_column_chart'}
 .row
-  .col-md-3
+  .col-xs-12.col-sm-6.col-md-4
     %h4 All Posts
     = pie_chart @result_overall[:posts][:all][:year][:values],
                 adapter: 'highcharts',
@@ -86,7 +86,7 @@
     });
 
     // specific id: overall_chart_year_graph_type
-    $("select[id$='graph_type']").change( function() {
+    $("form#overall-chart-year select[id$='graph_type']").change( function() {
       var selected = $(this).find('option:selected')
       var graph_type = selected.val();
       var chart_id = selected.data('chart-id');
