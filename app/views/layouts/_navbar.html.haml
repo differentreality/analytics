@@ -8,7 +8,10 @@
       %span.icon-bar
   #navbar.navbar-collapse.collapse{ 'aria-expanded' => 'true' }
     %ul.nav.navbar-nav
-      %li= link_to "© 2018-#{Date.today.year} More Facebook Analytics by Stella Rouzi", "#{current_page?(root_path) ? '#' : root_path}", class: 'navbar-brand'
+      -# Do not navigate to root_path if user is logged in, and already in root_path
+      -# When user is not logged in, the user is redirected to page_show of LambdaSpace
+      - brand_link = if current_user && current_page?(root_path) then '#' elsif !current_user && current_page?(page_path) then '#' else  root_path end
+      %li= link_to "© 2018-#{Date.today.year} More Facebook Analytics by Stella Rouzi", brand_link, class: 'navbar-brand'
 
     %ul.nav.navbar-nav
       -# %li
