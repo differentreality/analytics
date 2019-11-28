@@ -40,7 +40,7 @@ module ApplicationHelper
 
   def graph_color_set(values_count)
     # If values are more than 7, choose another color scheme
-    return ['#5b90bf', '#96b5b4', '#adc896', '#ab7967', '#d08770', '#b48ead']
+    return ['#b48ead', '#96b5b4', '#adc896', '#ab7967', '#5b90bf', '#d08770']
   end
 
   def hour_range_text(hours_array)
