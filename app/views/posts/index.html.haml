@@ -42,6 +42,10 @@
         .tab-pane#list{ role: 'tabpanel'}
           .row
             .col-md-12
+              = render partial: 'shared/graph', locals: { data: @posts_kind_distribution_data,
+                                                          id: 'post_kinds_distribution' }
+          .row
+            .col-md-12
               %table.table.table-hover.table-bordered.table-striped.datatable#posts
                 %thead
                   %th Reactions

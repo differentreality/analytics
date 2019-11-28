@@ -8,6 +8,8 @@ class PostsController < ApplicationController
     @kind = params[:kind]
     @posts = @posts.send(@kind) if @kind
 
+    @posts_kind_distribution_data = { simple: @posts.group(:kind).count }
+
     page_logo_info = connection_result('get_connections',
                                         "#{@page.object_id}/",
                                         '?fields=picture')
@@ -20,6 +22,8 @@ class PostsController < ApplicationController
     @kinds.each do |kind|
       @trending_graph_data[kind.to_sym] = ApplicationController.helpers.posts_reactions_graph_data(@page, kind)
     end
+    @result = {}
+    @result[:graph_type] = 'pie_chart'
   end
 
   def trending_graph
