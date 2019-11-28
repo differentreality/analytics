@@ -14,6 +14,7 @@
       = line_chart data[:simple].map{ |i| i.to_a.flatten },
         id: "#{id}_line_chart",
         discrete: true,
+        adapter: 'highcharts',
         curve: false,
         colors: colors,
         library: { xAxis: { crosshair: true } }
@@ -22,15 +23,17 @@
       = line_chart data[:simple].map{ |i| i.to_a.flatten },
         id: "#{id}_curve_line_chart",
         discrete: true,
+        adapter: 'highcharts',
         colors: colors,
         library: { xAxis: { crosshair: true } }
 
     - when 'pie_chart'
       = pie_chart data[:simple].map{ |i| i.to_a.flatten },
         id: "#{id}_pie_chart",
+        adapter: 'highcharts',
         discrete: true,
         colors: colors,
-        library: {  plotOptions: { pie: { dataLabels: { format: '<b>{point.name}</b><br>{point.y} ({point.percentage:.1f} %)' } } } }
+        library: { pieSliceText: 'value', plotOptions: { pie: { dataLabels: { format: '<b>{point.name}</b><br>{point.y} ({point.percentage:.1f} %)' } } } }
 
     - when 'doughnut_chart'
       = pie_chart data[:simple].map{|i| i.to_a.flatten},
