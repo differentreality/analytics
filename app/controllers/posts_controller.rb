@@ -13,7 +13,7 @@ class PostsController < ApplicationController
     page_logo_info = connection_result('get_connections',
                                         "#{@page.object_id}/",
                                         '?fields=picture')
-    @logo_link = page_logo_info['picture']['data']['url']
+    @logo_link = page_logo_info['picture']['data']['url'] if page_logo_info.present?
 
     @trending_graph_type = 'pie_chart'
     @trending_graph_data = {}
