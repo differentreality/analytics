@@ -27,7 +27,7 @@ class UsersController < ApplicationController
       # Update access tokens for current user's pages
       current_user.get_pages
       redirect_to edit_user_path(current_user) and return
-    else
+    rescue
       Rails.logger.info "Could not update access token for user and user's pages, with error: #{current_user.errors.full_messages.to_sentence}"
       flash[:error] = 'Could not update profile. ' + current_user.errors.full_messages.to_sentence
       render :edit and return
