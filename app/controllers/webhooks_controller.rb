@@ -14,14 +14,25 @@ class WebhooksController < ApplicationController
     end
   end
 
-  # {"entry"=> [{"changes"=>
-               # [{"field"=>"feed", "value"=> {"reaction_type"=>"like", "from"=>{"id"=>"2037320319611866",
-                                                                    # "name"=>"Stella   Rouzi Differentreality"},
-                                      # "parent_id"=>"295754757450351_637257263300097", "post_id"=>"295754757450351_637257263300097", "verb"=>"remove", "item"=>"reaction", "created_time"=>1534875091}}],
-    # "id"=>"295754757450351", "time"=>1534875092}],
+  ## Received data from webhook call
+  # {"entry"=> [{"changes"=>[{
+  #                "field"=>"feed",
+  #                "value"=> {"reaction_type"=>"like",
+  #                           "from"=>{"id"=>"2037320319611866", "name"=>"Stella   Rouzi Differentreality"},
+  #                           "parent_id"=>"295754757450351_637257263300097",
+  #                           "post_id"=>"295754757450351_637257263300097",
+  #                           "verb"=>"remove", "item"=>"reaction", "created_time"=>1534875091}}],
+  #               "id"=>"295754757450351", "time"=>1534875092}],
 
-    # "object"=>"page", "home"=>{"entry"=>[{"changes"=>[{"field"=>"feed", "value"=>{"reaction_type"=>"like", "from"=>{"id"=>"2037320319611866", "name"=>"Stella Rouzi Differentreality"}, "parent_id"=>"295754757450351_637257263300097", "post_id"=>"295754757450351_637257263300097", "verb"=>"remove", "item"=>"reaction", "created_time"
-    # =>1534875091}}], "id"=>"295754757450351", "time"=>1534875092}], "object"=>"page"}}
+  # "object"=>"page",
+  # "home"=>{"entry"=>[{
+  #             "changes"=>[{"field"=>"feed",
+  #                          "value"=>{"reaction_type"=>"like",
+  #                            "from"=>{"id"=>"2037320319611866", "name"=>"Stella Rouzi Differentreality"},
+  #                            "parent_id"=>"295754757450351_637257263300097", "post_id"=>"295754757450351_637257263300097",
+  #                            "verb"=>"remove", "item"=>"reaction", "created_time" =>1534875091 }}],
+  #            "id"=>"295754757450351", "time"=>1534875092}],
+  #          "object"=>"page"}}
 
   def webhook_notification
     verb = params['entry'].first['changes'].first['value']['verb']
