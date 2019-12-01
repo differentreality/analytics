@@ -6,7 +6,7 @@ class Page < ApplicationRecord
   has_many :age_fans, dependent: :destroy
 
   has_many :pages_users, dependent: :destroy
-  has_many :users, through: :pages_users
+  has_many :users, through: :pages_users, dependent: :destroy
 
   validates :object_id, uniqueness: true, presence: true
 

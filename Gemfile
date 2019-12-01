@@ -102,7 +102,7 @@ group :test do
   gem 'rspec-activemodel-mocks'
   gem 'database_cleaner'
   gem 'shoulda-matchers', '~> 3.1'
-  gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
   gem 'tzinfo-data'
   gem 'capybara'
 
