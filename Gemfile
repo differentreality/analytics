@@ -19,7 +19,7 @@ gem 'sass-rails', '~> 5.0.0'
 gem 'coffee-rails', '~> 4.1.0'
 
 # Use bootstrap as the front-end framework
-gem 'bootstrap-sass', '~> 3.3.7'
+gem 'bootstrap-sass', '~> 3.4.1'
 gem 'formtastic-bootstrap'
 gem 'formtastic'
 
