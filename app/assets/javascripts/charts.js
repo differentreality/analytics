@@ -3,7 +3,6 @@ $(document).ready(function() {
   $("form[id^='chart_form'] select").change( function() {
     group_parameter_selector = $("select[id$='group_parameter']");
     graph_type_selector = $("form[id^='chart_form'] select[id$='graph_type']");
-    console.log('graph selector: ' + graph_type_selector);
 
     var category = group_parameter_selector.find('option:selected').data('category');
     var kind = group_parameter_selector.find('option:selected').data('kind');

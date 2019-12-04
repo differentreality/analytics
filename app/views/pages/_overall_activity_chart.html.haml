@@ -84,7 +84,6 @@
       // (according to period dropdown selection - last_year, current_year, etc)
       // ONLY IF the fields are empty (initial chart), OR if there is only one time period
       if ($('form#overall-form #datepicker-graph-from').val() === '' || selected.closest('.row').find('#datepicker-graph-from').length == 1) {
-        alert('in this');
         $('form#overall-form #datepicker-graph-from').val(from);
       }
 
