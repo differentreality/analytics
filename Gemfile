@@ -52,7 +52,7 @@ gem 'unobtrusive_flash', '>=3'
 gem 'validates_email_format_of'
 
 # as authentification framework
-gem 'devise', '~> 4.2.0'
+gem 'devise', '~> 4.7.1'
 gem 'devise-i18n'
 
 # to support openID authentication
