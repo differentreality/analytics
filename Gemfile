@@ -8,6 +8,9 @@ gem 'rails'
 gem 'pg', '~> 0.21'
 gem 'sqlite3'
 
+gem 'mutex_m'
+gem 'psych', '< 4'
+
 # Use haml as templating language
 gem 'haml-rails'
 gem "font-awesome-sass"
